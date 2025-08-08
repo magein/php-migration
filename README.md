@@ -16,6 +16,8 @@ composer require magein/migration
 
 ### 使用
 
+1. php:^7.1
+
 #### 配置文件
 
 只保留了.php的解析, .yml格式删除
