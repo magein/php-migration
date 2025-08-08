@@ -1,0 +1,20 @@
+<?php
+
+use magein\migration\Migrator;
+
+class $className extends Migrator
+{
+    protected $name = '{$name}';
+
+    public function up()
+    {
+        $this->removeColumn('');
+    }
+
+    public function down()
+    {
+        $builder = $this->builder();
+
+        $this->update($builder);
+    }
+}

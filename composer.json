@@ -1,0 +1,33 @@
+{
+  "name": "magein/migration",
+  "description": "基于robmorgan/phinx重新封装的面向对象形式的数据库迁移类",
+  "keyword": [
+    "php",
+    "thinkphp",
+    "migration"
+  ],
+  "homepage": "https://gitee.com/magein/migration",
+  "license": "MIT",
+  "autoload": {
+    "files": [
+      "phinx/str.php"
+    ],
+    "psr-4": {
+      "magein\\migration\\": "src/",
+      "Phinx\\": "phinx/"
+    }
+  },
+  "authors": [
+    {
+      "name": "magein",
+      "email": "1154699897@qq.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "magein/utils": "^3.0.0"
+  },
+  "bin": [
+    "bin/migrate"
+  ]
+}
