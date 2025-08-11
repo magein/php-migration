@@ -249,6 +249,17 @@ class Builder
     }
 
     /**
+     * 枚举
+     * @param string $column
+     * @param array $allowed
+     * @return Column
+     */
+    public function enum(string $column, array $allowed): Column
+    {
+        return $this->addColumn('enum', $column, compact('allowed'));
+    }
+
+    /**
      * @param string $column
      * @param string|null $comment
      * @return Column
@@ -743,6 +754,106 @@ class Builder
         $comment = $comment ?: '类型';
 
         return $this->integerTiny('type', $comment)->default($default);
+    }
+
+    /**
+     * Create a new geometry column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function geometry(string $column): Column
+    {
+        return $this->addColumn('geometry', $column);
+    }
+
+    /**
+     * Create a new point column on the table.
+     *
+     * @param string $column
+     * @param int|null $srid
+     * @return Column
+     */
+    public function point(string $column, int $srid = null)
+    {
+        return $this->addColumn('point', $column, compact('srid'));
+    }
+
+    /**
+     * Create a new linestring column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function lineString(string $column): Column
+    {
+        return $this->addColumn('linestring', $column);
+    }
+
+    /**
+     * Create a new polygon column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function polygon(string $column): Column
+    {
+        return $this->addColumn('polygon', $column);
+    }
+
+    /**
+     * Create a new geometrycollection column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function geometryCollection(string $column): Column
+    {
+        return $this->addColumn('geometrycollection', $column);
+    }
+
+    /**
+     * Create a new multipoint column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function multiPoint(string $column): Column
+    {
+        return $this->addColumn('multipoint', $column);
+    }
+
+    /**
+     * Create a new multilinestring column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function multiLineString(string $column): Column
+    {
+        return $this->addColumn('multilinestring', $column);
+    }
+
+    /**
+     * Create a new multipolygon column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function multiPolygon(string $column): Column
+    {
+        return $this->addColumn('multipolygon', $column);
+    }
+
+    /**
+     * Create a new multipolygon column on the table.
+     *
+     * @param string $column
+     * @return Column
+     */
+    public function multiPolygonZ(string $column): Column
+    {
+        return $this->addColumn('multipolygonz', $column);
     }
 
     /**
