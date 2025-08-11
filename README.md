@@ -18,7 +18,7 @@ composer require magein/migration
 
 ### 使用
 
-1. php:^7.1
+1. php:^8.0
 
 #### 配置文件
 

@@ -10,24 +10,24 @@ class Builder
      * 普通索引
      * @var array
      */
-    public $index = [];
+    public array $index = [];
 
     /**
      * 唯一索引
      * @var array
      */
-    public $unique = [];
+    public array $unique = [];
 
     /**
      * 外键
      * @var array
      */
-    public $foreign = [];
+    public array $foreign = [];
 
     /**
      * @var string|float|int
      */
-    protected $version = '';
+    protected string|int|float $version = '';
 
     /**
      *  可选值：
@@ -38,7 +38,7 @@ class Builder
      *   signed       是否无符号 signed(默认 true)
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     protected static $defaultStringLength = 255;
 
@@ -46,7 +46,7 @@ class Builder
      * 添加的列
      * @var array
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     public function __construct($options = null)
     {
@@ -72,7 +72,7 @@ class Builder
      * @param $value
      * @return void
      */
-    public function setPrimaryKey($value = null)
+    public function setPrimaryKey($value = null): void
     {
         if (is_null($value)) {
             $this->options['id'] = false;
@@ -86,7 +86,7 @@ class Builder
     /**
      * @param $engine
      */
-    public function setEngine($engine)
+    public function setEngine($engine): void
     {
         $this->options['engine'] = $engine;
     }
@@ -95,7 +95,7 @@ class Builder
      * 设置表注释
      * @param $comment
      */
-    public function setComment($comment)
+    public function setComment($comment): void
     {
         $this->options['comment'] = $comment;
     }
@@ -104,7 +104,7 @@ class Builder
      * 设置排序比对方法
      * @param $collation
      */
-    public function setCollation($collation)
+    public function setCollation($collation): void
     {
         $this->options['collation'] = $collation;
     }
@@ -113,7 +113,7 @@ class Builder
      * 设置InnoDB引擎
      * @return void
      */
-    public function innoDB()
+    public function innoDB(): void
     {
         $this->options['engine'] = 'InnoDB';
     }
@@ -122,7 +122,7 @@ class Builder
      * 设置MyISAM引擎
      * @return void
      */
-    public function myISAM()
+    public function myISAM(): void
     {
         $this->options['engine'] = 'MyISAM';
     }
@@ -137,10 +137,10 @@ class Builder
 
     /**
      * 设置版本
-     * @param string|float|$version
+     * @param float|string|$version
      * @return void
      */
-    public function setVersion($version)
+    public function setVersion(float|string $version): void
     {
         if ($version) {
             $this->version = $version;
@@ -150,7 +150,7 @@ class Builder
     /**
      * @return float|int|string
      */
-    public function getVersion()
+    public function getVersion(): float|int|string
     {
         return $this->version;
     }
@@ -193,11 +193,11 @@ class Builder
 
     /**
      * 添加索引或者组合索引
-     * @param string|array $columns
+     * @param array|string $columns
      * @param $options
      * @return void
      */
-    public function addIndex($columns, $options = null)
+    public function addIndex(array|string $columns, $options = null): void
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -210,11 +210,11 @@ class Builder
 
     /**
      * 添加唯一索引
-     * @param string|array $columns
+     * @param array|string $columns
      * @param $options
      * @return void
      */
-    public function addUniqueKey($columns, $options = null)
+    public function addUniqueKey(array|string $columns, $options = null): void
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -234,7 +234,7 @@ class Builder
      * @param array $options
      * @return void
      */
-    public function addForeignKey($columns, $referenced_table, array $referenced_columns = ['id'], array $options = [])
+    public function addForeignKey($columns, $referenced_table, array $referenced_columns = ['id'], array $options = []): void
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -243,7 +243,7 @@ class Builder
         $this->foreign[] = [$columns, $referenced_table, $referenced_columns, $options];
     }
 
-    public function id()
+    public function id(): void
     {
         $this->options['id'] = true;
     }
@@ -746,10 +746,10 @@ class Builder
 
     /**
      * @param string|null $comment
-     * @param string|int $default
+     * @param int $default
      * @return Column
      */
-    public function type(string $comment = null, $default = 0): Column
+    public function type(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '类型';
 
@@ -944,11 +944,11 @@ class Builder
     }
 
     /**
-     * @param string|array $columns
-     * @param $options
+     * @param array|string $columns
+     * @param null $options
      * @return array
      */
-    protected function indexOptions($columns, $options = null): ?array
+    protected function indexOptions(array|string $columns, $options = null): array
     {
         if (!is_array($columns)) {
             $columns = [$columns];

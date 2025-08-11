@@ -11,16 +11,16 @@ class PhinxCreation implements CreationInterface
     /**
      * @var InputInterface
      */
-    protected $input;
+    protected InputInterface $input;
 
     /**
      * @var OutputInterface
      */
-    protected $output;
+    protected OutputInterface $output;
 
-    protected $template = 'migrate';
+    protected string $template = 'migrate';
 
-    protected $table_name = '';
+    protected string $table_name = '';
 
     public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
     {
@@ -36,7 +36,7 @@ class PhinxCreation implements CreationInterface
 
     }
 
-    public function setInput(InputInterface $input)
+    public function setInput(InputInterface $input): PhinxCreation|static
     {
         $this->input = $input;
 
@@ -48,7 +48,7 @@ class PhinxCreation implements CreationInterface
         return $this->input;
     }
 
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): PhinxCreation|static
     {
         $this->output = $output;
 
@@ -67,28 +67,28 @@ class PhinxCreation implements CreationInterface
     {
         $table_name = '';
         $name = $this->input->getArgument('name');
-        if (preg_match('/^Create/', $name)) {
+        if (str_starts_with($name, 'Create')) {
             $this->template = 'create';
             $table_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $name);
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
         }
 
-        if (preg_match('/Append$/', $name)) {
+        if (str_ends_with($name, 'Append')) {
             $this->template = 'append';
             $table_name = preg_replace('/Append$/', '', $name);
         }
 
-        if (preg_match('/Update$/', $name)) {
+        if (str_ends_with($name, 'Update')) {
             $this->template = 'update';
             $table_name = preg_replace('/Update$/', '', $name);
         }
 
-        if (preg_match('/Rename$/', $name)) {
+        if (str_ends_with($name, 'Rename')) {
             $this->template = 'rename';
             $table_name = preg_replace('/Rename$/', '', $name);
         }
 
-        if (preg_match('/Remove$/', $name)) {
+        if (str_ends_with($name, 'Remove')) {
             $this->template = 'remove';
             $table_name = preg_replace('/Remove$/', '', $name);
         }

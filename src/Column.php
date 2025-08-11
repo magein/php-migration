@@ -14,79 +14,79 @@ class Column
      * 字段名称
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * 字段类型
      * @var string
      */
-    protected $type = '';
+    protected string $type = '';
 
     /**
      * 注释
      * @var string
      */
-    protected $comment = '';
+    protected string $comment = '';
 
     /**
      * 长度
      * @var int
      */
-    protected $length = 0;
+    protected int $length = 0;
 
     /**
      * 在某个字段之后
      * @var string
      */
-    protected $after = '';
+    protected string $after = '';
 
     /**
      * 默认值
      * @var string|int|null
      */
-    protected $default = -1;
+    protected string|int|null $default = -1;
 
     /**
      * 允许null
      * @var int
      */
-    protected $null = false;
+    protected int|bool $null = false;
 
     /**
      * 其他
      * @var array
      */
-    protected $others = [];
+    protected array $others = [];
 
     /**
      * 常规索引
      * @var array|string
      */
-    protected $index = [];
+    protected string|array $index = [];
 
     /**
      * 唯一索引
      * @var array|string
      */
-    protected $unique = [];
+    protected string|array $unique = [];
 
     /**
      * 重命名字段
      * @var array
      */
-    protected $rename = [];
+    protected array $rename = [];
 
     /**
      * 删除行
      * @var bool
      */
-    protected $remove = false;
+    protected bool $remove = false;
 
     /**
      * 更新
      * @var bool
      */
-    protected $change = false;
+    protected bool $change = false;
 
     /**
      * @param $type
@@ -133,10 +133,10 @@ class Column
     }
 
     /**
-     * @param string|int $value
+     * @param int|string $value
      * @return $this
      */
-    public function default($value = ''): Column
+    public function default(int|string $value = ''): Column
     {
         $this->default = $value;
 
@@ -144,10 +144,10 @@ class Column
     }
 
     /**
-     * @param $after
+     * @param string $after
      * @return $this
      */
-    public function after($after): Column
+    public function after(string $after): Column
     {
         $this->after = $after;
 
@@ -247,7 +247,7 @@ class Column
     /**
      * @return int|string|null
      */
-    public function getDefault()
+    public function getDefault(): int|string|null
     {
         return $this->default;
     }
@@ -255,7 +255,7 @@ class Column
     /**
      * @return bool|int
      */
-    public function getNull()
+    public function getNull(): bool|int
     {
         return $this->null;
     }
@@ -271,7 +271,7 @@ class Column
     /**
      * @return array|string
      */
-    public function getIndex()
+    public function getIndex(): array|string
     {
         return $this->index;
     }
@@ -279,7 +279,7 @@ class Column
     /**
      * @return array|string
      */
-    public function getUnique()
+    public function getUnique(): array|string
     {
         return $this->unique;
     }
@@ -310,7 +310,7 @@ class Column
      * @param bool $remove
      * @return void
      */
-    public function remove(bool $remove = true)
+    public function remove(bool $remove = true): void
     {
         $this->remove = $remove;
     }
@@ -328,7 +328,7 @@ class Column
      * @param bool $change
      * @return void
      */
-    public function change(bool $change = true)
+    public function change(bool $change = true): void
     {
         $this->change = $change;
     }
