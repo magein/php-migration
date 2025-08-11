@@ -27,12 +27,12 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $options = [];
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface|null
+     * @var \Phinx\Component\Input\InputInterface|null
      */
     protected $input;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Phinx\Component\Output\OutputInterface
      */
     protected $output;
 
@@ -55,8 +55,8 @@ abstract class AbstractAdapter implements AdapterInterface
      * Class Constructor.
      *
      * @param array<string, mixed> $options Options
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input Interface
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output Interface
+     * @param \Phinx\Component\Input\InputInterface|null $input Input Interface
+     * @param \Phinx\Component\Output\OutputInterface|null $output Output Interface
      */
     public function __construct(array $options, ?InputInterface $input = null, ?OutputInterface $output = null)
     {
@@ -345,7 +345,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function isDryRunEnabled(): bool
     {
-        /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
+        /** @var \Phinx\Component\Input\InputInterface|null $input */
         $input = $this->getInput();
 
         return $input && $input->hasOption('dry-run') ? (bool)$input->getOption('dry-run') : false;

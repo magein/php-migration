@@ -29,12 +29,12 @@ class Environment
     protected $options;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface|null
+     * @var \Phinx\Component\Input\InputInterface|null
      */
     protected $input;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface|null
+     * @var \Phinx\Component\Output\OutputInterface|null
      */
     protected $output;
 
@@ -200,7 +200,7 @@ class Environment
     /**
      * Sets the console input.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Phinx\Component\Input\InputInterface $input Input
      * @return $this
      */
     public function setInput(InputInterface $input)
@@ -213,7 +213,7 @@ class Environment
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface|null
+     * @return \Phinx\Component\Input\InputInterface|null
      */
     public function getInput(): ?InputInterface
     {
@@ -223,7 +223,7 @@ class Environment
     /**
      * Sets the console output.
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return $this
      */
     public function setOutput(OutputInterface $output)
@@ -236,7 +236,7 @@ class Environment
     /**
      * Gets the console output.
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface|null
+     * @return \Phinx\Component\Output\OutputInterface|null
      */
     public function getOutput(): ?OutputInterface
     {
@@ -349,13 +349,13 @@ class Environment
                 ->getWrapper($options['wrapper'], $adapter);
         }
 
-        /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
+        /** @var \Phinx\Component\Input\InputInterface|null $input */
         $input = $this->getInput();
         if ($input) {
             $adapter->setInput($this->getInput());
         }
 
-        /** @var \Symfony\Component\Console\Output\OutputInterface|null $output */
+        /** @var \Phinx\Component\Output\OutputInterface|null $output */
         $output = $this->getOutput();
         if ($output) {
             $adapter->setOutput($this->getOutput());

@@ -33,7 +33,7 @@ class PhinxApplication extends Application
      */
     public function __construct()
     {
-        parent::__construct('Phinx by CakePHP - https://phinx.org.');
+        parent::__construct('Phinx - https://phinx.org.');
 
         $this->addCommands([
             new Init(),
@@ -52,8 +52,8 @@ class PhinxApplication extends Application
     /**
      * Runs the current application.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input An Input instance
-     * @param \Symfony\Component\Console\Output\OutputInterface $output An Output instance
+     * @param \Phinx\Component\Input\InputInterface $input An Input instance
+     * @param \Phinx\Component\Output\OutputInterface $output An Output instance
      * @return int 0 if everything went fine, or an error code
      */
     public function doRun(InputInterface $input, OutputInterface $output): int

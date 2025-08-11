@@ -34,8 +34,8 @@ class ListAliases extends AbstractCommand
     /**
      * List migration template creation aliases.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output): int

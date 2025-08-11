@@ -52,7 +52,7 @@ class SeedCreate extends AbstractCommand
      * Get the confirmation question asking if the user wants to create the
      * seeds directory.
      *
-     * @return \Symfony\Component\Console\Question\ConfirmationQuestion
+     * @return \Phinx\Component\Question\ConfirmationQuestion
      */
     protected function getCreateSeedDirectoryQuestion(): ConfirmationQuestion
     {
@@ -63,7 +63,7 @@ class SeedCreate extends AbstractCommand
      * Get the question that allows the user to select which seed path to use.
      *
      * @param string[] $paths Paths
-     * @return \Symfony\Component\Console\Question\ChoiceQuestion
+     * @return \Phinx\Component\Question\ChoiceQuestion
      */
     protected function getSelectSeedPathQuestion(array $paths): ChoiceQuestion
     {
@@ -73,8 +73,8 @@ class SeedCreate extends AbstractCommand
     /**
      * Returns the seed path to create the seeder in.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @throws \Exception
      * @return string
      */
@@ -109,7 +109,7 @@ class SeedCreate extends AbstractCommand
             return array_shift($paths);
         }
 
-        /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
+        /** @var \Phinx\Component\Helper\QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = $this->getSelectSeedPathQuestion($paths);
 
@@ -119,8 +119,8 @@ class SeedCreate extends AbstractCommand
     /**
      * Create the new seeder.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return int 0 on success
@@ -133,7 +133,7 @@ class SeedCreate extends AbstractCommand
         $path = $this->getSeedPath($input, $output);
 
         if (!file_exists($path)) {
-            /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
+            /** @var \Phinx\Component\Helper\QuestionHelper $helper */
             $helper = $this->getHelper('question');
             $question = $this->getCreateSeedDirectoryQuestion();
 

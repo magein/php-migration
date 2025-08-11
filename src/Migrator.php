@@ -234,6 +234,15 @@ class Migrator extends AbstractMigration
     }
 
     /**
+     * @param $column
+     * @return bool
+     */
+    public function hasColumn($column): bool
+    {
+        return $this->invokeTable()->hasColumn($column);
+    }
+
+    /**
      * 添加索引
      * @param array|string $columns
      * @param array $options

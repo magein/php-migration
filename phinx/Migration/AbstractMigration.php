@@ -42,12 +42,12 @@ abstract class AbstractMigration implements MigrationInterface
     protected $adapter;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface|null
+     * @var \Phinx\Component\Output\OutputInterface|null
      */
     protected $output;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface|null
+     * @var \Phinx\Component\Input\InputInterface|null
      */
     protected $input;
 
@@ -68,8 +68,8 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @param string $environment Environment Detected
      * @param int $version Migration Version
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
+     * @param \Phinx\Component\Input\InputInterface|null $input Input
+     * @param \Phinx\Component\Output\OutputInterface|null $output Output
      */
     final public function __construct(string $environment, int $version, ?InputInterface $input = null, ?OutputInterface $output = null)
     {

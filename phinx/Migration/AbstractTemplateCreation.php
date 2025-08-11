@@ -13,18 +13,18 @@ use Phinx\Component\Output\OutputInterface;
 abstract class AbstractTemplateCreation implements CreationInterface
 {
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Phinx\Component\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Phinx\Component\Output\OutputInterface
      */
     protected $output;
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
+     * @param \Phinx\Component\Input\InputInterface|null $input Input
+     * @param \Phinx\Component\Output\OutputInterface|null $output Output
      */
     public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
     {

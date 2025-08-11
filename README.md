@@ -121,6 +121,9 @@ public function change()
     $builder->date('birthday', '生日')->nullable();
     $builder->dateTime('last_login_time', '最后一次登录时间')->nullable();
     $builder->time('notify')->comment('通知时间')->nullable();
+    
+    // 更新字段
+    $builder->change();
 
     $builder->innoDB();
     $this->create($builder, false);
@@ -144,3 +147,51 @@ php migrate user rollback
 ```
 
 当命令行包含run/migrate/rollback的时候将执行命令,不在区分顺序
+
+### 常用字段
+
+```php
+$builder = $this->builder('');
+$builder->id();
+
+// 用户
+$builder->user->username();
+$builder->user->password();
+$builder->user->name();
+$builder->user->nickname();
+$builder->user->money();
+$builder->user->balance();
+$builder->user->phone();
+$builder->user->email();
+$builder->user->gender();
+$builder->user->age();
+$builder->user->birthday();
+// 用户可积累、兑换的积分系统
+$builder->user->points();
+// 分数或得分
+$builder->user->score();
+// 证件类型  身份证 港澳通行证  台胞证等
+$builder->user->idType();
+// 证件号码
+$builder->user->idNumber();
+
+// 常规
+$builder->gen->type();
+$builder->gen->title();
+$builder->gen->conent();
+$builder->gen->remark();
+$builder->gen->sort();
+$builder->gen->beginTime();
+$builder->gen->startTime();
+$builder->gen->endTime();
+$builder->gen->status();
+
+// 地址
+$builder->addr->address();
+$builder->addr->province();
+$builder->addr->city();
+$builder->gen->area();
+$builder->gen->district();
+$builder->gen->street();
+
+```

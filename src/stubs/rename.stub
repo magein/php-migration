@@ -4,9 +4,9 @@ use magein\migration\Migrator;
 
 class $className extends Migrator
 {
-    protected $name = '{$name}';
+    protected string $name = '{$name}';
 
-     protected $new_name = '';
+    protected string $new_name = '';
 
     public function up()
     {

@@ -59,8 +59,8 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Interface implemented by all input classes.
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Interface implemented by all output classes.
+     * @param \Phinx\Component\Input\InputInterface $input Interface implemented by all input classes.
+     * @param \Phinx\Component\Output\OutputInterface $output Interface implemented by all output classes.
      * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -77,7 +77,7 @@ class Init extends Command
     /**
      * Return valid $path for Phinx's config file.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Interface implemented by all input classes.
+     * @param \Phinx\Component\Input\InputInterface $input Interface implemented by all input classes.
      * @param string $format Format to resolve for
      * @throws \InvalidArgumentException
      * @return string

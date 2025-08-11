@@ -48,8 +48,8 @@ EOT
     /**
      * Verify configuration file
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */

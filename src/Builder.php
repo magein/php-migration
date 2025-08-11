@@ -2,8 +2,16 @@
 
 namespace magein\migration;
 
+use magein\migration\field\MFAddress;
+use magein\migration\field\MFGeneral;
+use magein\migration\field\MFUser;
 use Phinx\Db\Adapter\MysqlAdapter;
 
+/**
+ * @property MFUser user
+ * @property MFGeneral gen
+ * @property MFAddress addr
+ */
 class Builder
 {
     /**
@@ -40,7 +48,7 @@ class Builder
      */
     protected array $options = [];
 
-    protected static $defaultStringLength = 255;
+    protected static int $defaultStringLength = 255;
 
     /**
      * 添加的列
@@ -155,6 +163,21 @@ class Builder
         return $this->version;
     }
 
+    public function __get($name)
+    {
+        if ($name === 'user') {
+            return new MFUser($this);
+        }
+
+        if ($name === 'gen') {
+            return new MFGeneral($this);
+        }
+
+        if ($name === 'addr') {
+            return new MFAddress($this);
+        }
+    }
+
     /**
      * 获取所有的列
      * @return array
@@ -251,12 +274,12 @@ class Builder
     /**
      * 枚举
      * @param string $column
-     * @param array $allowed
+     * @param array $values
      * @return Column
      */
-    public function enum(string $column, array $allowed): Column
+    public function enum(string $column, array $values): Column
     {
-        return $this->addColumn('enum', $column, compact('allowed'));
+        return $this->addColumn('enum', $column, compact('values'));
     }
 
     /**
@@ -618,145 +641,6 @@ class Builder
     }
 
     /**
-     * @param string|null $comment
-     * @param int $default
-     * @return Column
-     */
-    public function status(string $comment = null, int $default = 1): Column
-    {
-        $comment = $comment ?: '状态 0 禁用 forbid 1 启用 open';
-
-        return $this->integerTiny('status', $comment)->default($default);
-    }
-
-    /**
-     * 排序字段
-     * @param string|null $comment
-     * @param int $default
-     * @return Column
-     */
-    public function sort(string $comment = null, int $default = 99): Column
-    {
-        $comment = $comment ?: '排序 正序';
-
-        return $this->integerSmall('sort', $comment)->default($default);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function phone(string $comment = null): Column
-    {
-        $comment = $comment ?: '手机号码';
-
-        return $this->char('phone', $comment, 11);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function email(string $comment = null): Column
-    {
-        $comment = $comment ?: '邮箱地址';
-
-        return $this->string('email', $comment);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function password(string $comment = null): Column
-    {
-        $comment = $comment ?: '密码';
-
-        return $this->string('password', $comment);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function name(string $comment = null, int $length = 60): Column
-    {
-        $comment = $comment ?: '名称';
-
-        return $this->string('name', $comment, $length);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function title(string $comment = null, int $length = 30): Column
-    {
-        $comment = $comment ?: '标题';
-
-        return $this->string('title', $comment, $length);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function money(string $comment = null): Column
-    {
-        $comment = $comment ?: '金额 单位分';
-
-        return $this->integer('money', $comment);
-    }
-
-    /**
-     * @param string $comment
-     * @param string $default
-     * @return Column
-     */
-    public function remark(string $comment = '', string $default = ''): Column
-    {
-        $comment = $comment ?: '备注';
-
-        return $this->string('remark', $comment)->default($default);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function userId(string $comment = null): Column
-    {
-        $comment = $comment ?: '用户id';
-
-        return $this->unsignedInteger('user_id', $comment);
-    }
-
-    /**
-     * @param string|null $comment
-     * @return Column
-     */
-    public function memberId(string $comment = null): Column
-    {
-        $comment = $comment ?: '用户id';
-
-        return $this->unsignedInteger('member_id', $comment);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $default
-     * @return Column
-     */
-    public function type(string $comment = null, int $default = 0): Column
-    {
-        $comment = $comment ?: '类型';
-
-        return $this->integerTiny('type', $comment)->default($default);
-    }
-
-    /**
      * Create a new geometry column on the table.
      *
      * @param string $column
@@ -775,7 +659,7 @@ class Builder
      * @param int|null $srid
      * @return Column
      */
-    public function point(string $column, int $srid = null)
+    public function point(string $column, int $srid = null): Column
     {
         return $this->addColumn('point', $column, compact('srid'));
     }
@@ -862,39 +746,6 @@ class Builder
     public function multiPolygonZ(string $column, string $comment = null): Column
     {
         return $this->addColumn('multipolygonz', $column, compact('comment'));
-    }
-
-    /**
-     * @param $comment
-     * @return Column
-     */
-    public function beginTime($comment = null): Column
-    {
-        $comment = $comment ?: '开始时间';
-
-        return $this->dateTime('begin_time', $comment);
-    }
-
-    /**
-     * @param $comment
-     * @return Column
-     */
-    public function startTime($comment = null): Column
-    {
-        $comment = $comment ?: '开始时间';
-
-        return $this->dateTime('start_time', $comment);
-    }
-
-    /**
-     * @param $comment
-     * @return Column
-     */
-    public function endTime($comment = null): Column
-    {
-        $comment = $comment ?: '结束时间';
-
-        return $this->dateTime('end_time', $comment);
     }
 
     /**

@@ -5,4 +5,4 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 $input = new \magein\migration\PhinxInput();
 $app = new \Phinx\Console\PhinxApplication();
-$app->run($input);
+$app->run($input->init());

@@ -34,12 +34,12 @@ class Manager
     protected $config;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Phinx\Component\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Phinx\Component\Output\OutputInterface
      */
     protected $output;
 
@@ -70,8 +70,8 @@ class Manager
 
     /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
-     * @param \Symfony\Component\Console\Input\InputInterface $input Console Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Console Output
+     * @param \Phinx\Component\Input\InputInterface $input Console Input
+     * @param \Phinx\Component\Output\OutputInterface $output Console Output
      */
     public function __construct(ConfigInterface $config, InputInterface $input, OutputInterface $output)
     {
@@ -685,7 +685,7 @@ class Manager
     /**
      * Sets the console input.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Phinx\Component\Input\InputInterface $input Input
      * @return $this
      */
     public function setInput(InputInterface $input)
@@ -698,7 +698,7 @@ class Manager
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Phinx\Component\Input\InputInterface
      */
     public function getInput(): InputInterface
     {
@@ -708,7 +708,7 @@ class Manager
     /**
      * Sets the console output.
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return $this
      */
     public function setOutput(OutputInterface $output)
@@ -721,7 +721,7 @@ class Manager
     /**
      * Gets the console output.
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface
+     * @return \Phinx\Component\Output\OutputInterface
      */
     public function getOutput(): OutputInterface
     {

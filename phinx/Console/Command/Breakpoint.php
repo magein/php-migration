@@ -51,8 +51,8 @@ EOT
     /**
      * Toggle the breakpoint.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @throws \InvalidArgumentException
      * @return int integer 0 on success, or an error code.
      */

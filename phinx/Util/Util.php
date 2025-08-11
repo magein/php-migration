@@ -230,8 +230,8 @@ class Util
      * Takes the path to a php file and attempts to include it if readable
      *
      * @param string $filename Filename
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
+     * @param \Phinx\Component\Input\InputInterface|null $input Input
+     * @param \Phinx\Component\Output\OutputInterface|null $output Output
      * @param \Phinx\Console\Command\AbstractCommand|mixed|null $context Context
      * @throws \Exception
      * @return string

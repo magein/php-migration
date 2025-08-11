@@ -35,12 +35,12 @@ abstract class AbstractSeed implements SeedInterface
     protected $adapter;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Phinx\Component\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Phinx\Component\Output\OutputInterface
      */
     protected $output;
 

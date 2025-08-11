@@ -26,12 +26,14 @@ class $className extends Migrator
      * 创建使用 create()、更新使用 update()
      */
 
-    protected $name = '{$name}';
+    protected string $name = '{$name}';
 
     public function change()
     {
         $builder = $this->builder('');
         $builder->id();
+
+        $builder->innoDB();
 
         $this->create($builder,false);
     }

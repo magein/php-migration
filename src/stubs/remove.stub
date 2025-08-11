@@ -4,11 +4,13 @@ use magein\migration\Migrator;
 
 class $className extends Migrator
 {
-    protected $name = '{$name}';
+    protected string $name = '{$name}';
 
     public function up()
     {
-        $this->removeColumn('');
+        if ($this->hasColumn('')) {
+            $this->removeColumn('');
+        }
     }
 
     public function down()

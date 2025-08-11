@@ -6,14 +6,14 @@ namespace magein\migration;
 use Phinx\Component\Input\ArgvInput;
 use Phinx\Component\Input\InputDefinition;
 
-class PhinxInput extends ArgvInput
+class PhinxInput
 {
 
-    /**
-     * @param array|null $argv
-     * @param InputDefinition|null $definition
-     */
-    public function __construct(?array $argv = null, ?InputDefinition $definition = null)
+    public string $class = '';
+
+    public string $configuratio = '';
+
+    public function init(?array $argv = null, ?InputDefinition $definition = null)
     {
         $argv = $argv ?? $_SERVER['argv'] ?? [];
 
@@ -52,12 +52,18 @@ class PhinxInput extends ArgvInput
 
             $argv[2] = $name;
 
-            $argv[] = '--class=\magein\migration\PhinxCreation';
-
-            // 指定配置参数
-            //$argv[] = '--configuration=phinx.php';
+            if ($this->class) {
+                $argv[] = '--class=' . $this->class;
+            } else {
+                $argv[] = '--class=\magein\migration\PhinxCreation';
+            }
         }
 
-        parent::__construct($argv, $definition);
+        // 指定配置文件
+        if ($this->configuratio) {
+            $argv[] = '--configuration=' . $this->configuratio;
+        }
+
+        return new ArgvInput($argv, $definition);
     }
 }

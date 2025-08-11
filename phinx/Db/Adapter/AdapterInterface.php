@@ -125,7 +125,7 @@ interface AdapterInterface
     /**
      * Sets the console input.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Phinx\Component\Input\InputInterface $input Input
      * @return $this
      */
     public function setInput(InputInterface $input);
@@ -133,14 +133,14 @@ interface AdapterInterface
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface|null
+     * @return \Phinx\Component\Input\InputInterface|null
      */
     public function getInput(): ?InputInterface;
 
     /**
      * Sets the console output.
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return $this
      */
     public function setOutput(OutputInterface $output);
@@ -148,7 +148,7 @@ interface AdapterInterface
     /**
      * Gets the console output.
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface
+     * @return \Phinx\Component\Output\OutputInterface
      */
     public function getOutput(): OutputInterface;
 

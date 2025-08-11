@@ -53,8 +53,8 @@ EOT
     /**
      * Migrate the database.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Input\InputInterface $input Input
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output): int

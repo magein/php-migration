@@ -58,7 +58,7 @@ interface MigrationInterface
     /**
      * Sets the input object to be used in migration object
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Phinx\Component\Input\InputInterface $input Input
      * @return $this
      */
     public function setInput(InputInterface $input);
@@ -66,14 +66,14 @@ interface MigrationInterface
     /**
      * Gets the input object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Input\InputInterface|null
+     * @return \Phinx\Component\Input\InputInterface|null
      */
     public function getInput(): ?InputInterface;
 
     /**
      * Sets the output object to be used in migration object
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @param \Phinx\Component\Output\OutputInterface $output Output
      * @return $this
      */
     public function setOutput(OutputInterface $output);
@@ -81,7 +81,7 @@ interface MigrationInterface
     /**
      * Gets the output object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface|null
+     * @return \Phinx\Component\Output\OutputInterface|null
      */
     public function getOutput(): ?OutputInterface;
 
