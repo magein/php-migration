@@ -745,11 +745,11 @@ class Builder
     }
 
     /**
-     * @param $comment
-     * @param string|$default
+     * @param string|null $comment
+     * @param string|int $default
      * @return Column
      */
-    public function type($comment = null, $default = 0): Column
+    public function type(string $comment = null, $default = 0): Column
     {
         $comment = $comment ?: '类型';
 
@@ -760,11 +760,12 @@ class Builder
      * Create a new geometry column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function geometry(string $column): Column
+    public function geometry(string $column, string $comment = null): Column
     {
-        return $this->addColumn('geometry', $column);
+        return $this->addColumn('geometry', $column, compact('comment'));
     }
 
     /**
@@ -783,77 +784,84 @@ class Builder
      * Create a new linestring column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function lineString(string $column): Column
+    public function lineString(string $column, string $comment = null): Column
     {
-        return $this->addColumn('linestring', $column);
+        return $this->addColumn('linestring', $column, compact('comment'));
     }
 
     /**
      * Create a new polygon column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function polygon(string $column): Column
+    public function polygon(string $column, string $comment = null): Column
     {
-        return $this->addColumn('polygon', $column);
+        return $this->addColumn('polygon', $column, compact('comment'));
     }
 
     /**
      * Create a new geometrycollection column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function geometryCollection(string $column): Column
+    public function geometryCollection(string $column, string $comment = null): Column
     {
-        return $this->addColumn('geometrycollection', $column);
+        return $this->addColumn('geometrycollection', $column, compact('comment'));
     }
 
     /**
      * Create a new multipoint column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function multiPoint(string $column): Column
+    public function multiPoint(string $column, string $comment = null): Column
     {
-        return $this->addColumn('multipoint', $column);
+        return $this->addColumn('multipoint', $column, compact('comment'));
     }
 
     /**
      * Create a new multilinestring column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function multiLineString(string $column): Column
+    public function multiLineString(string $column, string $comment = null): Column
     {
-        return $this->addColumn('multilinestring', $column);
+        return $this->addColumn('multilinestring', $column, compact('comment'));
     }
 
     /**
      * Create a new multipolygon column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function multiPolygon(string $column): Column
+    public function multiPolygon(string $column, string $comment = null): Column
     {
-        return $this->addColumn('multipolygon', $column);
+        return $this->addColumn('multipolygon', $column, compact('comment'));
     }
 
     /**
      * Create a new multipolygon column on the table.
      *
      * @param string $column
+     * @param string|null $comment
      * @return Column
      */
-    public function multiPolygonZ(string $column): Column
+    public function multiPolygonZ(string $column, string $comment = null): Column
     {
-        return $this->addColumn('multipolygonz', $column);
+        return $this->addColumn('multipolygonz', $column, compact('comment'));
     }
 
     /**

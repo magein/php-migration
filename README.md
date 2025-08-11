@@ -8,6 +8,8 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 
 [gitee](https://gitee.com/magein/php-migration) | [composer](https://packagist.org/packages/magein/migration)
 
+空间类型字段mysql版本最好是>=5.7
+
 ### 安装
 
 ```
