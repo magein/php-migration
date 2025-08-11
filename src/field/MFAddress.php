@@ -19,11 +19,23 @@ class MFAddress
      * @param int $length
      * @return Column
      */
+    public function postcode(string $comment = null, int $length = 30): Column
+    {
+        $comment = $comment ?: '邮编';
+
+        return $this->builder->string('postcode', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
     public function province(string $comment = null, int $length = 30): Column
     {
         $comment = $comment ?: '省份';
 
-        return $this->builder->string('province_code', $comment, $length)->default('');
+        return $this->builder->string('province', $comment, $length)->default('');
     }
 
     /**
@@ -35,7 +47,7 @@ class MFAddress
     {
         $comment = $comment ?: '城市';
 
-        return $this->builder->string('city_code', $comment, $length)->default('');
+        return $this->builder->string('city', $comment, $length)->default('');
     }
 
     /**
@@ -59,7 +71,7 @@ class MFAddress
     {
         $comment = $comment ?: '街道';
 
-        return $this->builder->string('district', $comment, $length)->default('');
+        return $this->builder->string('street', $comment, $length)->default('');
     }
 
     /**
@@ -71,7 +83,7 @@ class MFAddress
     {
         $comment = $comment ?: '地区';
 
-        return $this->builder->string('area_code', $comment, $length)->default('');
+        return $this->builder->string('area', $comment, $length)->default('');
     }
 
     /**
@@ -83,6 +95,6 @@ class MFAddress
     {
         $comment = $comment ?: '地址';
 
-        return $this->builder->string('status', $comment, $length)->default('');
+        return $this->builder->string('address', $comment, $length)->default('');
     }
 }

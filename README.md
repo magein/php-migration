@@ -193,5 +193,6 @@ $builder->addr->city();
 $builder->gen->area();
 $builder->gen->district();
 $builder->gen->street();
+$builder->gen->postcode();
 
 ```
