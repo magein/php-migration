@@ -28,9 +28,6 @@ class $className extends AbstractMigration
 
     public function change()
     {
-        $table = $this->init();
-        $table->id();
 
-        $this->create($table);
     }
 }

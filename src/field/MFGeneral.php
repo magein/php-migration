@@ -143,4 +143,22 @@ class MFGeneral
 
         return $this->builder->dateTime('end_time', $comment);
     }
+
+    /**
+     * @return void
+     */
+    public function _statusSort()
+    {
+        $this->status();
+        $this->sort();
+    }
+
+    /**
+     * @return void
+     */
+    public function _datetime()
+    {
+        $this->beginTime();
+        $this->endTime();
+    }
 }

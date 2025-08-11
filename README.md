@@ -93,10 +93,10 @@ $app->run($input);
 ```php
 // 创建表
 php migrate user
-// 新增字段
-php migrate user_append
-// 移除字段
-php migrate user_remove
+// 新增字段 --column 可选
+php migrate user_append_xx --column xx,xx,xxx
+// 移除字段 --column 可选
+php migrate user_remove --column xx,xx,xxx
 // user表重新命名
 php migrate user_rename
 // 更新字段
@@ -185,6 +185,10 @@ $builder->gen->beginTime();
 $builder->gen->startTime();
 $builder->gen->endTime();
 $builder->gen->status();
+// 同时添加状态和排序
+$builder->gen->_statusSort();
+// 同时添加开始和结束时间
+$builder->gen->_datetime();
 
 // 地址
 $builder->addr->address();
@@ -194,5 +198,7 @@ $builder->gen->area();
 $builder->gen->district();
 $builder->gen->street();
 $builder->gen->postcode();
+// 省市区地址
+$builder->addr->_normal();
 
 ```

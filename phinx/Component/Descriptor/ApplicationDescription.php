@@ -118,7 +118,7 @@ class ApplicationDescription
         $sortedCommands = [];
         foreach ($commands as $name => $command) {
             $key = $this->application->extractNamespace($name, 1);
-            if (\in_array($key, ['', self::GLOBAL_NAMESPACE], true)) {
+            if (in_array($key, ['', self::GLOBAL_NAMESPACE], true)) {
                 $globalCommands[$name] = $command;
             } else {
                 $namespacedCommands[$key][$name] = $command;

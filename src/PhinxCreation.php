@@ -73,24 +73,24 @@ class PhinxCreation implements CreationInterface
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
         }
 
-        if (str_ends_with($name, 'Append')) {
+        if (str_contains($name, 'Append')) {
             $this->template = 'append';
-            $table_name = preg_replace('/Append$/', '', $name);
+            $table_name = preg_replace('/Append.*/', '', $name);
         }
 
-        if (str_ends_with($name, 'Update')) {
+        if (str_contains($name, 'Update')) {
             $this->template = 'update';
-            $table_name = preg_replace('/Update$/', '', $name);
+            $table_name = preg_replace('/Update.*/', '', $name);
         }
 
-        if (str_ends_with($name, 'Rename')) {
+        if (str_contains($name, 'Rename')) {
             $this->template = 'rename';
             $table_name = preg_replace('/Rename$/', '', $name);
         }
 
-        if (str_ends_with($name, 'Remove')) {
+        if (str_contains($name, 'Remove')) {
             $this->template = 'remove';
-            $table_name = preg_replace('/Remove$/', '', $name);
+            $table_name = preg_replace('/Remove.*/', '', $name);
         }
 
         if ($table_name) {

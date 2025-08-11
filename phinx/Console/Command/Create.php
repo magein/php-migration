@@ -61,6 +61,9 @@ class Create extends AbstractCommand
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this migration');
 
         $this->addOption('style', null, InputOption::VALUE_REQUIRED, 'Specify the style of migration to create');
+
+        // 字段信息
+        $this->addOption('column', null, InputOption::VALUE_REQUIRED, '追加或者删除字段');
     }
 
     /**
@@ -104,7 +107,6 @@ class Create extends AbstractCommand
 
         $paths = $this->getConfig()->getMigrationPaths();
 
-
         // No paths? That's a problem.
         if (empty($paths)) {
             throw new Exception('No migration paths set in your Phinx configuration file.');
@@ -142,6 +144,8 @@ class Create extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
+
+        $columns = $input->getOption('column');
 
         // get the migration path from the config
         $path = $this->getMigrationPath($input, $output);
@@ -290,6 +294,7 @@ class Create extends AbstractCommand
             '$className' => $className,
             '$version' => Util::getVersionFromFileName($fileName),
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
+            '$column' => $columns
         ];
         $contents = strtr($contents, $classes);
 

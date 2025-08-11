@@ -97,4 +97,15 @@ class MFAddress
 
         return $this->builder->string('address', $comment, $length)->default('');
     }
+
+    /**
+     * @return void
+     */
+    public function _normal()
+    {
+        $this->province();
+        $this->city();
+        $this->district();
+        $this->address();
+    }
 }

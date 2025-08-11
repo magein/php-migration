@@ -4,7 +4,9 @@ namespace magein\migration;
 
 
 use Phinx\Component\Input\ArgvInput;
+use Phinx\Component\Input\InputArgument;
 use Phinx\Component\Input\InputDefinition;
+use Phinx\Component\Input\InputOption;
 
 class PhinxInput
 {
@@ -16,6 +18,13 @@ class PhinxInput
     public function init(?array $argv = null, ?InputDefinition $definition = null)
     {
         $argv = $argv ?? $_SERVER['argv'] ?? [];
+
+        $index = array_search('--column', $argv);
+        $columns = '';
+        if ($index !== false) {
+            $columns = $argv[$index + 1] ?? '';
+            unset($argv[$index], $argv[$index + 1]);
+        }
 
         if (in_array('run', $argv)) {
             $argv[1] = 'migrate';
@@ -62,6 +71,10 @@ class PhinxInput
         // 指定配置文件
         if ($this->configuratio) {
             $argv[] = '--configuration=' . $this->configuratio;
+        }
+
+        if ($index !== false) {
+            $argv[] = '--column=' . $columns;
         }
 
         return new ArgvInput($argv, $definition);

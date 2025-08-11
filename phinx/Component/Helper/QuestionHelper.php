@@ -154,7 +154,7 @@ class QuestionHelper extends Helper
             $output->addContent($ret);
         }
 
-        $ret = \strlen($ret) > 0 ? $ret : $question->getDefault();
+        $ret = strlen($ret) > 0 ? $ret : $question->getDefault();
 
         if ($normalizer = $question->getNormalizer()) {
             return $normalizer($ret);
@@ -258,7 +258,7 @@ class QuestionHelper extends Helper
         $i = 0;
         $ofs = -1;
         $matches = $autocomplete($ret);
-        $numMatches = \count($matches);
+        $numMatches = count($matches);
 
         $sttyMode = shell_exec('stty -g');
         $isStdin = 'php://stdin' === (stream_get_meta_data($inputStream)['uri'] ?? null);
@@ -294,7 +294,7 @@ class QuestionHelper extends Helper
                 if (0 === $i) {
                     $ofs = -1;
                     $matches = $autocomplete($ret);
-                    $numMatches = \count($matches);
+                    $numMatches = count($matches);
                 } else {
                     $numMatches = 0;
                 }
@@ -323,10 +323,10 @@ class QuestionHelper extends Helper
                     if ($numMatches > 0 && -1 !== $ofs) {
                         $ret = (string) $matches[$ofs];
                         // Echo out remaining chars for current match
-                        $remainingCharacters = substr($ret, \strlen(trim($this->mostRecentlyEnteredValue($fullChoice))));
+                        $remainingCharacters = substr($ret, strlen(trim($this->mostRecentlyEnteredValue($fullChoice))));
                         $output->write($remainingCharacters);
                         $fullChoice .= $remainingCharacters;
-                        $i = (false === $encoding = mb_detect_encoding($fullChoice, null, true)) ? \strlen($fullChoice) : mb_strlen($fullChoice, $encoding);
+                        $i = (false === $encoding = mb_detect_encoding($fullChoice, null, true)) ? strlen($fullChoice) : mb_strlen($fullChoice, $encoding);
 
                         $matches = array_filter(
                             $autocomplete($ret),
@@ -334,7 +334,7 @@ class QuestionHelper extends Helper
                                 return '' === $ret || str_starts_with($match, $ret);
                             }
                         );
-                        $numMatches = \count($matches);
+                        $numMatches = count($matches);
                         $ofs = -1;
                     }
 
@@ -379,7 +379,7 @@ class QuestionHelper extends Helper
             if ($numMatches > 0 && -1 !== $ofs) {
                 $cursor->savePosition();
                 // Write highlighted text, complete the partially entered response
-                $charactersEntered = \strlen(trim($this->mostRecentlyEnteredValue($fullChoice)));
+                $charactersEntered = strlen(trim($this->mostRecentlyEnteredValue($fullChoice)));
                 $output->write('<hl>'.OutputFormatter::escapeTrailingBackslash(substr($matches[$ofs], $charactersEntered)).'</hl>');
                 $cursor->restorePosition();
             }
@@ -399,7 +399,7 @@ class QuestionHelper extends Helper
         }
 
         $choices = explode(',', $entered);
-        if ('' !== $lastChoice = trim($choices[\count($choices) - 1])) {
+        if ('' !== $lastChoice = trim($choices[count($choices) - 1])) {
             return $lastChoice;
         }
 
@@ -598,7 +598,7 @@ class QuestionHelper extends Helper
 
         // For seekable and writable streams, add all the same data to the
         // cloned stream and then seek to the same offset.
-        if (true === $seekable && !\in_array($mode, ['r', 'rb', 'rt'])) {
+        if (true === $seekable && !in_array($mode, ['r', 'rb', 'rt'])) {
             $offset = ftell($inputStream);
             rewind($inputStream);
             stream_copy_to_stream($inputStream, $cloneStream);

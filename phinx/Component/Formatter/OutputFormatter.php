@@ -53,10 +53,10 @@ class OutputFormatter implements WrappableOutputFormatterInterface
     public static function escapeTrailingBackslash(string $text): string
     {
         if (str_ends_with($text, '\\')) {
-            $len = \strlen($text);
+            $len = strlen($text);
             $text = rtrim($text, '\\');
             $text = str_replace("\0", '', $text);
-            $text .= str_repeat("\0", $len - \strlen($text));
+            $text .= str_repeat("\0", $len - strlen($text));
         }
 
         return $text;
@@ -160,7 +160,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
 
             // add the text up to the next tag
             $output .= $this->applyCurrentStyle(substr($message, $offset, $pos - $offset), $output, $width, $currentLineLength);
-            $offset = $pos + \strlen($text);
+            $offset = $pos + strlen($text);
 
             // opening tag?
             if ($open = '/' != $text[1]) {
@@ -268,7 +268,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $lines = explode("\n", $text);
 
         foreach ($lines as $line) {
-            $currentLineLength += \strlen($line);
+            $currentLineLength += strlen($line);
             if ($width <= $currentLineLength) {
                 $currentLineLength = 0;
             }

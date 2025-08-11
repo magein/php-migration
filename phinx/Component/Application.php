@@ -207,7 +207,7 @@ class Application
             $command = $this->find($name);
         } catch (\Throwable $e) {
 
-            if (!($e instanceof CommandNotFoundException && !$e instanceof NamespaceNotFoundException) || 1 !== \count($alternatives = $e->getAlternatives()) || !$input->isInteractive()) {
+            if (!($e instanceof CommandNotFoundException && !$e instanceof NamespaceNotFoundException) || 1 !== count($alternatives = $e->getAlternatives()) || !$input->isInteractive()) {
                 throw $e;
             }
         }
@@ -490,7 +490,7 @@ class Application
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
 
             if ($alternatives = $this->findAlternatives($namespace, $allNamespaces)) {
-                if (1 == \count($alternatives)) {
+                if (1 == count($alternatives)) {
                     $message .= "\n\nDid you mean this?\n    ";
                 } else {
                     $message .= "\n\nDid you mean one of these?\n    ";
@@ -502,8 +502,8 @@ class Application
             throw new NamespaceNotFoundException($message, $alternatives);
         }
 
-        $exact = \in_array($namespace, $namespaces, true);
-        if (\count($namespaces) > 1 && !$exact) {
+        $exact = in_array($namespace, $namespaces, true);
+        if (count($namespaces) > 1 && !$exact) {
             throw new NamespaceNotFoundException(sprintf("The namespace \"%s\" is ambiguous.\nDid you mean one of these?\n%s.", $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))), array_values($namespaces));
         }
 
@@ -547,7 +547,7 @@ class Application
         }
 
         // if no commands matched or we just matched namespaces
-        if (empty($commands) || \count(preg_grep('{^' . $expr . '$}i', $commands)) < 1) {
+        if (empty($commands) || count(preg_grep('{^' . $expr . '$}i', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
                 // check if a namespace exists and contains commands
                 $this->findNamespace(substr($name, 0, $pos));
@@ -561,7 +561,7 @@ class Application
                     return !$this->get($name)->isHidden();
                 });
 
-                if (1 == \count($alternatives)) {
+                if (1 == count($alternatives)) {
                     $message .= "\n\nDid you mean this?\n    ";
                 } else {
                     $message .= "\n\nDid you mean one of these?\n    ";
@@ -573,7 +573,7 @@ class Application
         }
 
         // filter out aliases for commands which are already on the list
-        if (\count($commands) > 1) {
+        if (count($commands) > 1) {
             $commandList = $this->commandLoader ? array_merge(array_flip($this->commandLoader->getNames()), $this->commands) : $this->commands;
             $commands = array_unique(array_filter($commands, function ($nameOrAlias) use (&$commandList, $commands, &$aliases) {
                 if (!$commandList[$nameOrAlias] instanceof Command) {
@@ -584,11 +584,11 @@ class Application
 
                 $aliases[$nameOrAlias] = $commandName;
 
-                return $commandName === $nameOrAlias || !\in_array($commandName, $commands);
+                return $commandName === $nameOrAlias || !in_array($commandName, $commands);
             }));
         }
 
-        if (\count($commands) > 1) {
+        if (count($commands) > 1) {
             $usableWidth = $this->terminal->getWidth() - 10;
             $abbrevs = array_values($commands);
             $maxLen = 0;
@@ -607,7 +607,7 @@ class Application
                 return Helper::width($abbrev) > $usableWidth ? Helper::substr($abbrev, 0, $usableWidth - 3) . '...' : $abbrev;
             }, array_values($commands));
 
-            if (\count($commands) > 1) {
+            if (count($commands) > 1) {
                 $suggestions = $this->getAbbreviationSuggestions(array_filter($abbrevs));
 
                 throw new CommandNotFoundException(sprintf("Command \"%s\" is ambiguous.\nDid you mean one of these?\n%s.", $name, $suggestions), array_values($commands));
@@ -676,7 +676,7 @@ class Application
     {
         $abbrevs = [];
         foreach ($names as $name) {
-            for ($len = \strlen($name); $len > 0; --$len) {
+            for ($len = strlen($name); $len > 0; --$len) {
                 $abbrev = substr($name, 0, $len);
                 $abbrevs[$abbrev][] = $name;
             }
@@ -756,7 +756,7 @@ class Application
                     'args' => [],
                 ]);
 
-                for ($i = 0, $count = \count($trace); $i < $count; ++$i) {
+                for ($i = 0, $count = count($trace); $i < $count; ++$i) {
                     $class = $trace[$i]['class'] ?? '';
                     $type = $trace[$i]['type'] ?? '';
                     $function = $trace[$i]['function'] ?? '';
@@ -941,7 +941,7 @@ class Application
                 }
 
                 $lev = levenshtein($subname, $parts[$i]);
-                if ($lev <= \strlen($subname) / 3 || '' !== $subname && str_contains($parts[$i], $subname)) {
+                if ($lev <= strlen($subname) / 3 || '' !== $subname && str_contains($parts[$i], $subname)) {
                     $alternatives[$collectionName] = $exists ? $alternatives[$collectionName] + $lev : $lev;
                 } elseif ($exists) {
                     $alternatives[$collectionName] += $threshold;
@@ -951,7 +951,7 @@ class Application
 
         foreach ($collection as $item) {
             $lev = levenshtein($name, $item);
-            if ($lev <= \strlen($name) / 3 || str_contains($item, $name)) {
+            if ($lev <= strlen($name) / 3 || str_contains($item, $name)) {
                 $alternatives[$item] = isset($alternatives[$item]) ? $alternatives[$item] - $lev : $lev;
             }
         }
@@ -984,7 +984,7 @@ class Application
 
         $offset = 0;
         while (preg_match('/.{1,10000}/u', $utf8String, $m, 0, $offset)) {
-            $offset += \strlen($m[0]);
+            $offset += strlen($m[0]);
 
             foreach (preg_split('//u', $m[0]) as $char) {
                 // test if $char could be appended to current line
@@ -998,7 +998,7 @@ class Application
             }
         }
 
-        $lines[] = \count($lines) ? str_pad($line, $width) : $line;
+        $lines[] = count($lines) ? str_pad($line, $width) : $line;
 
         mb_convert_variables($encoding, 'utf8', $lines);
 
@@ -1017,7 +1017,7 @@ class Application
         $namespaces = [];
 
         foreach ($parts as $part) {
-            if (\count($namespaces)) {
+            if (count($namespaces)) {
                 $namespaces[] = end($namespaces) . ':' . $part;
             } else {
                 $namespaces[] = $part;

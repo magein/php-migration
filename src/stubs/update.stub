@@ -15,8 +15,6 @@ class $className extends Migrator
 
     public function down()
     {
-        if ($this->hasColumn('')) {
-            $this->removeColumn('');
-        }
+
     }
 }

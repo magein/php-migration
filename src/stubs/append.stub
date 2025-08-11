@@ -6,6 +6,8 @@ class $className extends Migrator
 {
     protected string $name = '{$name}';
 
+    protected string $fields = '$column';
+
     public function up()
     {
         $builder = $this->builder();
@@ -15,8 +17,13 @@ class $className extends Migrator
 
     public function down()
     {
-        if ($this->hasColumn('')) {
-            $this->removeColumn('');
+        if ($this->fields) {
+            $fields = explode(',', $this->fields);
+            foreach ($fields as $item) {
+                if ($this->hasColumn($item)) {
+                    $this->removeColumn($item);
+                }
+            }
         }
     }
 }
