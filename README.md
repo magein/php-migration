@@ -2,7 +2,7 @@
 
 ### 简介
 
-基于phinx:0.14.0数据库迁移工具,面相对象形式
+基于phinx:0.14.0数据库迁移工具
 
 composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phinx目录下,只保留了基础的功能
 
@@ -10,15 +10,19 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 
 空间类型字段mysql版本最好是>=5.7
 
+### 修改
+
+1. 可以链式调用
+2. 优化了命令行的参数位置(一些命令不在局限于位置)
+3. 可以省略migrate参数,支持小写,下划线的方式创建
+
 ### 安装
+
+> php:^8.0
 
 ```
 composer require magein/migration
 ```
-
-### 使用
-
-1. php:^8.0
 
 #### 配置文件
 
@@ -63,16 +67,18 @@ return \magein\migration\PhinxConfig::config(
 
 #### phinx
 
-这里是phinx默认的命令
+这里是phinx默认的命令(可参考官网的命令)
 
 ```shell
-php \vendor\bin\phinx create CreateUserTable
-php \vendor\bin\phinx migrate
-php \vendor\bin\phinx -e migrate
-php \vendor\bin\phinx rollback
+php phinx create CreateUserTable
+php phinx migrate
+php phinx -e migrate
+php phinx rollback
+php phinx seed:create
+php phinx seed:run
 ```
 
-#### 自定义(扩展)
+#### 调用
 
 > 在根目录生成migrate
 
@@ -123,6 +129,8 @@ public function change()
 ```
 
 #### 执行
+
+> run migrate create
 
 ```shell
 

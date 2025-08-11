@@ -28,7 +28,7 @@ class PhinxInput extends ArgvInput
             $argv = array_slice($argv, 0, 2);
         } elseif (count($argv) === 2) {
             $name = $argv[1];
-            if (!preg_match('/^seed/', $name)) {
+            if (!str_starts_with($name, 'seed')) {
                 $argv[1] = 'create';
                 $argv[2] = $name;
             }
