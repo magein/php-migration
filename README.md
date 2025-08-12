@@ -166,6 +166,10 @@ $builder->user->email();
 $builder->user->gender();
 $builder->user->age();
 $builder->user->birthday();
+// 民族
+$builder->user->ethnic();
+// 籍贯
+$builder->user->nativePlace();
 // 用户可积累、兑换的积分系统
 $builder->user->points();
 // 分数或得分

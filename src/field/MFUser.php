@@ -69,7 +69,7 @@ class MFUser
      * @param int $length
      * @return Column
      */
-    public function email(string $comment = null, int $length = 11): Column
+    public function email(string $comment = null, int $length = 60): Column
     {
         $comment = $comment ?: '邮箱地址';
 
@@ -139,35 +139,38 @@ class MFUser
     /**
      * 性别
      * @param string|null $comment
+     * @param int $default
      * @return Column
      */
-    public function gender(string $comment = null): Column
+    public function gender(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '性别 0 未知 secret 1 男 man 2 女 woman';
 
-        return $this->builder->enum('gender', [0, 1, 2])->comment($comment);
+        return $this->builder->enum('gender', [0, 1, 2])->comment($comment)->default($default);
     }
 
     /**
      * @param string|null $comment
+     * @param int $default
      * @return Column
      */
-    public function money(string $comment = null): Column
+    public function money(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '金额 单位分';
 
-        return $this->builder->integer('money', $comment);
+        return $this->builder->integer('money', $comment)->default($default);
     }
 
     /**
      * @param string|null $comment
+     * @param int $default
      * @return Column
      */
-    public function balance(string $comment = null): Column
+    public function balance(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '余额 单位分';
 
-        return $this->builder->integer('balance', $comment);
+        return $this->builder->integer('balance', $comment)->default($default);
     }
 
     /**
@@ -214,6 +217,54 @@ class MFUser
         $comment = $comment ?: '证件号码';
 
         return $this->builder->string('id_number', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function idFront(string $comment = null, int $length = 60): Column
+    {
+        $comment = $comment ?: '证件正面';
+
+        return $this->builder->string('id_number', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function idBack(string $comment = null, int $length = 60): Column
+    {
+        $comment = $comment ?: '证件反面';
+
+        return $this->builder->string('id_number', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function nativePlace(string $comment = null, int $length = 60): Column
+    {
+        $comment = $comment ?: '籍贯';
+
+        return $this->builder->string('id_number', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function ethnic(string $comment = null, int $length = 60)
+    {
+        $comment = $comment ?: '民族';
+
+        return $this->builder->integerTiny('ethnic', $comment, $length);
     }
 
     /**
