@@ -2,15 +2,20 @@
 
 namespace magein\migration;
 
-use magein\migration\field\MFAddress;
-use magein\migration\field\MFGeneral;
+use magein\migration\field\MFAddr;
+use magein\migration\field\MFComb;
+use magein\migration\field\MFFile;
+use magein\migration\field\MFGen;
 use magein\migration\field\MFUser;
+use magein\utils\Variable;
 use Phinx\Db\Adapter\MysqlAdapter;
 
 /**
  * @property MFUser user
- * @property MFGeneral gen
- * @property MFAddress addr
+ * @property MFGen gen
+ * @property MFAddr addr
+ * @property MFFile file
+ * @property MFComb comb
  */
 class Builder
 {
@@ -165,16 +170,10 @@ class Builder
 
     public function __get($name)
     {
-        if ($name === 'user') {
-            return new MFUser($this);
-        }
-
-        if ($name === 'gen') {
-            return new MFGeneral($this);
-        }
-
-        if ($name === 'addr') {
-            return new MFAddress($this);
+        $name = Variable::pascal($name);
+        $namespace = 'magein\migration\field\MF' . $name;
+        if (class_exists($namespace)) {
+            return new $namespace($this);
         }
     }
 

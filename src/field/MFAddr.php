@@ -2,18 +2,11 @@
 
 namespace magein\migration\field;
 
-use magein\migration\Builder;
+
 use magein\migration\Column;
 
-class MFAddress
+class MFAddr extends MFBase
 {
-    protected Builder $builder;
-
-    public function __construct($builder)
-    {
-        $this->builder = $builder;
-    }
-
     /**
      * @param string|null $comment
      * @param int $length
@@ -96,16 +89,5 @@ class MFAddress
         $comment = $comment ?: '地址';
 
         return $this->builder->string('address', $comment, $length)->default('');
-    }
-
-    /**
-     * @return void
-     */
-    public function _normal()
-    {
-        $this->province();
-        $this->city();
-        $this->district();
-        $this->address();
     }
 }

@@ -2,17 +2,44 @@
 
 namespace magein\migration\field;
 
-use magein\migration\Builder;
 use magein\migration\Column;
 
-class MFGeneral
+class MFGen extends MFBase
 {
 
-    protected Builder $builder;
-
-    public function __construct($builder)
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function name(string $comment = null, int $length = 60): Column
     {
-        $this->builder = $builder;
+        $comment = $comment ?: '名称';
+
+        return $this->builder->string('name', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function title(string $comment = null, int $length = 30): Column
+    {
+        $comment = $comment ?: '标题';
+
+        return $this->builder->string('title', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @return Column
+     */
+    public function parentId(string $comment = null): Column
+    {
+        $comment = $comment ?: '上级分类';
+
+        return $this->builder->integer('parent_id', $comment)->default(0);
     }
 
     /**
@@ -62,18 +89,6 @@ class MFGeneral
         $comment = $comment ?: '排序 正序';
 
         return $this->builder->integerSmall('sort', $comment)->default($default);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function title(string $comment = null, int $length = 30): Column
-    {
-        $comment = $comment ?: '标题';
-
-        return $this->builder->string('title', $comment, $length);
     }
 
     /**
@@ -145,20 +160,26 @@ class MFGeneral
     }
 
     /**
-     * @return void
+     * @param string|null $comment
+     * @param int $default
+     * @return Column
      */
-    public function _statusSort()
+    public function money(string $comment = null, int $default = 0): Column
     {
-        $this->status();
-        $this->sort();
+        $comment = $comment ?: '金额 单位分';
+
+        return $this->builder->integer('money', $comment)->default($default);
     }
 
     /**
-     * @return void
+     * @param string|null $comment
+     * @param int $default
+     * @return Column
      */
-    public function _datetime()
+    public function balance(string $comment = null, int $default = 0): Column
     {
-        $this->beginTime();
-        $this->endTime();
+        $comment = $comment ?: '余额 单位分';
+
+        return $this->builder->integer('balance', $comment)->default($default);
     }
 }

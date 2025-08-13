@@ -148,7 +148,9 @@ php migrate user rollback
 
 当命令行包含run/migrate/rollback的时候将执行命令,不在区分顺序
 
-### 常用字段
+### 内置字段
+
+#### 常规字段
 
 ```php
 $builder = $this->builder('');
@@ -189,10 +191,6 @@ $builder->gen->beginTime();
 $builder->gen->startTime();
 $builder->gen->endTime();
 $builder->gen->status();
-// 同时添加状态和排序
-$builder->gen->_statusSort();
-// 同时添加开始和结束时间
-$builder->gen->_datetime();
 
 // 地址
 $builder->addr->address();
@@ -202,7 +200,26 @@ $builder->gen->area();
 $builder->gen->district();
 $builder->gen->street();
 $builder->gen->postcode();
-// 省市区地址
-$builder->addr->_normal();
 
+```
+
+#### 组合字段
+
+```php
+// 同时添加状态和排序
+$builder->comb->statusSort();
+// 同时添加开始和结束时间
+$builder->comb->datetime();
+// 用户字段合集
+$builder->comb->user();
+// 附件,文件等字段合集
+$builder->comb->file();
+// 分类
+$builder->comb->category();
+// 省市区
+$builder->comb->region();
+// 省市区地址
+$builder->comb->regionAddress();
+// 追加一个备注
+$builder->gen->regionAddress()->remark();
 ```

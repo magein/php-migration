@@ -2,29 +2,22 @@
 
 namespace magein\migration\field;
 
-use magein\migration\Builder;
 use magein\migration\Column;
 
-class MFUser
+class MFUser extends MFBase
 {
 
-    protected Builder $builder;
-
-    public function __construct($builder)
-    {
-        $this->builder = $builder;
-    }
-
     /**
+     * 账号
      * @param string|null $comment
      * @param int $length
      * @return Column
      */
-    public function name(string $comment = null, int $length = 60): Column
+    public function username(string $comment = null, int $length = 30): Column
     {
-        $comment = $comment ?: '名称';
+        $comment = $comment ?: '登录账号';
 
-        return $this->builder->string('name', $comment, $length);
+        return $this->builder->string('username', $comment, $length);
     }
 
     /**
@@ -37,6 +30,18 @@ class MFUser
         $comment = $comment ?: '昵称';
 
         return $this->builder->string('nickname', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function avatar(string $comment = null, int $length = 255): Column
+    {
+        $comment = $comment ?: '头像';
+
+        return $this->builder->string('nickname', $comment, $length)->default();
     }
 
     /**
@@ -90,19 +95,6 @@ class MFUser
     }
 
     /**
-     * 账号
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function username(string $comment = null, int $length = 30): Column
-    {
-        $comment = $comment ?: '登录账号';
-
-        return $this->builder->string('username', $comment, $length);
-    }
-
-    /**
      * 密码
      * @param string|null $comment
      * @return Column
@@ -139,38 +131,16 @@ class MFUser
     /**
      * 性别
      * @param string|null $comment
-     * @param int $default
+     * @param string|int $default
      * @return Column
      */
-    public function gender(string $comment = null, int $default = 0): Column
+    public function gender(string $comment = null, string|int $default = 0): Column
     {
         $comment = $comment ?: '性别 0 未知 secret 1 男 man 2 女 woman';
 
+        $default = $default . '';
+
         return $this->builder->enum('gender', [0, 1, 2])->comment($comment)->default($default);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $default
-     * @return Column
-     */
-    public function money(string $comment = null, int $default = 0): Column
-    {
-        $comment = $comment ?: '金额 单位分';
-
-        return $this->builder->integer('money', $comment)->default($default);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $default
-     * @return Column
-     */
-    public function balance(string $comment = null, int $default = 0): Column
-    {
-        $comment = $comment ?: '余额 单位分';
-
-        return $this->builder->integer('balance', $comment)->default($default);
     }
 
     /**
