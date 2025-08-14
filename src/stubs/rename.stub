@@ -4,13 +4,20 @@ use magein\migration\Migrator;
 
 class $className extends Migrator
 {
-    protected string $name = '{$name}';
 
-    protected string $new_name = '';
+    /**
+     * @var string
+     */
+    protected $name = '{$name}';
+
+    /**
+     * @var string
+     */
+    protected $new_name = '';
 
     public function up()
     {
-        $this->table($this->name)->rename($this->new_name)->save();;
+        $this->table($this->name)->rename($this->new_name)->save();
     }
 
     public function down()

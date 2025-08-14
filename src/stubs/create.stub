@@ -26,7 +26,10 @@ class $className extends Migrator
      * 创建使用 create()、更新使用 update()
      */
 
-    protected string $name = '{$name}';
+    /**
+     * @var string
+     */
+    protected $name = '{$name}';
 
     public function change()
     {

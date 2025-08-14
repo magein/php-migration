@@ -4,7 +4,11 @@ use magein\migration\Migrator;
 
 class $className extends Migrator
 {
-    protected string $name = '{$name}';
+
+    /**
+     * @var string
+     */
+    protected $name = '{$name}';
 
     public function up()
     {

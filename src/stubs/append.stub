@@ -4,9 +4,16 @@ use magein\migration\Migrator;
 
 class $className extends Migrator
 {
-    protected string $name = '{$name}';
 
-    protected string $fields = '$column';
+    /**
+     * @var string
+     */
+    protected $name = '{$name}';
+
+    /**
+     * @var string
+     */
+    protected $fields = '$column';
 
     public function up()
     {
