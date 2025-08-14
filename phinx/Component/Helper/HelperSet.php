@@ -100,7 +100,7 @@ class HelperSet implements \IteratorAggregate
     /**
      * @return \Traversable<string, Helper>
      */
-    public function getIterator()
+    public function getIterator(): \Traversable|\ArrayIterator
     {
         return new \ArrayIterator($this->helpers);
     }

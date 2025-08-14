@@ -41,7 +41,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '头像';
 
-        return $this->builder->string('nickname', $comment, $length)->default('');
+        return $this->builder->string('avatar', $comment, $length)->default('');
     }
 
     /**

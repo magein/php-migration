@@ -21,6 +21,7 @@ class MFComb
     {
         $gen = new MFGen($this->builder);
 
+        $this->builder->id();
         $gen->name();
         $gen->parentId();
         $gen->status();
@@ -37,6 +38,7 @@ class MFComb
     {
         $article = new MFGen($this->builder);
 
+        $this->builder->id();
         $article->title();
         $article->from();
         $this->builder->integer('cate_id', '分类id');
@@ -72,6 +74,8 @@ class MFComb
         $gen = new MFGen($this->builder);
 
         $order = new MFOrder($this->builder);
+
+        $this->builder->id();
         $order->orderNo();
         $gen->from();
         $gen->channel();
@@ -115,7 +119,9 @@ class MFComb
         $gen = new MFGen($this->builder);
 
         $order = new MFOrder($this->builder);
-        $this->builder->char('支付编号', '支付编号', 28)->unique();
+
+        $this->builder->id();
+        $this->builder->char('pay_no', '支付编号', 28)->unique();
         $order->orderNo();
         $gen->channel();
         $this->builder->string('platform_id', '支付平台');
@@ -146,6 +152,7 @@ class MFComb
     {
         $gen = new MFGen($this->builder);
 
+        $this->builder->id();
         $gen->name('优惠卷名称');
         $gen->description();
         $gen->type('类型 1 满减 full 2 折扣 discount 3 固定金额 fixed')->default(1);
@@ -166,6 +173,7 @@ class MFComb
     {
         $gen = new MFGen($this->builder);
 
+        $this->builder->id();
         $gen->type('发票类型 0 个人 personal 1 公司普通发票 company 2 专用发票 vat');
         $gen->title();
         $gen->content();
@@ -177,13 +185,16 @@ class MFComb
         return $this;
     }
 
-
+    /**
+     * @return $this
+     */
     public function business(): static
     {
         $gen = new MFGen($this->builder);
 
-        $this->builder->string('full_name', '企业名称');
-        $this->builder->string('short_name', '简称');
+        $this->builder->id();
+        $this->builder->string('name', '企业名称');
+        $this->builder->string('alias', '简称');
         $this->builder->string('code', '企业代码')->unique();
         $this->builder->integerTiny('industry', '所属行业')->default(0);
         $this->builder->integerTiny('attribute', '单位属性')->default(0);
@@ -197,12 +208,16 @@ class MFComb
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function employee()
     {
 
         $gen = new MFGen($this->builder);
         $user = new MFUser($this->builder);
 
+        $this->builder->id();
         $this->builder->string('name', '员工名称');
         $this->builder->string('nickname', '昵称');
         $this->builder->string('code', '员工代码', 8)->unique();
@@ -230,6 +245,7 @@ class MFComb
     {
         $user = new MFUser($this->builder);
 
+        $this->builder->id();
         $user->username();
         $user->password();
         $user->nickname();
@@ -251,6 +267,7 @@ class MFComb
     {
         $gen = new MFGen($this->builder);
 
+        $this->builder->id();
         $gen->title();
         $this->builder->string('url', '文件路径 本地或者远程地址');
         $this->builder->string('redirect', '跳转地址');
@@ -271,6 +288,7 @@ class MFComb
     {
         $file = new MFFile($this->builder);
 
+        $this->builder->id();
         $file->filename();
         $file->originName();
         $file->filepath();
@@ -288,6 +306,7 @@ class MFComb
     public function region(): static
     {
         $gen = new MFGen($this->builder);
+        $this->builder->id();
         $this->builder->string('code', '行政区划代码', 20);
         $this->builder->string('parent_code', '父级code', 20);
         $gen->name('名称');
@@ -353,9 +372,10 @@ class MFComb
     /**
      * @return $this
      */
-    public function bank()
+    public function bank(): static
     {
         $gen = new MFGen($this->builder);
+        $this->builder->id();
         $gen->name('银行名称');
         $this->builder->string('alias', '别名');
         $this->builder->string('icon', '图标')->default();
@@ -368,9 +388,10 @@ class MFComb
     /**
      * @return $this
      */
-    public function industry()
+    public function industry(): static
     {
         $gen = new MFGen($this->builder);
+        $this->builder->id();
         $gen->parentId();
         $gen->name('行业名称');
         $this->builder->string('alias', '别名');
