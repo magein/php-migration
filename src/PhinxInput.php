@@ -11,9 +11,9 @@ use Phinx\Component\Input\InputOption;
 class PhinxInput
 {
 
-    public string $class = '';
+    public $class = '';
 
-    public string $configuratio = '';
+    public $configuratio = '';
 
     public function init(?array $argv = null, ?InputDefinition $definition = null)
     {

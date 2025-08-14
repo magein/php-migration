@@ -11,16 +11,16 @@ class PhinxCreation implements CreationInterface
     /**
      * @var InputInterface
      */
-    protected InputInterface $input;
+    protected $input;
 
     /**
      * @var OutputInterface
      */
-    protected OutputInterface $output;
+    protected $output;
 
-    protected string $template = 'migrate';
+    protected $template = 'migrate';
 
-    protected string $table_name = '';
+    protected $table_name = '';
 
     public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
     {
@@ -36,7 +36,7 @@ class PhinxCreation implements CreationInterface
 
     }
 
-    public function setInput(InputInterface $input): PhinxCreation|static
+    public function setInput(InputInterface $input): PhinxCreation
     {
         $this->input = $input;
 
@@ -48,7 +48,7 @@ class PhinxCreation implements CreationInterface
         return $this->input;
     }
 
-    public function setOutput(OutputInterface $output): PhinxCreation|static
+    public function setOutput(OutputInterface $output): PhinxCreation
     {
         $this->output = $output;
 

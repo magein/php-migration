@@ -14,79 +14,79 @@ class Column
      * 字段名称
      * @var string
      */
-    protected string $name = '';
+    protected $name = '';
 
     /**
      * 字段类型
      * @var string
      */
-    protected string $type = '';
+    protected $type = '';
 
     /**
      * 注释
      * @var string
      */
-    protected string $comment = '';
+    protected $comment = '';
 
     /**
      * 长度
      * @var int
      */
-    protected int $length = 0;
+    protected $length = 0;
 
     /**
      * 在某个字段之后
      * @var string
      */
-    protected string $after = '';
+    protected $after = '';
 
     /**
      * 默认值
      * @var string|int|null
      */
-    protected string|int|null $default = -1;
+    protected $default = -1;
 
     /**
      * 允许null
      * @var int
      */
-    protected int|bool $null = false;
+    protected $null = false;
 
     /**
      * 其他
      * @var array
      */
-    protected array $others = [];
+    protected $others = [];
 
     /**
      * 常规索引
      * @var array|string
      */
-    protected string|array $index = [];
+    protected $index = [];
 
     /**
      * 唯一索引
      * @var array|string
      */
-    protected string|array $unique = [];
+    protected $unique = [];
 
     /**
      * 重命名字段
      * @var array
      */
-    protected array $rename = [];
+    protected $rename = [];
 
     /**
      * 删除行
      * @var bool
      */
-    protected bool $remove = false;
+    protected $remove = false;
 
     /**
      * 更新
      * @var bool
      */
-    protected bool $change = false;
+    protected $change = false;
 
     /**
      * @param $type
@@ -136,7 +136,7 @@ class Column
      * @param int|string $value
      * @return $this
      */
-    public function default(int|string $value = ''): Column
+    public function default($value = ''): Column
     {
         $this->default = $value;
 
@@ -247,7 +247,7 @@ class Column
     /**
      * @return int|string|null
      */
-    public function getDefault(): int|string|null
+    public function getDefault()
     {
         return $this->default;
     }
@@ -255,7 +255,7 @@ class Column
     /**
      * @return bool|int
      */
-    public function getNull(): bool|int
+    public function getNull()
     {
         return $this->null;
     }
@@ -271,7 +271,7 @@ class Column
     /**
      * @return array|string
      */
-    public function getIndex(): array|string
+    public function getIndex()
     {
         return $this->index;
     }
@@ -279,7 +279,7 @@ class Column
     /**
      * @return array|string
      */
-    public function getUnique(): array|string
+    public function getUnique()
     {
         return $this->unique;
     }

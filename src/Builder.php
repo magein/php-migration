@@ -27,24 +27,24 @@ class Builder
      * 普通索引
      * @var array
      */
-    public array $index = [];
+    public $index = [];
 
     /**
      * 唯一索引
      * @var array
      */
-    public array $unique = [];
+    public $unique = [];
 
     /**
      * 外键
      * @var array
      */
-    public array $foreign = [];
+    public $foreign = [];
 
     /**
      * @var string|float|int
      */
-    protected string|int|float $version = '';
+    protected $version = '';
 
     /**
      *  可选值：
@@ -55,15 +55,15 @@ class Builder
      *   signed       是否无符号 signed(默认 true)
      * @var array
      */
-    protected array $options = [];
+    protected $options = [];
 
-    protected static int $defaultStringLength = 255;
+    protected static $defaultStringLength = 255;
 
     /**
      * 添加的列
      * @var array
      */
-    protected array $columns = [];
+    protected $columns = [];
 
     public function __construct($options = null)
     {
@@ -157,7 +157,7 @@ class Builder
      * @param float|string|$version
      * @return void
      */
-    public function setVersion(float|string $version): void
+    public function setVersion($version): void
     {
         if ($version) {
             $this->version = $version;
@@ -167,7 +167,7 @@ class Builder
     /**
      * @return float|int|string
      */
-    public function getVersion(): float|int|string
+    public function getVersion()
     {
         return $this->version;
     }
@@ -223,7 +223,7 @@ class Builder
      * @param $options
      * @return void
      */
-    public function addIndex(array|string $columns, $options = null): void
+    public function addIndex($columns, $options = null): void
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -240,7 +240,7 @@ class Builder
      * @param $options
      * @return void
      */
-    public function addUniqueKey(array|string $columns, $options = null): void
+    public function addUniqueKey($columns, $options = null): void
     {
         if (!is_array($columns)) {
             $columns = [$columns];
@@ -802,7 +802,7 @@ class Builder
      * @param null $options
      * @return array
      */
-    protected function indexOptions(array|string $columns, $options = null): array
+    protected function indexOptions($columns, $options = null): array
     {
         if (!is_array($columns)) {
             $columns = [$columns];

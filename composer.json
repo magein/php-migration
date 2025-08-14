@@ -9,6 +9,9 @@
   "homepage": "https://gitee.com/magein/migration",
   "license": "MIT",
   "autoload": {
+    "files": [
+      "phinx/str.php"
+    ],
     "psr-4": {
       "magein\\migration\\": "src/",
       "Phinx\\": "phinx/"
@@ -21,8 +24,8 @@
     }
   ],
   "require": {
-    "php": "^8.0",
-    "magein/utils": "^4.0"
+    "php": "^7.1",
+    "magein/utils": "^3.0"
   },
   "bin": [
     "bin/migrate"

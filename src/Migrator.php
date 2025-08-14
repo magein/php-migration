@@ -16,12 +16,12 @@ class Migrator extends AbstractMigration
     /**
      * @var Builder|null
      */
-    protected ?Builder $builder = null;
+    protected $builder = null;
 
     /**
      * @var string
      */
-    protected string $name = '';
+    protected $name = '';
 
     /**
      * @param $message
@@ -248,7 +248,7 @@ class Migrator extends AbstractMigration
      * @param array $options
      * @return void
      */
-    public function addIndex(array|string $columns, array $options = []): void
+    public function addIndex($columns, array $options = []): void
     {
         $this->invokeTable()->addIndex($columns, $options)->save();
     }
@@ -259,7 +259,7 @@ class Migrator extends AbstractMigration
      * @param string|null $name
      * @return void
      */
-    public function addUniqueIndex(array|string $columns, string $name = null): void
+    public function addUniqueIndex($columns, string $name = null): void
     {
         $this->invokeTable()->addIndex($columns, [
             'unique' => true,
@@ -272,7 +272,7 @@ class Migrator extends AbstractMigration
      * @param string|string[] $columns
      * @return void
      */
-    public function removeIndex(array|string $columns): void
+    public function removeIndex($columns): void
     {
         if ($this->invokeTable()->hasIndex($columns)) {
             $this->invokeTable()->removeIndex($columns)->save();
@@ -331,7 +331,7 @@ class Migrator extends AbstractMigration
      * @param array $options
      * @return void
      */
-    public function addForeignKey($columns, $referencedTable, array|string $referencedColumns = ['id'], array $options = []): void
+    public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], array $options = []): void
     {
         $this->invokeTable()->addForeignKey($columns, $referencedTable, $referencedColumns, $options)->save();
     }

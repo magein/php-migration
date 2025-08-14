@@ -6,7 +6,10 @@ use magein\migration\Builder;
 
 class MFBase
 {
-    public Builder $builder;
+    /**
+     * @var Builder
+     */
+    public $builder;
 
     public function __construct($builder)
     {
