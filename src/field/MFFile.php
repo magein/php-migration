@@ -50,7 +50,7 @@ class MFFile extends MFBase
     {
         $comment = $comment ?: '文件大小';
 
-        return $this->builder->integer('filesize', $comment);
+        return $this->builder->integer('filesize', $comment)->default(0);
     }
 
     /**

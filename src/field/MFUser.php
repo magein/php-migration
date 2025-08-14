@@ -41,7 +41,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '头像';
 
-        return $this->builder->string('nickname', $comment, $length)->default();
+        return $this->builder->string('nickname', $comment, $length)->default('');
     }
 
     /**
@@ -78,7 +78,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '邮箱地址';
 
-        return $this->builder->string('email', $comment, $length);
+        return $this->builder->string('email', $comment, $length)->default('');
     }
 
     /**
@@ -151,7 +151,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '积分';
 
-        return $this->builder->integer('points', $comment);
+        return $this->builder->integer('points', $comment)->default(0);
     }
 
     /**
@@ -162,7 +162,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '分数';
 
-        return $this->builder->integer('score', $comment);
+        return $this->builder->integer('score', $comment)->default(0);
     }
 
     /**
@@ -186,7 +186,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '证件号码';
 
-        return $this->builder->string('id_number', $comment, $length);
+        return $this->builder->string('id_number', $comment, $length)->default('');
     }
 
     /**
@@ -198,7 +198,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '证件正面';
 
-        return $this->builder->string('id_number', $comment, $length);
+        return $this->builder->string('id_number', $comment, $length)->default('');
     }
 
     /**
@@ -210,7 +210,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '证件反面';
 
-        return $this->builder->string('id_number', $comment, $length);
+        return $this->builder->string('id_number', $comment, $length)->default('');
     }
 
     /**
@@ -222,7 +222,18 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '籍贯';
 
-        return $this->builder->string('id_number', $comment, $length);
+        return $this->builder->string('id_number', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @return Column
+     */
+    public function ethnic(string $comment = null): Column
+    {
+        $comment = $comment ?: '民族';
+
+        return $this->builder->integerTiny('ethnic', $comment)->default(1);
     }
 
     /**
@@ -230,11 +241,11 @@ class MFUser extends MFBase
      * @param int $length
      * @return Column
      */
-    public function ethnic(string $comment = null, int $length = 60)
+    public function ethnicStr(string $comment = null, int $length = 60): Column
     {
         $comment = $comment ?: '民族';
 
-        return $this->builder->integerTiny('ethnic', $comment, $length);
+        return $this->builder->string('ethnic', $comment, $length)->default('汉族');
     }
 
     /**

@@ -111,7 +111,7 @@ class MFOrder extends MFBase
     public function couponId(string $comment = null): Column
     {
         $comment = $comment ?: '优惠券ID';
-        return $this->builder->integer('coupon_id', $comment)->nullable();
+        return $this->builder->integer('coupon_id', $comment)->default(0)->nullable();
     }
 
     public function couponAmount(string $comment = null): Column

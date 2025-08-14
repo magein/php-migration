@@ -217,10 +217,14 @@ $builder->comb->article();
 $builder->comb->carousel();
 // 订单
 $builder->comb->order();
-// 文章
+// 支付订单
+$builder->comb->payOrder();
+// 发表
 $builder->comb->voice();
 // 用户字段合集
 $builder->comb->user();
+// 企业
+$builder->comb->business();
 // 附件,文件等字段合集
 $builder->comb->file();
 // 同时添加状态和排序
