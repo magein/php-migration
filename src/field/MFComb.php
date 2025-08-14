@@ -315,6 +315,35 @@ class MFComb
     }
 
     /**
+     * @return $this
+     */
+    public function bank()
+    {
+        $gen = new MFGen($this->builder);
+        $gen->name('银行名称');
+        $this->builder->string('alias', '别名');
+        $this->builder->string('icon', '图标')->default();
+        $this->builder->string('first_letter', '首字母');
+        $this->statusSort();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function industry()
+    {
+        $gen = new MFGen($this->builder);
+        $gen->parentId();
+        $gen->name('行业名称');
+        $this->builder->string('alias', '别名');
+        $this->statusSort();
+
+        return $this;
+    }
+
+    /**
      * 状态排序
      * @return $this
      */

@@ -215,6 +215,8 @@ $builder->comb->category();
 $builder->comb->article();
 // 轮播图
 $builder->comb->carousel();
+// 银行
+$builder->comb->bank();
 // 订单
 $builder->comb->order();
 // 支付订单
@@ -225,6 +227,8 @@ $builder->comb->voice();
 $builder->comb->user();
 // 企业
 $builder->comb->business();
+// 行业
+$builder->comb->industry();
 // 附件,文件等字段合集
 $builder->comb->file();
 // 同时添加状态和排序
