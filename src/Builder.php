@@ -6,6 +6,8 @@ use magein\migration\field\MFAddr;
 use magein\migration\field\MFComb;
 use magein\migration\field\MFFile;
 use magein\migration\field\MFGen;
+use magein\migration\field\MFIs;
+use magein\migration\field\MFOrder;
 use magein\migration\field\MFUser;
 use magein\utils\Variable;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -16,6 +18,8 @@ use Phinx\Db\Adapter\MysqlAdapter;
  * @property MFAddr addr
  * @property MFFile file
  * @property MFComb comb
+ * @property MFIs is
+ * @property MFOrder order
  */
 class Builder
 {

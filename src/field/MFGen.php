@@ -59,11 +59,11 @@ class MFGen extends MFBase
      * @param int $default
      * @return Column
      */
-    public function form(string $comment = null, int $default = 1): Column
+    public function from(string $comment = null, int $default = 1): Column
     {
         $comment = $comment ?: '来源';
 
-        return $this->builder->integerTiny('form', $comment)->default($default);
+        return $this->builder->integerTiny('from', $comment)->default($default);
     }
 
     /**
@@ -181,5 +181,16 @@ class MFGen extends MFBase
         $comment = $comment ?: '余额 单位分';
 
         return $this->builder->integer('balance', $comment)->default($default);
+    }
+
+    /**
+     * @param string|null $comment
+     * @return Column
+     */
+    public function thumb(string $comment = null): Column
+    {
+        $comment = $comment ?: '缩略图';
+
+        return $this->builder->integer('balance', $comment)->default('');
     }
 }

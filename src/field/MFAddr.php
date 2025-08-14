@@ -90,4 +90,40 @@ class MFAddr extends MFBase
 
         return $this->builder->string('address', $comment, $length)->default('');
     }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function location(string $comment = null, int $length = 60): Column
+    {
+        $comment = $comment ?: '经纬度';
+
+        return $this->builder->string('location', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function lng(string $comment = null, int $length = 30): Column
+    {
+        $comment = $comment ?: '经度';
+
+        return $this->builder->string('lng', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function lat(string $comment = null, int $length = 30): Column
+    {
+        $comment = $comment ?: '纬度';
+
+        return $this->builder->string('lat', $comment, $length)->default('');
+    }
 }
