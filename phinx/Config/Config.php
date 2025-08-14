@@ -66,8 +66,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Create a new instance of the config class using a JSON file path.
      *
      * @param string $configFilePath Path to the JSON File
-     * @throws \RuntimeException
      * @return \Phinx\Config\ConfigInterface
+     * @throws \RuntimeException
      */
     public static function fromJson(string $configFilePath): ConfigInterface
     {
@@ -92,8 +92,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Create a new instance of the config class using a PHP file path.
      *
      * @param string $configFilePath Path to the PHP File
-     * @throws \RuntimeException
      * @return \Phinx\Config\ConfigInterface
+     * @throws \RuntimeException
      */
     public static function fromPhp(string $configFilePath): ConfigInterface
     {
@@ -479,8 +479,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * {@inheritDoc}
      *
      * @param mixed $id ID
-     * @throws \InvalidArgumentException
      * @return mixed
+     * @throws \InvalidArgumentException
      */
     public function offsetGet($id)
     {

@@ -124,7 +124,7 @@ class MFComb
         $order = new MFOrder($this->builder);
 
         $this->builder->id();
-        $this->builder->char('支付编号', '支付编号', 28)->unique();
+        $this->builder->char('pay_no', '支付编号', 28)->unique();
         $order->orderNo();
         $gen->channel();
         $this->builder->string('platform_id', '支付平台');
@@ -154,6 +154,7 @@ class MFComb
     {
         $gen = new MFGen($this->builder);
 
+        $this->builder->id();
         $gen->name('优惠卷名称');
         $gen->description();
         $gen->type('类型 1 满减 full 2 折扣 discount 3 固定金额 fixed')->default(1);
@@ -193,8 +194,8 @@ class MFComb
         $gen = new MFGen($this->builder);
 
         $this->builder->id();
-        $this->builder->string('full_name', '企业名称');
-        $this->builder->string('short_name', '简称');
+        $this->builder->string('name', '企业名称');
+        $this->builder->string('alias', '简称');
         $this->builder->string('code', '企业代码')->unique();
         $this->builder->integerTiny('industry', '所属行业')->default(0);
         $this->builder->integerTiny('attribute', '单位属性')->default(0);
@@ -253,7 +254,6 @@ class MFComb
         $user->phone();
         $user->email();
         $user->gender();
-        $user->avatar();
         $user->birthday();
         $this->builder->integerTiny('status', '状态 0 禁用 forbid 1 启用 open')->default(1);
 
