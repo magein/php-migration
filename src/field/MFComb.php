@@ -253,7 +253,6 @@ class MFComb
         $user->phone();
         $user->email();
         $user->gender();
-        $user->avatar();
         $user->birthday();
 
         return $this;
