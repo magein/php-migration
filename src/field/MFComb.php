@@ -146,6 +146,27 @@ class MFComb
     }
 
     /**
+     * 轮播图
+     * @return $this
+     */
+    public function carousel(): static
+    {
+        $gen = new MFGen($this->builder);
+
+        $gen->title();
+        $this->builder->string('url', '文件路径 本地或者远程地址');
+        $this->builder->string('redirect', '跳转地址');
+        $this->builder->string('target', '打开方式')->default('_blank');
+        $this->datetime();
+        $this->builder->integerTiny('scene', '使用场景 多个逗号隔开');
+        $gen->sort();
+        $gen->status();
+        $gen->remark();
+
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function file(): static

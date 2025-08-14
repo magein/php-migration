@@ -213,6 +213,8 @@ $builder->addr->lat();
 $builder->comb->category();
 // 文章
 $builder->comb->article();
+// 轮播图
+$builder->comb->carousel();
 // 订单
 $builder->comb->order();
 // 文章
