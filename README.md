@@ -229,6 +229,8 @@ $builder->comb->user();
 $builder->comb->business();
 // 行业
 $builder->comb->industry();
+// 优惠劵规则
+$builder->comb->couponRule();
 // 附件,文件等字段合集
 $builder->comb->file();
 // 同时添加状态和排序
