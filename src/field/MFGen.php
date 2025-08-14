@@ -191,6 +191,6 @@ class MFGen extends MFBase
     {
         $comment = $comment ?: '缩略图';
 
-        return $this->builder->integer('balance', $comment)->default('');
+        return $this->builder->string('thumb', $comment)->default('');
     }
 }

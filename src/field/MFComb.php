@@ -44,8 +44,8 @@ class MFComb
         $this->builder->string('intro', '简介', 60)->default('');
         $article->content();
         $article->thumb();
-        $article->builder->string('source_url ', '转载地址');
-        $article->builder->dateTime('published_at', '发布时间');
+        $this->builder->string('source_url', '转载地址');
+        $this->builder->dateTime('published_at', '发布时间');
         $article->sort();
 
         $is = new MFIs($this->builder);
@@ -54,9 +54,11 @@ class MFComb
         $is->isHot();
         $is->isRecommend();
         $is->isPublished();
+        $this->builder->integerTiny('open_comment', '开启评论 0 禁止 forbid 1 开启 open', 0);
         $this->builder->integer('read_num', '阅读数量', 0);
         $this->builder->integer('collect_num', '收藏数量', 0);
         $this->builder->integer('star_num', '点赞数量', 0);
+        $this->builder->integer('comment_num', '点赞数量', 0);
 
         return $this;
     }
@@ -108,15 +110,17 @@ class MFComb
     /**
      * @return $this
      */
-    public function voice()
+    public function voice(): static
     {
         $gen = new MFGen($this->builder);
 
         $gen->type('发票类型 0 个人 personal 1 公司普通发票 company 2 专用发票 vat');
         $gen->title();
         $gen->content();
-        $this->builder->string('order_no', '关联订单编号')->default('');
         $this->builder->string('tax', ' 纳税人识别号', 60);
+        $this->builder->string('order_no', '关联订单编号')->default('');
+        $this->builder->integerTiny('status', '0 未开票 pending 1 已开 completed 2 作废 void')->default(0);
+        $gen->remark();
 
         return $this;
     }

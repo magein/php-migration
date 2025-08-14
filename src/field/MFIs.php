@@ -76,7 +76,7 @@ class MFIs extends MFGen
     {
         $comment = $comment ?: '是否禁用 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_up', $comment)->default($default);
+        return $this->builder->integerTiny('is_forbid', $comment)->default($default);
     }
 
     /**

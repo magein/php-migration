@@ -196,26 +196,35 @@ $builder->gen->status();
 $builder->addr->address();
 $builder->addr->province();
 $builder->addr->city();
-$builder->gen->area();
-$builder->gen->district();
-$builder->gen->street();
-$builder->gen->postcode();
+$builder->addr->area();
+$builder->addr->district();
+$builder->addr->street();
+$builder->addr->postcode();
+$builder->addr->location();
+$builder->addr->lng();
+$builder->addr->lat();
 
 ```
 
 #### 组合字段
 
 ```php
-// 同时添加状态和排序
-$builder->comb->statusSort();
-// 同时添加开始和结束时间
-$builder->comb->datetime();
+// 分类
+$builder->comb->category();
+// 文章
+$builder->comb->article();
+// 订单
+$builder->comb->order();
+// 文章
+$builder->comb->voice();
 // 用户字段合集
 $builder->comb->user();
 // 附件,文件等字段合集
 $builder->comb->file();
-// 分类
-$builder->comb->category();
+// 同时添加状态和排序
+$builder->comb->statusSort();
+// 同时添加开始和结束时间
+$builder->comb->datetime();
 // 省市区
 $builder->comb->region();
 // 省市区地址
