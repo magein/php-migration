@@ -81,7 +81,7 @@ class MFComb
         $order->receiverName();
         $order->receiverPhone();
         $order->receivedAt();
-        $this->regionAddress();
+        $this->zoneAddress();
         $order->orderAmount();
         $order->goodsAmount();
         $order->discountAmount();
@@ -171,7 +171,7 @@ class MFComb
         $this->builder->string('size', '员工规模')->default('');
         $this->builder->string('contact', '联系人')->default('');
         $this->builder->string('tel', '联系电话')->default('');
-        $this->regionAddress();
+        $this->zoneAddress();
         $this->statusSort();
         $gen->remark();
 
@@ -196,7 +196,7 @@ class MFComb
         $user->ethnic();
         $user->idType();
         $user->idNumber();
-        $this->region();
+        $this->zone();
         $this->builder->string('live_address', '居住地址');
         $this->statusSort();
         $gen->remark();
@@ -268,6 +268,23 @@ class MFComb
      */
     public function region(): static
     {
+        $gen = new MFGen($this->builder);
+        $this->builder->string('code', '行政区划代码', 20);
+        $this->builder->string('parent_code', '父级code', 20);
+        $gen->name('名称');
+        $this->builder->string('pinyin', '拼音', 20)->default();
+        $this->builder->string('first_char', '首字母', 20)->default();
+        $this->builder->integerTiny('level', '层级 1 省 province 2 市 city 3 县/区 area')->default(1);
+        $this->statusSort();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function zone(): static
+    {
         $address = new MFAddr($this->builder);
 
         $address->province();
@@ -280,7 +297,7 @@ class MFComb
     /**
      * @return $this
      */
-    public function regionAddress(): static
+    public function zoneAddress(): static
     {
         $address = new MFAddr($this->builder);
 

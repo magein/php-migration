@@ -1,9 +1,9 @@
 {
   "name": "magein/migration",
-  "description": "基于robmorgan/phinx重新封装的面向对象形式的数据库迁移类",
+  "description": "基于phinx重新封装的面向对象形式的数据库迁移类",
   "keyword": [
     "php",
-    "thinkphp",
+    "phinx",
     "migration"
   ],
   "homepage": "https://gitee.com/magein/migration",

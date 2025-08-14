@@ -235,10 +235,12 @@ $builder->comb->file();
 $builder->comb->statusSort();
 // 同时添加开始和结束时间
 $builder->comb->datetime();
-// 省市区
+// 行政区划
 $builder->comb->region();
+// 省市区
+$builder->comb->zone();
 // 省市区地址
-$builder->comb->regionAddress();
+$builder->comb->zoneAddress();
 // 追加一个备注
 $builder->gen->regionAddress()->remark();
 ```
