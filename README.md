@@ -18,7 +18,7 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 
 ### 安装
 
-> php:^8.0
+> php:^7.1
 
 ```
 composer require magein/migration
