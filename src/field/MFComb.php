@@ -119,7 +119,7 @@ class MFComb
         $order->orderNo();
         $gen->channel();
         $this->builder->string('platform_id', '支付平台');
-        $this->builder->integerTiny('scene', '场景 1 支付订单 order 2 充值 recharge')->default();
+        $this->builder->integerTiny('scene', '场景 1 支付订单 order 2 充值 recharge')->default(1);
         $this->builder->integerTiny('user_id', '用户标识');
         $this->builder->string('subject', '交易主题')->default();
         $this->builder->string('appid', '收款账号');
@@ -137,6 +137,25 @@ class MFComb
 
         return $this;
 
+    }
+
+    /**
+     * @return $this
+     */
+    public function couponRule(): MFComb
+    {
+        $gen = new MFGen($this->builder);
+
+        $gen->name('优惠卷名称');
+        $gen->description();
+        $gen->type('类型 1 满减 full 2 折扣 discount 3 固定金额 fixed')->default(1);
+        $this->datetime();
+        $gen->money('抵扣金额')->default(0);
+        $this->builder->integer('min_money', '最低使用金额')->default(0);
+        $this->builder->string('goods', '可用商品')->default('');
+        $gen->status();
+
+        return $this;
     }
 
 

@@ -33,6 +33,18 @@ class MFGen extends MFBase
 
     /**
      * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function description(string $comment = null, int $length = 140): Column
+    {
+        $comment = $comment ?: '描述';
+
+        return $this->builder->string('description', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
      * @return Column
      */
     public function parentId(string $comment = null): Column
