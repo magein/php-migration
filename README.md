@@ -18,7 +18,7 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 
 ### 安装
 
-> php:^8.0
+> php:^7.1
 
 ```
 composer require magein/migration
@@ -229,6 +229,8 @@ $builder->comb->user();
 $builder->comb->business();
 // 行业
 $builder->comb->industry();
+// 优惠劵规则
+$builder->comb->couponRule();
 // 附件,文件等字段合集
 $builder->comb->file();
 // 同时添加状态和排序
