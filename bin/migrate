@@ -1,7 +1,20 @@
 #!/usr/bin/env php
 <?php
 
-include_once(dirname(__DIR__) . '/vendor/autoload.php');
+$__autoload = [
+    dirname(__DIR__, 3) . '/autoload.php',
+    dirname(__DIR__) . '/autoload.php',
+    dirname(__DIR__) . '/vendor/autoload.php',
+];
+
+foreach ($__autoload as $file) {
+    if (file_exists($file)) {
+        define('MIGRATION_COMPOSER_INSTALL', $file);
+        break;
+    }
+}
+
+require MIGRATION_COMPOSER_INSTALL;
 
 $input = new \magein\migration\PhinxInput();
 $app = new \Phinx\Console\PhinxApplication();
