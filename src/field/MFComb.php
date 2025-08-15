@@ -124,7 +124,7 @@ class MFComb
         $order = new MFOrder($this->builder);
 
         $this->builder->id();
-        $this->builder->char('pay_no', '支付编号', 28)->unique();
+        $this->builder->char('pay_no', '支付单号', 28)->unique();
         $order->orderNo();
         $gen->channel();
         $this->builder->string('platform_id', '支付平台');
