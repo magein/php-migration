@@ -198,9 +198,9 @@ class MFComb
         $this->builder->string('code', '企业代码')->unique();
         $this->builder->integerTiny('industry', '所属行业')->default(0);
         $this->builder->integerTiny('attribute', '单位属性')->default(0);
-        $this->builder->string('size', '员工规模')->default('');
-        $this->builder->string('contact', '联系人')->default('');
-        $this->builder->string('tel', '联系电话')->default('');
+        $gen->scale();
+        $gen->contact();
+        $gen->tel();
         $this->zoneAddress();
         $this->statusSort();
         $gen->remark();
