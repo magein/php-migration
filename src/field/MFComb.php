@@ -79,7 +79,7 @@ class MFComb
         $order = new MFOrder($this->builder);
 
         $this->builder->id();
-        $order->orderNo();
+        $order->orderNo()->unique();
         $gen->from();
         $gen->channel();
         $order->buyerId();
@@ -247,7 +247,7 @@ class MFComb
         $user = new MFUser($this->builder);
 
         $this->builder->id();
-        $user->username();
+        $user->username()->unique();
         $user->password();
         $user->nickname();
         $user->avatar();
@@ -309,7 +309,7 @@ class MFComb
         $gen = new MFGen($this->builder);
 
         $this->builder->id();
-        $this->builder->string('code', '行政区划代码', 20);
+        $this->builder->string('code', '行政区划代码', 20)->unique();
         $this->builder->string('parent_code', '父级code', 20);
         $gen->name('名称');
         $this->builder->string('pinyin', '拼音', 20)->default();
