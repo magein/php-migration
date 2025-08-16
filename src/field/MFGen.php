@@ -655,6 +655,17 @@ class MFGen extends MFBase
      * @param string|null $comment
      * @return Column
      */
+    public function result(string $comment = null): Column
+    {
+        $comment = $comment ?: '结果';
+
+        return $this->builder->string('result', $comment)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @return Column
+     */
     public function reason(string $comment = null): Column
     {
         $comment = $comment ?: '原因';

@@ -6,7 +6,7 @@ use magein\migration\Column;
 
 class MFOrder extends MFBase
 {
-    public function payNo(string $comment = null, int $length = 28)
+    public function payNo(string $comment = null, int $length = 28): Column
     {
         $comment = $comment ?: '支付编号';
 
@@ -23,14 +23,14 @@ class MFOrder extends MFBase
     {
         $comment = $comment ?: '退款编号';
 
-        return $this->builder->char('refund_no', $comment, $length)->unique();
+        return $this->builder->char('refund_no', $comment, $length)->default('');
     }
 
     public function tradeNo(string $comment = null, int $length = 28): Column
     {
         $comment = $comment ?: '交易编号 第三方生成';
 
-        return $this->builder->char('trade_no', $comment, $length)->unique();
+        return $this->builder->char('trade_no', $comment, $length)->default('');
     }
 
     public function orderAmount(string $comment = null): Column
