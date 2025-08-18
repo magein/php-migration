@@ -17,7 +17,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '登录账号';
 
-        return $this->builder->string('username', $comment, $length);
+        return $this->builder->string('username', $comment, $length)->unique();
     }
 
     /**
@@ -29,7 +29,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '昵称';
 
-        return $this->builder->string('nickname', $comment, $length);
+        return $this->builder->string('nickname', $comment, $length)->default('');
     }
 
     /**

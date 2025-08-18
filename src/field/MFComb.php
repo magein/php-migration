@@ -34,13 +34,11 @@ class MFComb
      */
     public function article(): static
     {
-        $article = new MFGen($this->builder);
-
         $this->builder->id();
         $this->builder->gen->title();
         $this->builder->gen->from();
-        $this->builder->integer('cate_id', '分类id');
-        $this->builder->string('author', '作者');
+        $this->builder->gen->cateIdMultiple();
+        $this->builder->gen->author();
         $this->builder->gen->intro();
         $this->builder->gen->content();
         $this->builder->gen->thumb();
@@ -113,7 +111,7 @@ class MFComb
         $this->builder->gen->channel();
         $this->builder->gen->parentId('支付平台');
         $this->builder->gen->scene('场景 1 支付订单 order 2 充值 recharge');
-        $this->builder->integerTiny('user_id', '用户标识');
+        $this->builder->user->userId();
         $this->builder->string('subject', '交易主题')->default();
         $this->builder->string('appid', '收款账号');
         $this->builder->order->tradeNo();
@@ -191,29 +189,25 @@ class MFComb
     /**
      * @return $this
      */
-    public function employee()
+    public function employee(): static
     {
-
-        $gen = new MFGen($this->builder);
-        $user = new MFUser($this->builder);
-
         $this->builder->id();
-        $this->builder->string('name', '员工名称');
-        $this->builder->string('nickname', '昵称');
-        $this->builder->string('code', '员工代码', 8)->unique();
-        $user->avatar();
-        $user->phone();
-        $user->email();
-        $user->gender();
-        $user->birthday();
-        $user->nativePlace();
-        $user->ethnic();
-        $user->idType();
-        $user->idNumber();
+        $this->builder->gen->name('员工名称');
+        $this->builder->user->nickname('昵称');
+        $this->builder->gen->code('员工代码');
+        $this->builder->user->avatar();
+        $this->builder->user->phone();
+        $this->builder->user->email();
+        $this->builder->user->gender();
+        $this->builder->user->birthday();
+        $this->builder->user->nativePlace();
+        $this->builder->user->ethnic();
+        $this->builder->user->idType();
+        $this->builder->user->idNumber();
         $this->zone();
         $this->builder->string('live_address', '居住地址');
         $this->statusSort();
-        $gen->remark();
+        $this->builder->gen->remark();
 
         return $this;
     }
@@ -223,17 +217,15 @@ class MFComb
      */
     public function user(): static
     {
-        $user = new MFUser($this->builder);
-
         $this->builder->id();
-        $user->username()->unique();
-        $user->password();
-        $user->nickname();
-        $user->avatar();
-        $user->phone();
-        $user->email();
-        $user->gender();
-        $user->birthday();
+        $this->builder->user->username();
+        $this->builder->user->password();
+        $this->builder->user->nickname();
+        $this->builder->user->avatar();
+        $this->builder->user->phone();
+        $this->builder->user->email();
+        $this->builder->user->gender();
+        $this->builder->user->birthday();
 
         return $this;
     }
@@ -244,18 +236,16 @@ class MFComb
      */
     public function carousel(): static
     {
-        $gen = new MFGen($this->builder);
-
         $this->builder->id();
-        $gen->title();
-        $this->builder->string('url', '文件路径 本地或者远程地址');
+        $this->builder->gen->title();
+        $this->builder->gen->url('文件路径 本地或者远程地址');
         $this->builder->string('redirect', '跳转地址');
         $this->builder->string('target', '打开方式')->default('_blank');
         $this->datetime();
-        $this->builder->string('scene', '使用场景 多个逗号隔开');
-        $gen->sort();
-        $gen->status();
-        $gen->remark();
+        $this->builder->gen->sceneMultiple();
+        $this->builder->gen->sort();
+        $this->builder->gen->status();
+        $this->builder->gen->remark();
 
         return $this;
     }
@@ -265,16 +255,15 @@ class MFComb
      */
     public function file(): static
     {
-        $file = new MFFile($this->builder);
 
         $this->builder->id();
-        $file->filename();
-        $file->originName();
-        $file->filepath();
-        $file->filesize();
-        $file->ext();
-        $file->mime();
-        $file->hash();
+        $this->builder->file->filename();
+        $this->builder->file->originName();
+        $this->builder->file->filepath();
+        $this->builder->file->filesize();
+        $this->builder->file->ext();
+        $this->builder->file->mime();
+        $this->builder->file->hash();
 
         return $this;
     }
@@ -284,11 +273,10 @@ class MFComb
      */
     public function region(): static
     {
-        $gen = new MFGen($this->builder);
         $this->builder->id();
-        $this->builder->string('code', '行政区划代码', 20)->unique();
+        $this->builder->gen->code('行政区划');
         $this->builder->string('parent_code', '父级code', 20);
-        $gen->name('名称');
+        $this->builder->gen->name();
         $this->builder->string('pinyin', '拼音', 20)->default();
         $this->builder->string('first_char', '首字母', 20)->default();
         $this->builder->integerTiny('level', '层级 1 省 province 2 市 city 3 县/区 area')->default(1);
@@ -302,11 +290,9 @@ class MFComb
      */
     public function zone(): static
     {
-        $address = new MFAddr($this->builder);
-
-        $address->province();
-        $address->city();
-        $address->district();
+        $this->builder->addr->province();
+        $this->builder->addr->city();
+        $this->builder->addr->district();
 
         return $this;
     }
@@ -316,13 +302,11 @@ class MFComb
      */
     public function zoneAddress(): static
     {
-        $address = new MFAddr($this->builder);
-
-        $address->province();
-        $address->city();
-        $address->district();
-        $address->address();
-        $address->location();
+        $this->builder->addr->province();
+        $this->builder->addr->city();
+        $this->builder->addr->district();
+        $this->builder->addr->address();
+        $this->builder->addr->location();
 
         return $this;
     }
@@ -334,15 +318,15 @@ class MFComb
     {
         $address = new MFAddr($this->builder);
 
-        $address->builder->integer('user_id', '用户id');
-        $address->builder->string('name', '收货人');
-        $address->builder->string('phone', '联系电话', 18);
-        $address->province();
-        $address->city();
-        $address->district();
-        $address->address();
-        $address->postcode();
-        $address->location();
+        $address->builder->user->userId();
+        $address->builder->gen->name('收货人');
+        $address->builder->gen->phone('联系电话', 18);
+        $this->builder->addr->province();
+        $this->builder->addr->city();
+        $this->builder->addr->district();
+        $this->builder->addr->address();
+        $this->builder->addr->postcode();
+        $this->builder->addr->location();
         $address->builder->integerTiny('is_default', '默认地址')->default(0);
 
         return $this;
@@ -353,11 +337,10 @@ class MFComb
      */
     public function bank(): static
     {
-        $gen = new MFGen($this->builder);
         $this->builder->id();
-        $gen->name('银行名称');
-        $this->builder->string('alias', '别名');
-        $this->builder->string('icon', '图标')->default();
+        $this->builder->gen->name('银行名称');
+        $this->builder->gen->alias('别名');
+        $this->builder->gen->icon('图标');
         $this->builder->string('first_letter', '首字母');
         $this->statusSort();
 
@@ -369,11 +352,10 @@ class MFComb
      */
     public function industry(): static
     {
-        $gen = new MFGen($this->builder);
         $this->builder->id();
-        $gen->parentId();
-        $gen->name('行业名称');
-        $this->builder->string('alias', '别名');
+        $this->builder->gen->parentId();
+        $this->builder->gen->name('行业名称');
+        $this->builder->gen->alias('别名');
         $this->statusSort();
 
         return $this;
@@ -385,10 +367,8 @@ class MFComb
      */
     public function statusSort(): static
     {
-        $gen = new MFGen($this->builder);
-
-        $gen->status();
-        $gen->sort();
+        $this->builder->gen->status();
+        $this->builder->gen->sort();
 
         return $this;
     }
@@ -399,10 +379,8 @@ class MFComb
      */
     public function datetime(): static
     {
-        $gen = new MFGen($this->builder);
-
-        $gen->beginTime();
-        $gen->endTime();
+        $this->builder->gen->beginTime();
+        $this->builder->gen->endTime();
 
         return $this;
     }

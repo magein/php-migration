@@ -28,7 +28,7 @@ class MFGen extends MFBase
     {
         $comment = $comment ?: '别名';
 
-        return $this->builder->string('alias', $comment, $length);
+        return $this->builder->string('alias', $comment, $length)->default('');
     }
 
     /**
@@ -53,6 +53,54 @@ class MFGen extends MFBase
         $comment = $comment ?: '联系电话';
 
         return $this->builder->string('contact', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function phone(string $comment = null, int $length = 11): Column
+    {
+        $comment = $comment ?: '手机号码';
+
+        return $this->builder->char('phone', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function mobile(string $comment = null, int $length = 11): Column
+    {
+        $comment = $comment ?: '手机号码';
+
+        return $this->builder->char('mobile', $comment, $length);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $default
+     * @return Column
+     */
+    public function cateId(string $comment = null, int $default = 0): Column
+    {
+        $comment = $comment ?: '所属分类';
+
+        return $this->builder->integerTiny('cate_id', $comment)->default($default);
+    }
+
+    /**
+     * @param string|null $comment
+     * @param string $default
+     * @return Column
+     */
+    public function cateIdMultiple(string $comment = null, string $default = ''): Column
+    {
+        $comment = $comment ?: '所属分类';
+
+        return $this->builder->string('cate_id', $comment)->default($default);
     }
 
     /**
@@ -89,6 +137,18 @@ class MFGen extends MFBase
         $comment = $comment ?: '简介';
 
         return $this->builder->string('intro', $comment, $length)->default('');
+    }
+
+    /**
+     * @param string|null $comment
+     * @param int $length
+     * @return Column
+     */
+    public function author(string $comment = null, int $length = 30): Column
+    {
+        $comment = $comment ?: '作者';
+
+        return $this->builder->string('author', $comment, $length)->default('');
     }
 
     /**
@@ -156,7 +216,7 @@ class MFGen extends MFBase
      */
     public function sceneMultiple(string $comment = null, string $default = ''): Column
     {
-        $comment = $comment ?: '使用场景';
+        $comment = $comment ?: '使用场景 多个逗号隔开';
 
         return $this->builder->string('scene', $comment)->default($default);
     }
@@ -218,6 +278,17 @@ class MFGen extends MFBase
         $comment = $comment ?: '行业';
 
         return $this->builder->integer('industry', $comment)->default(0);
+    }
+
+    /**
+     * @param string|null $comment
+     * @return Column
+     */
+    public function industryMultiple(string $comment = null): Column
+    {
+        $comment = $comment ?: '行业';
+
+        return $this->builder->string('industry', $comment)->default('');
     }
 
     /**
