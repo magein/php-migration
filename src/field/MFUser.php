@@ -134,7 +134,7 @@ class MFUser extends MFBase
      * @param string|int $default
      * @return Column
      */
-    public function gender(string $comment = null, string|int $default = 0): Column
+    public function gender(string $comment = null, $default = 0): Column
     {
         $comment = $comment ?: '性别 0 未知 secret 1 男 man 2 女 woman';
 
