@@ -6,10 +6,31 @@ use magein\migration\Column;
 
 class MFOrder extends MFBase
 {
-    public function orderNo(string $comment = null, int $length = 24): Column
+    public function payNo(string $comment = null, int $length = 28): Column
+    {
+        $comment = $comment ?: '支付编号';
+
+        return $this->builder->char('pay_no', $comment, $length)->unique();
+    }
+
+    public function orderNo(string $comment = null, int $length = 28): Column
     {
         $comment = $comment ?: '订单编号';
         return $this->builder->char('order_no', $comment, $length)->unique();
+    }
+
+    public function refundNo(string $comment = null, int $length = 28): Column
+    {
+        $comment = $comment ?: '退款编号';
+
+        return $this->builder->char('refund_no', $comment, $length)->default('');
+    }
+
+    public function tradeNo(string $comment = null, int $length = 28): Column
+    {
+        $comment = $comment ?: '交易编号 第三方生成';
+
+        return $this->builder->char('trade_no', $comment, $length)->default('');
     }
 
     public function orderAmount(string $comment = null): Column

@@ -15,6 +15,8 @@ class Industry extends AbstractSeed
      * More information on writing seeders is available here:
      * https://book.cakephp.org/phinx/0/en/seeding.html
      */
+    protected $name = 'industry';
+
     public function run(): void
     {
         $industries = [
@@ -49,11 +51,11 @@ class Industry extends AbstractSeed
             ['name' => '医疗器械', 'alias' => 'medical_device', 'parent_id' => 3],
         ];
 
-        $table = $this->table('industry');
+        $table = $this->table($this->name);
 
         foreach ($industries as $industry) {
             $exists = $this->fetchRow(
-                "SELECT id FROM industry WHERE name = '{$industry['name']}' AND parent_id = {$industry['parent_id']} LIMIT 1"
+                "SELECT id FROM {$this->name} WHERE name = '{$industry['name']}' AND parent_id = {$industry['parent_id']} LIMIT 1"
             );
 
             if (!$exists) {
@@ -61,11 +63,11 @@ class Industry extends AbstractSeed
                     'parent_id' => $industry['parent_id'],
                     'name' => $industry['name'],
                     'alias' => $industry['alias'],
-                    'status' => 1,  // 状态启用
-                    'sort' => 99,  // 默认排序
+                    'status' => 1,
+                    'sort' => 99,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
-                ])->saveData(); // 逐条插入
+                ])->saveData();
             }
         }
     }

@@ -15,6 +15,9 @@ class Bank extends AbstractSeed
      * More information on writing seeders is available here:
      * https://book.cakephp.org/phinx/0/en/seeding.html
      */
+
+    protected $name = 'bank';
+
     public function run(): void
     {
         $banks = [
@@ -36,13 +39,13 @@ class Bank extends AbstractSeed
         ];
 
         // 获取表实例
-        $table = $this->table('bank');
+        $table = $this->table($this->name);
 
         // 遍历插入数据
         foreach ($banks as $bank) {
             // 检查银行名称是否已存在
             $exists = $this->fetchRow(
-                "SELECT id FROM bank WHERE name = '{$bank['name']}' LIMIT 1"
+                "SELECT id FROM {$this->name} WHERE name = '{$bank['name']}' LIMIT 1"
             );
 
             if (!$exists) {

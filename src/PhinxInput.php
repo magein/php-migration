@@ -4,9 +4,7 @@ namespace magein\migration;
 
 
 use Phinx\Component\Input\ArgvInput;
-use Phinx\Component\Input\InputArgument;
 use Phinx\Component\Input\InputDefinition;
-use Phinx\Component\Input\InputOption;
 
 class PhinxInput
 {
