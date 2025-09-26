@@ -54,7 +54,7 @@ class MFComb
         $this->builder->integer('read_num', '阅读数量', 0);
         $this->builder->integer('collect_num', '收藏数量', 0);
         $this->builder->integer('star_num', '点赞数量', 0);
-        $this->builder->integer('comment_num', '点赞数量', 0);
+        $this->builder->integer('comment_num', '评论数量', 0);
 
         return $this;
     }

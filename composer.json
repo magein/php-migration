@@ -6,7 +6,7 @@
     "phinx",
     "migration"
   ],
-  "homepage": "https://gitee.com/magein/migration",
+  "homepage": "https://gitee.com/magein/php-migration",
   "license": "MIT",
   "autoload": {
     "psr-4": {
