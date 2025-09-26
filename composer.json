@@ -1,7 +1,8 @@
 {
   "name": "magein/migration",
+  "type": "library",
   "description": "基于phinx重新封装的面向对象形式的数据库迁移类",
-  "keyword": [
+  "keywords": [
     "php",
     "phinx",
     "migration"
@@ -26,11 +27,5 @@
   },
   "bin": [
     "bin/migrate"
-  ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://gitee.com/magein/php-migration"
-    }
   ]
 }
