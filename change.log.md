@@ -1,5 +1,10 @@
 ### 更新日志
 
+#### v4.0.1
+
+1. 修改comment_num字段的comment错误(点赞数量->评论错误)
+2. 修改composer.json中homepage的指向错误
+
 #### v4.0.0
 
 1. php:^8.0
