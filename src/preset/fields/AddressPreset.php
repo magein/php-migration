@@ -1,11 +1,11 @@
 <?php
 
-namespace magein\migration\field;
-
+namespace magein\migration\preset\fields;
 
 use magein\migration\Column;
+use magein\migration\preset\PresetGroup;
 
-class MFAddr extends MFBase
+class AddressPreset extends PresetGroup
 {
     /**
      * @param string|null $comment
@@ -92,6 +92,9 @@ class MFAddr extends MFBase
     }
 
     /**
+     * 经纬度，格式为 lng,lat（string 类型，只用于展示与透传，不做库内空间计算）
+     * 如需范围查询、距离计算等空间运算，不要改用本方法，直接用
+     * $builder->point('location', '经纬度') 重新构建 POINT 列，写入用 Point(lng, lat)，读取用 ST_X() / ST_Y()
      * @param string|null $comment
      * @param int $length
      * @return Column
@@ -104,26 +107,26 @@ class MFAddr extends MFBase
     }
 
     /**
+     * 经度（decimal(10,6)，可分列做范围查询）
      * @param string|null $comment
-     * @param int $length
      * @return Column
      */
-    public function lng(string $comment = null, int $length = 30): Column
+    public function lng(string $comment = null): Column
     {
         $comment = $comment ?: '经度';
 
-        return $this->builder->string('lng', $comment, $length)->default('');
+        return $this->builder->decimal('lng', $comment, 10, 6);
     }
 
     /**
+     * 纬度（decimal(10,6)，可分列做范围查询）
      * @param string|null $comment
-     * @param int $length
      * @return Column
      */
-    public function lat(string $comment = null, int $length = 30): Column
+    public function lat(string $comment = null): Column
     {
         $comment = $comment ?: '纬度';
 
-        return $this->builder->string('lat', $comment, $length)->default('');
+        return $this->builder->decimal('lat', $comment, 10, 6);
     }
 }

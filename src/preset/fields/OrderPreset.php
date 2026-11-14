@@ -1,10 +1,11 @@
 <?php
 
-namespace magein\migration\field;
+namespace magein\migration\preset\fields;
 
 use magein\migration\Column;
+use magein\migration\preset\PresetGroup;
 
-class MFOrder extends MFBase
+class OrderPreset extends PresetGroup
 {
     public function payNo(string $comment = null, int $length = 28): Column
     {
@@ -33,12 +34,24 @@ class MFOrder extends MFBase
         return $this->builder->char('trade_no', $comment, $length)->default('');
     }
 
+    /**
+     * 订单金额 单位分
+     * 需要计算后传递，不能设置为默认值0
+     * @param string|null $comment
+     * @return Column
+     */
     public function orderAmount(string $comment = null): Column
     {
         $comment = $comment ?: '订单金额 单位分';
         return $this->builder->integer('order_amount', $comment);
     }
 
+    /**
+     * 商品总金额 单位分
+     * 需要计算后传递，不能设置为默认值0
+     * @param string|null $comment
+     * @return Column
+     */
     public function goodsAmount(string $comment = null): Column
     {
         $comment = $comment ?: '商品总金额 单位分';
@@ -51,6 +64,12 @@ class MFOrder extends MFBase
         return $this->builder->integer('discount_amount', $comment)->default(0);
     }
 
+    /**
+     * 实际支付金额 单位分
+     * 需要计算后传递，不能设置为默认值0
+     * @param string|null $comment
+     * @return Column
+     */
     public function actualAmount(string $comment = null): Column
     {
         $comment = $comment ?: '实际支付金额 单位分';
@@ -72,7 +91,7 @@ class MFOrder extends MFBase
     public function refundedAt(string $comment = null): Column
     {
         $comment = $comment ?: '退款时间';
-        return $this->builder->timestamp('refunded_at', $comment)->nullable();
+        return $this->builder->dateTime('refunded_at', $comment)->nullable();
     }
 
     public function orderStatus(string $comment = null, int $default = 1): Column
@@ -132,7 +151,7 @@ class MFOrder extends MFBase
     public function couponId(string $comment = null): Column
     {
         $comment = $comment ?: '优惠券ID';
-        return $this->builder->integer('coupon_id', $comment)->default(0)->nullable();
+        return $this->builder->integer('coupon_id', $comment)->default(0);
     }
 
     public function couponAmount(string $comment = null): Column
@@ -144,13 +163,13 @@ class MFOrder extends MFBase
     public function deliveryCompany(string $comment = null, int $length = 50): Column
     {
         $comment = $comment ?: '物流公司';
-        return $this->builder->string('delivery_company', $comment, $length)->nullable();
+        return $this->builder->string('delivery_company', $comment, $length)->default('');
     }
 
     public function deliveryNo(string $comment = null, int $length = 50): Column
     {
         $comment = $comment ?: '物流单号';
-        return $this->builder->string('delivery_no', $comment, $length)->nullable();
+        return $this->builder->string('delivery_no', $comment, $length)->default('');
     }
 
     public function deliveryTime(string $comment = null): Column
@@ -171,7 +190,7 @@ class MFOrder extends MFBase
         return $this->builder->dateTime('finished_at', $comment)->nullable();
     }
 
-    public function invoice(string $comment = null, int $default = 0): Column
+    public function isInvoice(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '是否需要发票';
         return $this->builder->integerTiny('is_invoice', $comment)->default($default);

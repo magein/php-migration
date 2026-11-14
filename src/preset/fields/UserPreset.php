@@ -1,14 +1,17 @@
 <?php
 
-namespace magein\migration\field;
+namespace magein\migration\preset\fields;
 
 use magein\migration\Column;
+use magein\migration\preset\PresetGroup;
 
-class MFUser extends MFBase
+class UserPreset extends PresetGroup
 {
 
     /**
      * 账号
+     * 设计了unique，所以在创建表的时候，必须保证账号唯一，不考虑多用户，多字段唯一的情况
+     * 不满足的时候，重新构建即可
      * @param string|null $comment
      * @param int $length
      * @return Column
@@ -42,43 +45,6 @@ class MFUser extends MFBase
         $comment = $comment ?: '头像';
 
         return $this->builder->string('avatar', $comment, $length)->default('');
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function phone(string $comment = null, int $length = 11): Column
-    {
-        $comment = $comment ?: '手机号码';
-
-        return $this->builder->char('phone', $comment, $length);
-    }
-
-    /**
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function mobile(string $comment = null, int $length = 11): Column
-    {
-        $comment = $comment ?: '手机号码';
-
-        return $this->builder->char('mobile', $comment, $length);
-    }
-
-    /**
-     * 邮箱
-     * @param string|null $comment
-     * @param int $length
-     * @return Column
-     */
-    public function email(string $comment = null, int $length = 60): Column
-    {
-        $comment = $comment ?: '邮箱地址';
-
-        return $this->builder->string('email', $comment, $length)->default('');
     }
 
     /**
@@ -198,7 +164,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '证件正面';
 
-        return $this->builder->string('id_number', $comment, $length)->default('');
+        return $this->builder->string('id_front', $comment, $length)->default('');
     }
 
     /**
@@ -210,7 +176,7 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '证件反面';
 
-        return $this->builder->string('id_number', $comment, $length)->default('');
+        return $this->builder->string('id_back', $comment, $length)->default('');
     }
 
     /**
@@ -222,18 +188,19 @@ class MFUser extends MFBase
     {
         $comment = $comment ?: '籍贯';
 
-        return $this->builder->string('id_number', $comment, $length)->default('');
+        return $this->builder->string('native_place', $comment, $length)->default('');
     }
 
     /**
+     * 民族id，一般用于下拉筛选的时候保存的id
      * @param string|null $comment
      * @return Column
      */
-    public function ethnic(string $comment = null): Column
+    public function ethnicId(string $comment = null): Column
     {
         $comment = $comment ?: '民族';
 
-        return $this->builder->integerTiny('ethnic', $comment)->default(1);
+        return $this->builder->integerTiny('ethnic_id', $comment)->default(1);
     }
 
     /**
@@ -241,11 +208,11 @@ class MFUser extends MFBase
      * @param int $length
      * @return Column
      */
-    public function ethnicStr(string $comment = null, int $length = 60): Column
+    public function ethnicText(string $comment = null, int $length = 60): Column
     {
         $comment = $comment ?: '民族';
 
-        return $this->builder->string('ethnic', $comment, $length)->default('汉族');
+        return $this->builder->string('ethnic_text', $comment, $length)->default('汉族');
     }
 
     /**

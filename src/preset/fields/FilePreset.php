@@ -1,10 +1,11 @@
 <?php
 
-namespace magein\migration\field;
+namespace magein\migration\preset\fields;
 
 use magein\migration\Column;
+use magein\migration\preset\PresetGroup;
 
-class MFFile extends MFBase
+class FilePreset extends PresetGroup
 {
     /**
      * @param string|null $comment
@@ -50,7 +51,7 @@ class MFFile extends MFBase
     {
         $comment = $comment ?: '文件大小';
 
-        return $this->builder->integer('filesize', $comment)->default(0);
+        return $this->builder->bigInteger('filesize', $comment)->default(0);
     }
 
     /**
@@ -61,7 +62,7 @@ class MFFile extends MFBase
     {
         $comment = $comment ?: '文件后缀';
 
-        return $this->builder->integer('ext', $comment)->default(0);
+        return $this->builder->string('ext', $comment)->default('');
     }
 
     /**

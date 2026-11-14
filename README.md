@@ -159,17 +159,15 @@ $builder->id();
 // 用户
 $builder->user->username();
 $builder->user->password();
-$builder->user->name();
+$builder->basic->name();
 $builder->user->nickname();
-$builder->user->money();
-$builder->user->balance();
-$builder->user->phone();
-$builder->user->email();
+$builder->contact->phone();
+$builder->contact->email();
 $builder->user->gender();
 $builder->user->age();
 $builder->user->birthday();
 // 民族
-$builder->user->ethnic();
+$builder->user->ethnicId();
 // 籍贯
 $builder->user->nativePlace();
 // 用户可积累、兑换的积分系统
@@ -182,15 +180,15 @@ $builder->user->idType();
 $builder->user->idNumber();
 
 // 常规
-$builder->gen->type();
-$builder->gen->title();
-$builder->gen->conent();
-$builder->gen->remark();
-$builder->gen->sort();
-$builder->gen->beginTime();
-$builder->gen->startTime();
-$builder->gen->endTime();
-$builder->gen->status();
+$builder->basic->type();
+$builder->article->title();
+$builder->article->content();
+$builder->basic->remark();
+$builder->basic->sort();
+$builder->date->beginTime();
+$builder->date->startTime();
+$builder->date->endTime();
+$builder->basic->status();
 
 // 地址
 $builder->addr->address();
@@ -206,43 +204,19 @@ $builder->addr->lat();
 
 ```
 
-#### 组合字段
+#### 常见表结构
+
+包不预设整张表——表结构属于项目自己的 migration，迁移文件应当自包含。按业务场景整理好的可复制代码放在 [docs/README.md](docs/README.md)：用户、用户地址、员工、商家、企业、银行、分类、文章、轮播图、行政区划、行业、商品、订单、支付订单、优惠券规则、发票、附件文件等场景，点开即可复制 `change()` 代码。
+
+字段预设本来就是按场景组合使用的：
 
 ```php
-// 分类
-$builder->comb->category();
-// 文章
-$builder->comb->article();
-// 轮播图
-$builder->comb->carousel();
-// 银行
-$builder->comb->bank();
-// 订单
-$builder->comb->order();
-// 支付订单
-$builder->comb->payOrder();
-// 发表
-$builder->comb->voice();
-// 用户字段合集
-$builder->comb->user();
-// 企业
-$builder->comb->business();
-// 行业
-$builder->comb->industry();
-// 优惠劵规则
-$builder->comb->couponRule();
-// 附件,文件等字段合集
-$builder->comb->file();
-// 同时添加状态和排序
-$builder->comb->statusSort();
-// 同时添加开始和结束时间
-$builder->comb->datetime();
-// 行政区划
-$builder->comb->region();
-// 省市区
-$builder->comb->zone();
-// 省市区地址
-$builder->comb->zoneAddress();
-// 追加一个备注
-$builder->gen->regionAddress()->remark();
+$builder->id();
+$builder->user->username();
+$builder->user->password();
+$builder->user->nickname();
+$builder->contact->phone();
+$builder->contact->email();
+$builder->basic->status();
+$builder->basic->sort();
 ```

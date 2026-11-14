@@ -1,10 +1,11 @@
 <?php
 
-namespace magein\migration\field;
+namespace magein\migration\preset\fields;
 
 use magein\migration\Column;
+use magein\migration\preset\PresetGroup;
 
-class MFIs extends MFGen
+class FlagPreset extends PresetGroup
 {
 
     /**
@@ -99,7 +100,7 @@ class MFIs extends MFGen
      */
     public function isCollection(string $comment = null, int $default = 0): Column
     {
-        $comment = $comment ?: '是否展示 0 否 no 1 是 yes';
+        $comment = $comment ?: '是否收藏 0 否 no 1 是 yes';
 
         return $this->builder->integerTiny('is_collection', $comment)->default($default);
     }

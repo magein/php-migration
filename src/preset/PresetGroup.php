@@ -1,10 +1,10 @@
 <?php
 
-namespace magein\migration\field;
+namespace magein\migration\preset;
 
 use magein\migration\Builder;
 
-class MFBase
+abstract class PresetGroup
 {
     /**
      * @var Builder

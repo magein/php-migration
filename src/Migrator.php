@@ -180,11 +180,11 @@ class Migrator extends AbstractMigration
      */
     public function create(Builder $builder, bool $soft_delete = true): void
     {
-        $builder->createdAt();
-        $builder->updatedAt();
+        $builder->dateTime('created_at', '创建时间');
+        $builder->dateTime('updated_at', '更新时间');
 
         if ($soft_delete) {
-            $builder->deletedAt();
+            $builder->dateTime('deleted_at', '删除时间', 0, true);
         }
 
         $this->setBuilder($builder);

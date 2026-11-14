@@ -2,27 +2,54 @@
 
 namespace magein\migration;
 
-use magein\migration\field\MFAddr;
-use magein\migration\field\MFComb;
-use magein\migration\field\MFFile;
-use magein\migration\field\MFGen;
-use magein\migration\field\MFIs;
-use magein\migration\field\MFOrder;
-use magein\migration\field\MFUser;
-use magein\utils\Variable;
+use magein\migration\preset\fields\AddressPreset;
+use magein\migration\preset\fields\ArticlePreset;
+use magein\migration\preset\fields\BasicPreset;
+use magein\migration\preset\fields\ContactPreset;
+use magein\migration\preset\fields\DatePreset;
+use magein\migration\preset\fields\FilePreset;
+use magein\migration\preset\fields\FlagPreset;
+use magein\migration\preset\fields\GoodsPreset;
+use magein\migration\preset\fields\ImagePreset;
+use magein\migration\preset\fields\OrderPreset;
+use magein\migration\preset\fields\SpecPreset;
+use magein\migration\preset\fields\UserPreset;
 use Phinx\Db\Adapter\MysqlAdapter;
 
 /**
- * @property MFUser user
- * @property MFGen gen
- * @property MFAddr addr
- * @property MFFile file
- * @property MFComb comb
- * @property MFIs is
- * @property MFOrder order
+ * @property UserPreset user
+ * @property BasicPreset basic
+ * @property AddressPreset addr
+ * @property FilePreset file
+ * @property ImagePreset image
+ * @property ArticlePreset article
+ * @property GoodsPreset goods
+ * @property SpecPreset spec
+ * @property DatePreset date
+ * @property ContactPreset contact
+ * @property FlagPreset flag
+ * @property OrderPreset order
  */
 class Builder
 {
+    /**
+     * 预设组映射：属性名 => 预设类
+     * @var array
+     */
+    private const GROUPS = [
+        'user' => UserPreset::class,
+        'basic' => BasicPreset::class,
+        'addr' => AddressPreset::class,
+        'file' => FilePreset::class,
+        'image' => ImagePreset::class,
+        'article' => ArticlePreset::class,
+        'goods' => GoodsPreset::class,
+        'spec' => SpecPreset::class,
+        'date' => DatePreset::class,
+        'contact' => ContactPreset::class,
+        'flag' => FlagPreset::class,
+        'order' => OrderPreset::class,
+    ];
     /**
      * 普通索引
      * @var array
@@ -82,6 +109,17 @@ class Builder
         if (empty($this->options['collation'])) {
             $this->setCollation(($config['collation'] ?? '') ?: 'utf8_unicode_ci');
         }
+    }
+
+    public function __get($name)
+    {
+        if (!isset(self::GROUPS[$name])) {
+            throw new \InvalidArgumentException("未知的预设组: {$name}");
+        }
+
+        $class = self::GROUPS[$name];
+
+        return new $class($this);
     }
 
     /**
@@ -172,15 +210,6 @@ class Builder
         return $this->version;
     }
 
-    public function __get($name)
-    {
-        $name = Variable::pascal($name);
-        $namespace = 'magein\migration\field\MF' . $name;
-        if (class_exists($namespace)) {
-            return new $namespace($this);
-        }
-    }
-
     /**
      * 获取所有的列
      * @return array
@@ -199,6 +228,10 @@ class Builder
      */
     public function addColumn($type, $name, array $parameters = []): Column
     {
+        if (isset($this->columns[$name])) {
+            throw new \RuntimeException("重复的列名: {$name}");
+        }
+
         $column = new Column();
         $column->name($name);
         $column->type($type);
@@ -617,34 +650,7 @@ class Builder
     }
 
     /**
-     * @param int $precision
-     * @return Column
-     */
-    public function createdAt(int $precision = 0): Column
-    {
-        return $this->dateTime('created_at', '创建时间', $precision);
-    }
-
-    /**
-     * @param int $precision
-     * @return Column
-     */
-    public function updatedAt(int $precision = 0): Column
-    {
-        return $this->dateTime('updated_at', '更新时间', $precision);
-    }
-
-    /**
-     * @param int $precision
-     * @return Column
-     */
-    public function deletedAt(int $precision = 0): Column
-    {
-        return $this->dateTime('deleted_at', '删除时间', $precision, true);
-    }
-
-    /**
-     * Create a new geometry column on the table.
+     * 创建 geometry 类型的空间列（可存放任意几何值）
      *
      * @param string $column
      * @param string|null $comment
@@ -656,19 +662,20 @@ class Builder
     }
 
     /**
-     * Create a new point column on the table.
+     * 创建 point 类型的空间列（点，坐标顺序 x=经度、y=纬度）
      *
      * @param string $column
-     * @param int|null $srid
+     * @param string|null $comment
+     * @param int|null $srid 空间参考系 ID，仅 MySQL 8.0+ 生效
      * @return Column
      */
-    public function point(string $column, int $srid = null): Column
+    public function point(string $column, string $comment = null, int $srid = null): Column
     {
-        return $this->addColumn('point', $column, compact('srid'));
+        return $this->addColumn('point', $column, compact('comment', 'srid'));
     }
 
     /**
-     * Create a new linestring column on the table.
+     * 创建 linestring 类型的空间列（线）
      *
      * @param string $column
      * @param string|null $comment
@@ -680,7 +687,7 @@ class Builder
     }
 
     /**
-     * Create a new polygon column on the table.
+     * 创建 polygon 类型的空间列（面）
      *
      * @param string $column
      * @param string|null $comment
@@ -692,7 +699,7 @@ class Builder
     }
 
     /**
-     * Create a new geometrycollection column on the table.
+     * 创建 geometrycollection 类型的空间列（几何集合）
      *
      * @param string $column
      * @param string|null $comment
@@ -704,7 +711,7 @@ class Builder
     }
 
     /**
-     * Create a new multipoint column on the table.
+     * 创建 multipoint 类型的空间列（多点）
      *
      * @param string $column
      * @param string|null $comment
@@ -716,7 +723,7 @@ class Builder
     }
 
     /**
-     * Create a new multilinestring column on the table.
+     * 创建 multilinestring 类型的空间列（多线）
      *
      * @param string $column
      * @param string|null $comment
@@ -728,7 +735,7 @@ class Builder
     }
 
     /**
-     * Create a new multipolygon column on the table.
+     * 创建 multipolygon 类型的空间列（多面）
      *
      * @param string $column
      * @param string|null $comment
@@ -740,7 +747,7 @@ class Builder
     }
 
     /**
-     * Create a new multipolygon column on the table.
+     * 创建 multipolygonz 类型的空间列（带 Z 坐标的多面）
      *
      * @param string $column
      * @param string|null $comment
