@@ -160,18 +160,21 @@ class Migrator extends AbstractMigration
             $table->addColumn($name, $column->getType(), $options);
 
             if ($column->getUnique()) {
-                $table->addIndex($column->getUnique(),
+                $table->addIndex($column->getName(),
                     [
                         'name' => $column->getUnique(),
                         'unique' => true,
                     ]
                 );
             } elseif ($column->getIndex()) {
-                $table->addIndex($column->getIndex(), [
+                $table->addIndex($column->getName(), [
                     'name' => $column->getIndex(),
                 ]);
             }
         }
+
+
+        // 批量索引在列声明之后追加；列级 ->index() / ->unique() 是单列索引，不冲突
         if ($this->builder->unique) {
             foreach ($this->builder->unique as $item) {
                 $table->addIndex($item[0], $item[1] ?? []);

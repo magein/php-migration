@@ -18,7 +18,7 @@ return \magein\migration\PhinxConfig::config(
             'development' => [
                 'adapter' => 'mysql',
                 'host' => '127.0.0.1',
-                'name' => 'demo',
+                'name' => 'php-migration',
                 'user' => 'root',
                 'pass' => '',
                 'port' => 3306,

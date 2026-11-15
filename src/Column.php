@@ -164,28 +164,29 @@ class Column
     }
 
     /**
-     * @param string $index_name
+     * 标记该列需要建普通索引
+     * @param string $index_name 索引名，不传则为 idx_{列名}
      * @return $this
      */
     public function index(string $index_name = ''): Column
     {
-        $this->index = $index_name ?: $this->name;
+        $this->index = $index_name ?: 'idx_' . $this->name;
 
         return $this;
     }
 
     /**
-     * 唯一索引只登记索引，不改列长度。
+     * 标记该列需要建唯一索引，只登记索引，不改列长度。
      * 191 是 utf8mb4 + COMPACT/REDUNDANT 行格式下 767 字节索引前缀的旧限制；
      * MySQL 5.7 默认 DYNAMIC + innodb_large_prefix=ON（上限 3072 字节），
      * VARCHAR(255) 可正常建唯一索引；旧环境自行 ->length(191) 或调整行格式。
      *
-     * @param string $index_name
+     * @param string $index_name 索引名，不传则为 uniq_{列名}
      * @return $this
      */
     public function unique(string $index_name = ''): Column
     {
-        $this->unique = $index_name ?: $this->name;
+        $this->unique = $index_name ?: 'uniq_' . $this->name;
 
         return $this;
     }

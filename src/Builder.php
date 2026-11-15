@@ -730,12 +730,19 @@ class Builder
      *
      * @param string $column
      * @param string|null $comment
-     * @param int|null $srid 空间参考系 ID，仅 MySQL 8.0+ 生效
+     * @param int|null $srid 空间参考系 ID，仅 MySQL 8.0+ 生效；不传则不写入该选项
      * @return Column
      */
     public function point(string $column, string $comment = null, int $srid = null): Column
     {
-        return $this->addColumn('point', $column, compact('comment', 'srid'));
+        $options = compact('comment');
+
+        // Phinx 的 setSrid(int) 不接受 null，未指定坐标系时不能把该选项传给列定义
+        if ($srid !== null) {
+            $options['srid'] = $srid;
+        }
+
+        return $this->addColumn('point', $column, $options);
     }
 
     /**
