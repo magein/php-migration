@@ -3,4 +3,5 @@
 composer.lock
 composer.phar
 issues.md
+phinx.php
 .workbuddy
