@@ -42,9 +42,15 @@ class Column
 
     /**
      * 默认值
-     * @var string|int|null
+     * @var mixed
      */
-    protected $default = -1;
+    protected $default = null;
+
+    /**
+     * 是否显式声明过默认值（-1 也是合法默认值，不能用具体值当哨兵）
+     * @var bool
+     */
+    protected $has_default = false;
 
     /**
      * 允许null
@@ -121,12 +127,13 @@ class Column
     }
 
     /**
-     * @param int|string $value
+     * @param mixed $value
      * @return $this
      */
     public function default($value = ''): Column
     {
         $this->default = $value;
+        $this->has_default = true;
 
         return $this;
     }
@@ -232,11 +239,19 @@ class Column
     }
 
     /**
-     * @return int|string|null
+     * @return mixed
      */
     public function getDefault()
     {
         return $this->default;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasDefault(): bool
+    {
+        return $this->has_default;
     }
 
     /**

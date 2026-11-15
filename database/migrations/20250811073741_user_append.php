@@ -20,20 +20,14 @@ class UserAppend extends Migrator
 
     public function down()
     {
-        if ($this->hasColumn('points')) {
-            $this->removeColumn('points');
+        $table = $this->table($this->name);
+
+        foreach (['points', 'score', 'id_type', 'id_number'] as $column) {
+            if ($table->hasColumn($column)) {
+                $table->removeColumn($column);
+            }
         }
 
-        if ($this->hasColumn('score')) {
-            $this->removeColumn('score');
-        }
-
-        if ($this->hasColumn('id_type')) {
-            $this->removeColumn('id_type');
-        }
-
-        if ($this->hasColumn('id_number')) {
-            $this->removeColumn('id_number');
-        }
+        $table->save();
     }
 }

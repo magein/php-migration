@@ -22,7 +22,7 @@ class AlterGoodsPrice extends Migrator
     public function down()
     {
         $builder = $this->builder();
-        $builder->change('price', 'integer', '售价');
+        $builder->change('price', 'integer', '售价 单位分');
 
         $this->update($builder);
     }

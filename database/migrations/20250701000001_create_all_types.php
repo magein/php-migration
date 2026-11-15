@@ -8,10 +8,8 @@ use magein\migration\Migrator;
  * 覆盖 Builder 的全部列类型原语，一个方法对应一列，用来核对最终生成的 SQL 类型。
  * 环境：MySQL >= 5.7.8（json）、空间类型 >= 5.7；表使用 InnoDB + utf8mb4。
  *
- * 两组方法写成文件末尾的注释，没有直接启用：
- *   - bigIncrements() / integerIncrements()：一张表只允许一个 AUTO_INCREMENT 列，本表用 id() 生成主键；
- *   - 5 个 multi* / geometryCollection()：类型串不在 Phinx MysqlAdapter::getSqlType() 映射内，
- *     启用会抛 UnsupportedColumnTypeException（与 MySQL 版本无关）。
+ * 文件末尾的 bigIncrements() / integerIncrements() 与 id() 二选一，没有直接启用：
+ * 一张表只允许一个 AUTO_INCREMENT 列。
  */
 class CreateAllTypes extends Migrator
 {
@@ -63,7 +61,7 @@ class CreateAllTypes extends Migrator
         $builder->timestamp('ts_col', '时间戳');
         $builder->year('year_col', '年份');
 
-        // 空间类型（getSqlType() 已映射的 4 个）
+        // 空间类型（Builder 支持的 4 个）
         $builder->geometry('geometry_col', '任意几何值');
         // point() 的第三参 srid 可选，需要限定坐标系（MySQL 8.0+）时才传
         $builder->point('point_col', '坐标点');
@@ -73,13 +71,6 @@ class CreateAllTypes extends Migrator
         // 自增写法：与上面的 id() 二选一，启用任一行前先删掉 id()。
         // $builder->integerIncrements('id', 'int 自增主键');
         // $builder->bigIncrements('id', 'bigint 自增主键');
-
-        // 以下 5 个类型串 Phinx 未映射，启用会在 addColumn() 阶段被拒：
-        // $builder->geometryCollection('geometrycollection_col', '几何集合');
-        // $builder->multiPoint('multipoint_col', '多点');
-        // $builder->multiLineString('multilinestring_col', '多线');
-        // $builder->multiPolygon('multipolygon_col', '多面');
-        // $builder->multiPolygonZ('multipolygonz_col', '带 Z 坐标的多面');
 
         $this->create($builder);
     }

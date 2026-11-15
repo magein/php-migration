@@ -78,16 +78,11 @@ class Builder
     public $foreign = [];
 
     /**
-     * @var string|float|int
-     */
-    protected $version = '';
-
-    /**
      * 表选项（构造函数按 TABLE_OPTIONS 白名单合并）：
      *   id           是否自动创建自增主键（默认 false）
      *   primary_key  主键列名或列名数组
      *   comment      表注释
-     *   engine       表引擎（默认 MyISAM）
+     *   engine       表引擎（默认 InnoDB）
      *   collation    表字符集（默认 utf8_unicode_ci）
      *   row_format   行记录格式
      *   signed       自增主键是否有符号
@@ -103,18 +98,6 @@ class Builder
      * @var array
      */
     protected $columns = [];
-
-    /**
-     * 重命名列 [旧名, 新名]
-     * @var array
-     */
-    protected $renames = [];
-
-    /**
-     * 删除的列
-     * @var array
-     */
-    protected $removes = [];
 
     /**
      * @param array|string|null $options 字符串按表注释处理，数组按表选项处理
@@ -229,48 +212,12 @@ class Builder
     }
 
     /**
-     * 设置版本
-     * @param float|string|$version
-     * @return void
-     */
-    public function setVersion($version): void
-    {
-        if ($version) {
-            $this->version = $version;
-        }
-    }
-
-    /**
-     * @return float|int|string
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    /**
      * 获取所有的列
      * @return array
      */
     public function getColumns(): array
     {
         return $this->columns;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRenames(): array
-    {
-        return $this->renames;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRemoves(): array
-    {
-        return $this->removes;
     }
 
     /**
@@ -282,10 +229,6 @@ class Builder
      */
     public function addColumn($type, $name, array $parameters = []): Column
     {
-        if (isset($this->columns[$name])) {
-            throw new \RuntimeException("重复的列名: {$name}");
-        }
-
         $column = new Column();
         $column->name($name);
         $column->type($type);
@@ -299,7 +242,49 @@ class Builder
             $column->length($parameters['length']);
         }
 
+        $this->registerColumn($name, $column);
+
+        return $column;
+    }
+
+    /**
+     * 登记列：addColumn() 与 change() 共用，统一做重复列名检查
+     * @param string $name
+     * @param Column $column
+     * @return void
+     */
+    protected function registerColumn(string $name, Column $column): void
+    {
+        if (isset($this->columns[$name])) {
+            throw new \RuntimeException("重复的列名: {$name}");
+        }
+
         $this->columns[$name] = $column;
+    }
+
+    /**
+     * 修改已有列的定义
+     * @param string $name
+     * @param string $type
+     * @param string|null $comment
+     * @return Column
+     */
+    public function change(string $name = '', string $type = '', string $comment = null): Column
+    {
+        if ($name === '') {
+            throw new \RuntimeException('修改列的列名不能为空');
+        }
+
+        if ($type === '') {
+            throw new \RuntimeException("修改列的类型不能为空: {$name}");
+        }
+
+        $column = new Column();
+        $column->name($name);
+        $column->type($type);
+        $column->comment($comment ?: '');
+        $column->change();
+        $this->registerColumn($name, $column);
 
         return $column;
     }
@@ -756,16 +741,16 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @param bool $null
      * @return Column
      */
     public function dateTime(string $column, string $comment = null, int $precision = 0, bool $null = false): Column
     {
-        if ($this->version < 5.6) {
-            $options = compact('comment', 'null');
-        } else {
-            $options = compact('comment', 'precision', 'null');
+        $options = compact('comment', 'null');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
         }
 
         return $this->addColumn('datetime', $column, $options);
@@ -774,23 +759,35 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @return Column
      */
     public function time(string $column, string $comment = null, int $precision = 0): Column
     {
-        return $this->addColumn('time', $column, compact('comment', 'precision'));
+        $options = compact('comment');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
+        }
+
+        return $this->addColumn('time', $column, $options);
     }
 
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @return Column
      */
     public function timestamp(string $column, string $comment = null, int $precision = 0): Column
     {
-        return $this->addColumn('timestamp', $column, compact('comment', 'precision'));
+        $options = compact('comment');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
+        }
+
+        return $this->addColumn('timestamp', $column, $options);
     }
 
     /**
@@ -859,128 +856,6 @@ class Builder
     public function polygon(string $column, string $comment = null): Column
     {
         return $this->addColumn('polygon', $column, compact('comment'));
-    }
-
-    // 以下 5 个方法生成的类型串受 MysqlAdapter::getSqlType() 映射影响：
-    // geometrycollection / multipoint / multilinestring / multipolygon / multipolygonz
-
-    /**
-     * 创建 geometrycollection 类型的空间列（几何集合）
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function geometryCollection(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('geometrycollection', $column, compact('comment'));
-    }
-
-    /**
-     * 创建 multipoint 类型的空间列（多点）
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPoint(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipoint', $column, compact('comment'));
-    }
-
-    /**
-     * 创建 multilinestring 类型的空间列（多线）
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiLineString(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multilinestring', $column, compact('comment'));
-    }
-
-    /**
-     * 创建 multipolygon 类型的空间列（多面）
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPolygon(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipolygon', $column, compact('comment'));
-    }
-
-    /**
-     * 创建 multipolygonz 类型的空间列（带 Z 坐标的多面）
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPolygonZ(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipolygonz', $column, compact('comment'));
-    }
-
-    /**
-     * 重命名列
-     * @param string $name
-     * @param string $new_name
-     * @return void
-     */
-    public function rename(string $name = '', string $new_name = ''): void
-    {
-        if ($name === '' || $new_name === '') {
-            throw new \RuntimeException('重命名列的旧名和新名都不能为空');
-        }
-
-        if ($name === $new_name) {
-            throw new \RuntimeException("重命名列的新旧名称不能相同: {$name}");
-        }
-
-        $this->renames[] = [$name, $new_name];
-    }
-
-    /**
-     * 修改已有列的定义
-     * @param string $name
-     * @param string $type
-     * @param string|null $comment
-     * @return Column
-     */
-    public function change(string $name = '', string $type = '', string $comment = null): Column
-    {
-        if ($name === '') {
-            throw new \RuntimeException('修改列的列名不能为空');
-        }
-
-        if ($type === '') {
-            throw new \RuntimeException("修改列的类型不能为空: {$name}");
-        }
-
-        $column = new Column();
-        $column->name($name);
-        $column->type($type);
-        $column->comment($comment ?: '');
-        $column->change();
-        $this->columns[$name] = $column;
-        return $column;
-    }
-
-    /**
-     * 删除列，只能在 up() 中使用
-     * @param string $name
-     * @return void
-     */
-    public function remove(string $name = ''): void
-    {
-        if ($name === '') {
-            throw new \RuntimeException('删除列的列名不能为空');
-        }
-
-        $this->removes[] = $name;
     }
 
     /**

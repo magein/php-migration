@@ -5,7 +5,7 @@ use magein\migration\Migrator;
 /**
  * 幂等建表：系统配置表
  * 演示：save() 与 create() 的区别——save() 在表不存在时 create、已存在时 update，
- *       适合反复执行也不报错的初始化脚本；exist() 可做为额外守卫。
+ *       适合反复执行也不报错的初始化脚本；hasTable() 可做额外守卫。
  */
 class SaveIdempotent extends Migrator
 {
@@ -26,6 +26,8 @@ class SaveIdempotent extends Migrator
 
     public function down()
     {
-        $this->drop();
+        if ($this->hasTable($this->name)) {
+            $this->table($this->name)->drop()->save();
+        }
     }
 }
