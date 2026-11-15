@@ -18,4 +18,11 @@ require MIGRATION_COMPOSER_INSTALL;
 
 $input = new \magein\migration\PhinxInput();
 $app = new \Phinx\Console\PhinxApplication();
-$app->run($input->init());
+
+try {
+    exit($app->run($input->init()));
+} catch (\InvalidArgumentException $e) {
+    // PhinxInput 的参数校验错误在进入 Phinx 之前拦截，避免输出未捕获异常的调用栈
+    fwrite(STDERR, '参数错误：' . $e->getMessage() . PHP_EOL);
+    exit(1);
+}

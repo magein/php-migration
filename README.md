@@ -13,8 +13,8 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 ### 修改
 
 1. 可以链式调用
-2. 优化了命令行的参数位置(一些命令不在局限于位置)
-3. 可以省略migrate参数,支持小写,下划线的方式创建
+2. 命令与选项原样透传给 Phinx，`-e` / `--target` / `--configuration` 等参数不再被吞掉
+3. 省略 create 命令，直接写驼峰或下划线形式的迁移类名即可创建（如 `create_user`）
 
 ### 安装
 
@@ -65,18 +65,23 @@ return \magein\migration\PhinxConfig::config(
 );
 ```
 
-#### phinx
+#### 命令行
 
-这里是phinx默认的命令(可参考官网的命令)
+所有命令都通过 `bin/migrate` 执行，命令写在第一个参数，选项跟在命令之后并原样透传给 Phinx：
 
 ```shell
-php phinx create CreateUserTable
-php phinx migrate
-php phinx -e migrate
-php phinx rollback
-php phinx seed:create
-php phinx seed:run
+php migrate migrate                            # 执行迁移
+php migrate migrate -e production              # 指定环境
+php migrate migrate --target 20250801000001    # 迁移到指定版本
+php migrate rollback -e production --target 20250801000001
+php migrate status -e production
+php migrate breakpoint -t 20250801000001 -e production
+php migrate seed:create
+php migrate seed:run -e production
+php migrate --help
 ```
+
+`run` 是 `migrate` 的别名。选项只支持 `-x`（值单独跟在后面，如 `-e production`）与 `--name` / `--name=value`（如 `--class=MyCreator`、`--configuration=/path/phinx.php`）两种写法，不支持 `-eproduction` 这类连写值；自定义配置文件可用 `--configuration` 指定。
 
 #### 调用
 
@@ -87,8 +92,10 @@ include('vendor/autoload.php');
 
 $input = new \magein\migration\PhinxInput();
 $app = new \Phinx\Console\PhinxApplication();
-$app->run($input);
+$app->run($input->init());
 ```
+
+`init()` 返回 `Phinx\Component\Input\ArgvInput`（实现 `InputInterface`），必须把它传给 `run()`；也可以用 `$input->setClass()` / `$input->setConfiguration()` 注入自定义创建类与配置路径。
 
 迁移类名原样传入，不再自动补 `Create` 前缀或 `Table` 后缀；下划线写法只做命名转换，最终会转成驼峰。文件名由类名生成，动作写在名字里就能一眼看出用途。
 
@@ -99,37 +106,25 @@ php migrate append_user_profile    # AppendUserProfile，新增字段
 php migrate remove_user_legacy     # RemoveUserLegacy，删除字段
 php migrate rename_user_to_member  # RenameUserToMember，表重命名
 php migrate update_user            # UpdateUser，修改字段
+
+# 也可以显式写 create，并在命令后追加选项
+php migrate create create_user --template=custom.stub --path=./database/migrations
+php migrate create create_user --class=MyCreator
 ```
+
+只有含大写字母或下划线的裸词才会被当成迁移类名；纯小写单词（如 `user`）一律按命令解析，拼错会直接报「无法识别的命令」，不会误生成迁移文件。选项请放在命令之后，前面「命令行」一节列出的 `-e` / `--target` / `--configuration` 等都会原样透传。
 
 变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。
 
 表字段
 
+字段在 `up()` 里用 `$builder` 声明，完整可运行的迁移见下文「迁移文件推荐写法」与 [docs/README.md](docs/README.md)。注意 `Builder::change()` 必须给出列名与新类型，无参调用会抛异常：
+
 ```php
-
-protected $name = 'user';
-
-public function change()
-{
-    $builder = $this->builder('表描述');
-    $builder->id();
-    $builder->string('username', '登录账号', 30)->length(64)->unique();
-    $builder->char('password', '登录账号', 32);
-    $builder->tinyInteger('from', '来源 1 注册 2 小程序')->default(1);
-    $builder->smallInteger('age', '年龄')->nullable();
-    $builder->integer('integral', '积分')->default();
-    $builder->date('birthday', '生日')->nullable();
-    $builder->dateTime('last_login_time', '最后一次登录时间')->nullable();
-    $builder->time('notify')->comment('通知时间')->nullable();
-    
-    // 更新字段
-    $builder->change();
-
-    $builder->innoDB();
-    $this->create($builder, false);
-}
-
+$builder->change('username', 'string', '登录账号');   // 列名 + 新类型 + 注释
 ```
+
+`down()` 不能省，删列、改列、重命名、删表都无法自动反转。
 
 #### 迁移文件推荐写法
 
@@ -207,110 +202,13 @@ class RenameUserToMember extends Migrator
 
 #### 执行
 
-> run migrate create
-
 ```shell
-
-php migrate run
-php migrate migrate
-php migrate user run
-php migrate run  user
-php migrate rollback user
-php migrate user rollback 
-
+php migrate migrate                 # 执行迁移
+php migrate run                     # run 是 migrate 的别名
+php migrate rollback -e production  # 回滚，可加 --target / --date 指定版本
+php migrate status -e production    # 查看迁移状态
 ```
 
-当命令行包含run/migrate/rollback的时候将执行命令,不在区分顺序
+命令必须是第一个参数，选项跟在命令之后；不再支持 `php migrate user run` 这类把动作词放在任意位置的写法。
 
-### 内置字段
-
-#### 常规字段
-
-```php
-$builder = $this->builder('');
-$builder->id();
-
-// 用户
-$builder->user->username();
-$builder->user->password();
-$builder->basic->name();
-$builder->user->nickname();
-$builder->contact->phone();
-$builder->contact->email();
-$builder->user->gender();
-$builder->user->age();
-$builder->user->birthday();
-// 民族
-$builder->user->ethnicId();
-// 籍贯
-$builder->user->nativePlace();
-// 用户可积累、兑换的积分系统
-$builder->user->points();
-// 分数或得分
-$builder->user->score();
-// 证件类型  身份证 港澳通行证  台胞证等
-$builder->user->idType();
-// 证件号码
-$builder->user->idNumber();
-
-// 常规
-$builder->basic->type();
-$builder->article->title();
-$builder->article->content();
-$builder->basic->remark();
-$builder->basic->sort();
-$builder->date->beginTime();
-$builder->date->startTime();
-$builder->date->endTime();
-$builder->basic->status();
-
-// 地址
-$builder->addr->address();
-$builder->addr->province();
-$builder->addr->city();
-$builder->addr->area();
-$builder->addr->district();
-$builder->addr->street();
-$builder->addr->postcode();
-$builder->addr->location();
-$builder->addr->lng();
-$builder->addr->lat();
-
-```
-
-#### 其他字段类型
-
-构建器另提供三个原语，返回值同样是 `Column`，可继续链式调用 `nullable()`、`comment()`、`length()` 等：
-
-```php
-$builder->year('graduation_year', '毕业年份');  // YEAR(4)
-$builder->json('extra', '扩展数据');             // JSON，需 MySQL 5.7.8+
-$builder->blob('payload', '二进制内容');         // BLOB
-```
-
-`year()` 由 Phinx 固定生成 `YEAR(4)`；`json()` 依赖 MySQL 5.7.8 起的原生 JSON 类型；`blob()` 默认生成 BLOB，需要更大容量时链式 `->length()` 指定（配合 `Phinx\Db\Adapter\MysqlAdapter::BLOB_*` 常量）。
-
-#### 唯一索引与列长度
-
-`->unique()` 只登记唯一索引，不改动列长度（旧版本会把 string 列截到 191）。191 来自早期默认行格式：`COMPACT` / `REDUNDANT` 下 InnoDB 索引前缀上限 767 字节，`utf8mb4` 每字符最多 4 字节，767 ÷ 4 ≈ 191；`utf8`（mb3）下 767 ÷ 3 ≈ 255，本来就够。
-
-MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` 默认 ON，5.7 的 `innodb_default_row_format` 默认 `DYNAMIC`，`DYNAMIC` / `COMPRESSED` 的索引前缀上限是 3072 字节；`utf8mb4` 的 `VARCHAR(255)` 占 1020 字节，可以直接建唯一索引。8.0 起这是默认行为。
-
-前提是 InnoDB + `DYNAMIC`。本包默认引擎是 MyISAM（可用 `$builder->innoDB()` 切换），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
-
-#### 常见表结构
-
-包不预设整张表——表结构属于项目自己的 migration，迁移文件应当自包含。按业务场景整理好的可复制代码放在 [docs/README.md](docs/README.md)：用户、用户地址、员工、商家、企业、银行、分类、文章、轮播图、行政区划、行业、商品、订单、支付订单、优惠券规则、发票、附件文件等场景，点开即可复制 `change()` 代码。
-
-字段预设本来就是按场景组合使用的：
-
-```php
-$builder->id();
-$builder->user->username();
-$builder->user->password();
-$builder->user->nickname();
-$builder->contact->phone();
-$builder->contact->email();
-$builder->basic->status();
-$builder->basic->sort();
-```
+字段预设、列类型原语、常见表结构与迁移注意事项见 [docs/README.md](docs/README.md)。

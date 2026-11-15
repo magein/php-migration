@@ -35,27 +35,6 @@ class Migrator extends AbstractMigration
         exit(1);
     }
 
-    /**
-     *
-     * namespace Phinx\Migration\MigrationInterface有默认的四个命令
-     *
-     * public const CHANGE = 'change';
-     * public const UP = 'up';
-     * public const DOWN = 'down';
-     * public const INIT = 'init';
-     *
-     * @return void
-     */
-    public function init()
-    {
-        if (empty($this->name)) {
-            $class_name = static::class;
-            $class_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $class_name);
-            $class_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $class_name));
-            $this->name = $class_name;
-        }
-    }
-
     public function builder($options = null): Builder
     {
         return new Builder($options);

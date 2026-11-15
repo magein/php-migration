@@ -8,7 +8,7 @@ class $className extends Migrator
     /**
      * @var string
      */
-    protected $name = '{$name}';
+    protected $name = '';
 
     public function up()
     {

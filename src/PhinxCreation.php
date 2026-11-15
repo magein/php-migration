@@ -66,20 +66,18 @@ class PhinxCreation implements CreationInterface
     protected function tableName(): string
     {
         $name = $this->input->getArgument('name');
+
+        // 只有 CreateXxx 推断表名，其余变更类不猜，留空由使用者手写
+        $this->template = 'update';
+        $table_name = '';
+
         if (str_starts_with($name, 'Create')) {
             $this->template = 'create';
             $table_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $name);
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
-        } else {
-            $this->template = 'update';
-            $table_name = preg_replace('/Update.*/', '', $name);
         }
 
-        if ($table_name) {
-            $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
-        }
-
-        return $this->table_name = $table_name ?? '';
+        return $this->table_name = $table_name;
     }
 
     public function getMigrationTemplate(): string

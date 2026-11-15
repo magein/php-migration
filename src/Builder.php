@@ -50,6 +50,15 @@ class Builder
         'flag' => FlagPreset::class,
         'order' => OrderPreset::class,
     ];
+
+    /**
+     * 表选项白名单：只透传 Phinx 能识别的键
+     * @var array
+     */
+    private const TABLE_OPTIONS = [
+        'id', 'primary_key', 'comment', 'engine', 'collation', 'row_format', 'signed', 'limit',
+    ];
+
     /**
      * 普通索引
      * @var array
@@ -74,12 +83,15 @@ class Builder
     protected $version = '';
 
     /**
-     *  可选值：
-     *   comment     给表结构设置文本注释
-     *   row_format  设置行记录模格式
-     *   engine      表引擎 (默认 InnoDB)
-     *   collation    表字符集
-     *   signed       是否无符号 signed(默认 true)
+     * 表选项（构造函数按 TABLE_OPTIONS 白名单合并）：
+     *   id           是否自动创建自增主键（默认 false）
+     *   primary_key  主键列名或列名数组
+     *   comment      表注释
+     *   engine       表引擎（默认 MyISAM）
+     *   collation    表字符集（默认 utf8_unicode_ci）
+     *   row_format   行记录格式
+     *   signed       自增主键是否有符号
+     *   limit        自增主键列的 limit
      * @var array
      */
     protected $options = [];
@@ -104,22 +116,36 @@ class Builder
      */
     protected $removes = [];
 
+    /**
+     * @param array|string|null $options 字符串按表注释处理，数组按表选项处理
+     */
     public function __construct($options = null)
     {
         if (is_string($options)) {
-            $this->options['comment'] = $options;
+            $options = ['comment' => $options];
         }
 
-        if (!isset($options['id'])) {
+        if (!is_array($options)) {
+            $options = [];
+        }
+
+        foreach (self::TABLE_OPTIONS as $key) {
+            if (array_key_exists($key, $options)) {
+                $this->options[$key] = $options[$key];
+            }
+        }
+
+        // 未声明 id 时 Phinx 会自动补一个自增主键，这里默认关掉
+        if (!array_key_exists('id', $this->options)) {
             $this->options['id'] = false;
         }
 
         if (empty($this->options['engine'])) {
-            $this->setEngine(($config['engine'] ?? '') ?: 'MyISAM');
+            $this->setEngine('InnoDB');
         }
 
         if (empty($this->options['collation'])) {
-            $this->setCollation(($config['collation'] ?? '') ?: 'utf8_unicode_ci');
+            $this->setCollation('utf8_unicode_ci');
         }
     }
 
@@ -359,11 +385,12 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
+     * @param bool $increment
      * @return Column
      */
-    public function bigIncrements(string $column = 'id', string $comment = null): Column
+    public function unsignedTinyInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        return $this->unsignedBigInteger($column, $comment, true);
+        return $this->tinyInteger($column, $comment, false, $increment);
     }
 
     /**
@@ -372,23 +399,20 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function unsignedBigInteger(string $column, string $comment = null, bool $increment = false): Column
+    public function unsignedSmallInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        return $this->bigInteger($column, $comment, false, $increment);
+        return $this->smallInteger($column, $comment, false, $increment);
     }
 
     /**
      * @param string $column
      * @param string|null $comment
-     * @param bool $signed
      * @param bool $increment
      * @return Column
      */
-    public function bigInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function unsignedMediumInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        $limit = MysqlAdapter::INT_BIG;
-
-        return $this->addColumn('biginteger', $column, compact('increment', 'signed', 'limit', 'comment'));
+        return $this->mediumInteger($column, $comment, false, $increment);
     }
 
     /**
@@ -403,6 +427,50 @@ class Builder
     }
 
     /**
+     * @param string $column
+     * @param string|null $comment
+     * @param bool $increment
+     * @return Column
+     */
+    public function unsignedBigInteger(string $column, string $comment = null, bool $increment = false): Column
+    {
+        return $this->bigInteger($column, $comment, false, $increment);
+    }
+
+    /**
+     * 添加 tinyint 自增列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function tinyIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->unsignedTinyInteger($column, $comment, true);
+    }
+
+    /**
+     * 添加 smallint 自增列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function smallIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->unsignedSmallInteger($column, $comment, true);
+    }
+
+    /**
+     * 添加 mediumint 自增列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function mediumIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->unsignedMediumInteger($column, $comment, true);
+    }
+
+    /**
      * 添加自增列
      * @param string $column
      * @param string|null $comment
@@ -411,6 +479,16 @@ class Builder
     public function integerIncrements(string $column = 'id', string $comment = null): Column
     {
         return $this->unsignedInteger($column, $comment, true);
+    }
+
+    /**
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function bigIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->unsignedBigInteger($column, $comment, true);
     }
 
     /**
@@ -468,6 +546,20 @@ class Builder
         $limit = MysqlAdapter::INT_MEDIUM;
 
         return $this->addColumn('integer', $column, compact('comment', 'increment', 'signed', 'limit'));
+    }
+
+    /**
+     * @param string $column
+     * @param string|null $comment
+     * @param bool $signed
+     * @param bool $increment
+     * @return Column
+     */
+    public function bigInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    {
+        $limit = MysqlAdapter::INT_BIG;
+
+        return $this->addColumn('biginteger', $column, compact('increment', 'signed', 'limit', 'comment'));
     }
 
     /**
@@ -574,7 +666,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function float(string $column, string $comment = null, int $precision = 8, int $scale = 2, bool $signed = false): Column
+    public function float(string $column, string $comment = null, int $precision = 8, int $scale = 2, bool $signed = true): Column
     {
         return $this->addColumn('float', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -588,7 +680,7 @@ class Builder
      */
     public function floatUnsigned(string $column, string $comment = null, int $precision = 8, int $scale = 2): Column
     {
-        return $this->float($column, $comment, $precision, $scale, true);
+        return $this->float($column, $comment, $precision, $scale, false);
     }
 
     /**
@@ -599,7 +691,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function double(string $column, string $comment = null, int $precision = null, int $scale = null, bool $signed = false): Column
+    public function double(string $column, string $comment = null, int $precision = null, int $scale = null, bool $signed = true): Column
     {
         return $this->addColumn('double', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -613,7 +705,7 @@ class Builder
      */
     public function doubleUnsigned(string $column, string $comment = null, int $precision = null, int $scale = null): Column
     {
-        return $this->double($column, $comment, $precision, $scale, true);
+        return $this->double($column, $comment, $precision, $scale, false);
     }
 
     /**
@@ -624,7 +716,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function decimal(string $column, string $comment = null, int $precision = 10, int $scale = 2, bool $signed = false): Column
+    public function decimal(string $column, string $comment = null, int $precision = 10, int $scale = 2, bool $signed = true): Column
     {
         return $this->addColumn('decimal', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -638,7 +730,7 @@ class Builder
      */
     public function decimalUnsigned(string $column, string $comment = null, int $precision = 10, int $scale = 2): Column
     {
-        return $this->decimal($column, $comment, $precision, $scale, true);
+        return $this->decimal($column, $comment, $precision, $scale, false);
     }
 
     /**
