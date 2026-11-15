@@ -91,72 +91,85 @@ class Migrator extends AbstractMigration
     }
 
     /**
+     * 组装 Phinx 可识别的列选项
+     * @param Column $column
+     * @return array
+     */
+    protected function columnOptions(Column $column): array
+    {
+        $options = $column->getOthers();
+
+        if ($column->getDefault() !== -1) {
+            $options['default'] = $column->getDefault();
+        }
+
+        if ($column->getLength()) {
+            $options['limit'] = $column->getLength();
+        }
+
+        if ($column->getAfter()) {
+            $options['after'] = $column->getAfter();
+        }
+
+        if ($column->getComment()) {
+            $options['comment'] = $column->getComment();
+        }
+
+        $options['null'] = $column->getNull();
+        if ($column->getNull()) {
+            unset($options['default']);
+        }
+
+        if (isset($options['increment']) && $options['increment'] === false) {
+            unset($options['increment']);
+        }
+
+        return $options;
+    }
+
+    /**
      * @param Table $table
      * @return Table
      */
     protected function parse(Table $table): Table
     {
-        $columns = $this->builder->getColumns();
+        foreach ($this->builder->getRenames() as $rename) {
+            $table->renameColumn($rename[0], $rename[1]);
+        }
 
-        foreach ($columns as $column) {
+        $removes = $this->builder->getRemoves();
+        if ($removes && !$this->isMigratingUp()) {
+            throw new \RuntimeException('remove() 只能在 up() 中使用，请在 down() 中显式重建列');
+        }
+        foreach ($removes as $name) {
+            $table->removeColumn($name);
+        }
+
+        foreach ($this->builder->getColumns() as $column) {
             /**
              * @var Column $column
              */
             $name = $column->getName();
-            $type = $column->getType();
+            $options = $this->columnOptions($column);
 
-            $options = $column->getOthers();
-
-            if ($column->getDefault() !== -1) {
-                $options['default'] = $column->getDefault();
+            if ($column->isChange()) {
+                $table->changeColumn($name, $column->getType(), $options);
+                continue;
             }
 
-            if ($column->getLength()) {
-                $options['limit'] = $column->getLength();
-            }
+            $table->addColumn($name, $column->getType(), $options);
 
-            if ($column->getAfter()) {
-                $options['after'] = $column->getAfter();
-            }
-
-            if ($column->getComment()) {
-                $options['comment'] = $column->getComment();
-            }
-
-            $options['null'] = $column->getNull();
-            if ($column->getNull()) {
-                unset($options['default']);
-            }
-
-            if (isset($options['increment']) && $options['increment'] === false) {
-                unset($options['increment']);
-            }
-
-            if ($column->isRemove() && $this->isMigratingUp()) {
-                if (!method_exists(static::class, 'change')) {
-                    $table->removeColumn($name);
-                }
-            } elseif ($rename = $column->isRename()) {
-                if (count($rename) == 2) {
-                    $table->renameColumn($rename[0], $rename[1]);
-                }
-            } elseif ($column->isChange()) {
-                $table->changeColumn($name, $type, $options);
-            } else {
-                $table->addColumn($name, $type, $options);
-
-                if ($column->getUnique()) {
-                    $table->addIndex($column->getUnique(),
-                        [
-                            'name' => $column->getUnique(),
-                            'unique' => true,
-                        ]
-                    );
-                } elseif ($column->getIndex()) {
-                    $table->addIndex($column->getIndex(), [
-                        'name' => $column->getIndex(),
-                    ]);
-                }
+            if ($column->getUnique()) {
+                $table->addIndex($column->getUnique(),
+                    [
+                        'name' => $column->getUnique(),
+                        'unique' => true,
+                    ]
+                );
+            } elseif ($column->getIndex()) {
+                $table->addIndex($column->getIndex(), [
+                    'name' => $column->getIndex(),
+                ]);
             }
         }
         if ($this->builder->unique) {

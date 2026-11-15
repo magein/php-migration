@@ -97,13 +97,13 @@ class OrderPreset extends PresetGroup
     public function orderStatus(string $comment = null, int $default = 1): Column
     {
         $comment = $comment ?: '订单状态 -1 取消 cancel 1 已发货 shipped 7 已完成 finished 9 已退款 refunded';
-        return $this->builder->integerTiny('order_status', $comment)->default($default);
+        return $this->builder->tinyInteger('order_status', $comment)->default($default);
     }
 
     public function payStatus(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '支付状态 0 待支付 pending 1 已支付 paid';
-        return $this->builder->integerTiny('pay_status', $comment)->default($default);
+        return $this->builder->tinyInteger('pay_status', $comment)->default($default);
     }
 
     public function paidAt(string $comment = null): Column
@@ -115,7 +115,7 @@ class OrderPreset extends PresetGroup
     public function payMethod(string $comment = null, int $default = 1): Column
     {
         $comment = $comment ?: '支付方式';
-        return $this->builder->integerTiny('pay_method', $comment)->default($default);
+        return $this->builder->tinyInteger('pay_method', $comment)->default($default);
     }
 
     public function buyerId(string $comment = null): Column
@@ -193,6 +193,6 @@ class OrderPreset extends PresetGroup
     public function isInvoice(string $comment = null, int $default = 0): Column
     {
         $comment = $comment ?: '是否需要发票';
-        return $this->builder->integerTiny('is_invoice', $comment)->default($default);
+        return $this->builder->tinyInteger('is_invoice', $comment)->default($default);
     }
 }

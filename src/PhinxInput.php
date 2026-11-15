@@ -17,13 +17,6 @@ class PhinxInput
     {
         $argv = $argv ?? $_SERVER['argv'] ?? [];
 
-        $index = array_search('--column', $argv);
-        $columns = '';
-        if ($index !== false) {
-            $columns = $argv[$index + 1] ?? '';
-            unset($argv[$index], $argv[$index + 1]);
-        }
-
         if (in_array('run', $argv)) {
             $argv[1] = 'migrate';
             $argv = array_slice($argv, 0, 2);
@@ -48,14 +41,8 @@ class PhinxInput
                 throw new \InvalidArgumentException('请输入表名称');
             }
 
+            // 将下划线命名转换为驼峰命名
             $name = str_replace(' ', '', ucwords(str_replace('_', ' ', $name)));
-            if (!preg_match('/[aA]ppend/', $name)
-                && !preg_match('/[uU]pdate/', $name)
-                && !preg_match('/[rR]ename/', $name)
-                && !preg_match('/[rR]emove/', $name)
-            ) {
-                $name = sprintf('Create%sTable', $name);
-            }
 
             $argv[2] = $name;
 
@@ -69,10 +56,6 @@ class PhinxInput
         // 指定配置文件
         if ($this->configuratio) {
             $argv[] = '--configuration=' . $this->configuratio;
-        }
-
-        if ($index !== false) {
-            $argv[] = '--column=' . $columns;
         }
 
         return new ArgvInput($argv, $definition);

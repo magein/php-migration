@@ -71,19 +71,7 @@ class Column
     protected $unique = [];
 
     /**
-     * 重命名字段
-     * @var array
-     */
-    protected $rename = [];
-
-    /**
-     * 删除行
-     * @var bool
-     */
-    protected $remove = false;
-
-    /**
-     * 更新
+     * 更新已有列的定义
      * @var bool
      */
     protected $change = false;
@@ -187,19 +175,17 @@ class Column
     }
 
     /**
+     * 唯一索引只登记索引，不改列长度。
+     * 191 是 utf8mb4 + COMPACT/REDUNDANT 行格式下 767 字节索引前缀的旧限制；
+     * MySQL 5.7 默认 DYNAMIC + innodb_large_prefix=ON（上限 3072 字节），
+     * VARCHAR(255) 可正常建唯一索引；旧环境自行 ->length(191) 或调整行格式。
+     *
      * @param string $index_name
      * @return $this
      */
     public function unique(string $index_name = ''): Column
     {
         $this->unique = $index_name ?: $this->name;
-
-        /**
-         * 设置索引有长度要求
-         */
-        if ($this->type === 'string' && $this->length > 191) {
-            $this->length = 191;
-        }
 
         return $this;
     }
@@ -282,46 +268,6 @@ class Column
     public function getUnique()
     {
         return $this->unique;
-    }
-
-    /**
-     * @param $name
-     * @param $new_name
-     * @return $this
-     */
-    public function rename($name, $new_name): Column
-    {
-        if ($name && $new_name) {
-            $this->rename = [$name, $new_name];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function isRename(): array
-    {
-        return is_array($this->rename) ? array_filter($this->rename) : [];
-    }
-
-    /**
-     * @param bool $remove
-     * @return void
-     */
-    public function remove(bool $remove = true): void
-    {
-        $this->remove = $remove;
-    }
-
-    /**
-     * 是否删除
-     * @return bool
-     */
-    public function isRemove(): bool
-    {
-        return boolval($this->remove);
     }
 
     /**

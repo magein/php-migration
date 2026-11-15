@@ -90,18 +90,18 @@ $app = new \Phinx\Console\PhinxApplication();
 $app->run($input);
 ```
 
-```php
-// 创建表
-php migrate user
-// 新增字段 --column 可选
-php migrate user_append_xx --column xx,xx,xxx
-// 移除字段 --column 可选
-php migrate user_remove --column xx,xx,xxx
-// user表重新命名
-php migrate user_rename
-// 更新字段
-php migrate user_update
+迁移类名原样传入，不再自动补 `Create` 前缀或 `Table` 后缀；下划线写法只做命名转换，最终会转成驼峰。文件名由类名生成，动作写在名字里就能一眼看出用途。
+
+```shell
+php migrate create_user            # CreateUser，建表
+php migrate CreateUser             # 等价写法
+php migrate append_user_profile    # AppendUserProfile，新增字段
+php migrate remove_user_legacy     # RemoveUserLegacy，删除字段
+php migrate rename_user_to_member  # RenameUserToMember，表重命名
+php migrate update_user            # UpdateUser，修改字段
 ```
+
+变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。
 
 表字段
 
@@ -115,8 +115,8 @@ public function change()
     $builder->id();
     $builder->string('username', '登录账号', 30)->length(64)->unique();
     $builder->char('password', '登录账号', 32);
-    $builder->integerTiny('from', '来源 1 注册 2 小程序')->default(1);
-    $builder->integerSmall('age', '年龄')->nullable();
+    $builder->tinyInteger('from', '来源 1 注册 2 小程序')->default(1);
+    $builder->smallInteger('age', '年龄')->nullable();
     $builder->integer('integral', '积分')->default();
     $builder->date('birthday', '生日')->nullable();
     $builder->dateTime('last_login_time', '最后一次登录时间')->nullable();
@@ -129,6 +129,80 @@ public function change()
     $this->create($builder, false);
 }
 
+```
+
+#### 迁移文件推荐写法
+
+新增字段（`AppendUserProfile`）：
+
+```php
+use magein\migration\Migrator;
+
+class AppendUserProfile extends Migrator
+{
+    protected $name = 'user';
+
+    public function up()
+    {
+        $builder = $this->builder();
+        $builder->user->age();
+        $builder->string('wechat_openid', '微信 openid', 64)->default('')->after('email');
+
+        $this->update($builder);
+    }
+
+    public function down()
+    {
+        $this->removeColumn('age', 'wechat_openid');
+    }
+}
+```
+
+删除字段（`down()` 里要写出原来的列定义，列才建得回来）：
+
+```php
+use magein\migration\Migrator;
+
+class RemoveUserLegacy extends Migrator
+{
+    protected $name = 'user';
+
+    public function up()
+    {
+        $this->removeColumn('legacy_flag');
+    }
+
+    public function down()
+    {
+        $builder = $this->builder();
+        $builder->tinyInteger('legacy_flag', '历史标记')->default(0);
+
+        $this->update($builder);
+    }
+}
+```
+
+表重命名：
+
+```php
+use magein\migration\Migrator;
+
+class RenameUserToMember extends Migrator
+{
+    protected $name = 'user';
+
+    protected $new_name = 'member';
+
+    public function up()
+    {
+        $this->table($this->name)->rename($this->new_name)->save();
+    }
+
+    public function down()
+    {
+        $this->table($this->new_name)->rename($this->name)->save();
+    }
+}
 ```
 
 #### 执行
@@ -203,6 +277,26 @@ $builder->addr->lng();
 $builder->addr->lat();
 
 ```
+
+#### 其他字段类型
+
+构建器另提供三个原语，返回值同样是 `Column`，可继续链式调用 `nullable()`、`comment()`、`length()` 等：
+
+```php
+$builder->year('graduation_year', '毕业年份');  // YEAR(4)
+$builder->json('extra', '扩展数据');             // JSON，需 MySQL 5.7.8+
+$builder->blob('payload', '二进制内容');         // BLOB
+```
+
+`year()` 由 Phinx 固定生成 `YEAR(4)`；`json()` 依赖 MySQL 5.7.8 起的原生 JSON 类型；`blob()` 默认生成 BLOB，需要更大容量时链式 `->length()` 指定（配合 `Phinx\Db\Adapter\MysqlAdapter::BLOB_*` 常量）。
+
+#### 唯一索引与列长度
+
+`->unique()` 只登记唯一索引，不改动列长度（旧版本会把 string 列截到 191）。191 来自早期默认行格式：`COMPACT` / `REDUNDANT` 下 InnoDB 索引前缀上限 767 字节，`utf8mb4` 每字符最多 4 字节，767 ÷ 4 ≈ 191；`utf8`（mb3）下 767 ÷ 3 ≈ 255，本来就够。
+
+MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` 默认 ON，5.7 的 `innodb_default_row_format` 默认 `DYNAMIC`，`DYNAMIC` / `COMPRESSED` 的索引前缀上限是 3072 字节；`utf8mb4` 的 `VARCHAR(255)` 占 1020 字节，可以直接建唯一索引。8.0 起这是默认行为。
+
+前提是 InnoDB + `DYNAMIC`。本包默认引擎是 MyISAM（可用 `$builder->innoDB()` 切换），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
 
 #### 常见表结构
 

@@ -10,7 +10,7 @@
 $builder = $this->builder('文章表');
 $builder->id();
 $builder->article->title();
-$builder->integerTiny('from', '来源')->default(1);
+$builder->tinyInteger('from', '来源')->default(1);
 $builder->string('cate_id', '所属分类')->default('');
 $builder->article->author();
 $builder->article->intro();
@@ -23,7 +23,7 @@ $builder->flag->isOriginal();
 $builder->flag->isHot();
 $builder->flag->isRecommend();
 $builder->flag->isPublished();
-$builder->integerTiny('open_comment', '开启评论 0 禁止 1 开启')->default(0);
+$builder->tinyInteger('open_comment', '开启评论 0 禁止 1 开启')->default(0);
 $builder->integer('read_num', '阅读数量')->default(0);
 $builder->integer('collect_num', '收藏数量')->default(0);
 $builder->integer('star_num', '点赞数量')->default(0);

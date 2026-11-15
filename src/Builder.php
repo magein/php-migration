@@ -92,6 +92,18 @@ class Builder
      */
     protected $columns = [];
 
+    /**
+     * 重命名列 [旧名, 新名]
+     * @var array
+     */
+    protected $renames = [];
+
+    /**
+     * 删除的列
+     * @var array
+     */
+    protected $removes = [];
+
     public function __construct($options = null)
     {
         if (is_string($options)) {
@@ -220,6 +232,22 @@ class Builder
     }
 
     /**
+     * @return array
+     */
+    public function getRenames(): array
+    {
+        return $this->renames;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRemoves(): array
+    {
+        return $this->removes;
+    }
+
+    /**
      * 添加一列
      * @param $type
      * @param $name
@@ -305,6 +333,16 @@ class Builder
     public function id(): void
     {
         $this->options['id'] = true;
+    }
+
+    /**
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function uuid(string $column, string $comment = null): Column
+    {
+        return $this->addColumn('uuid', $column, compact('comment'));
     }
 
     /**
@@ -397,7 +435,7 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerTiny(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function tinyInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_TINY;
 
@@ -411,7 +449,7 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerSmall(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function smallInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_SMALL;
 
@@ -425,7 +463,7 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerMedium(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function mediumInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_MEDIUM;
 
@@ -473,7 +511,7 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textTiny(string $column, string $comment = null): Column
+    public function tinyText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_TINY;
 
@@ -485,7 +523,7 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textMedium(string $column, string $comment = null): Column
+    public function mediumText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_MEDIUM;
 
@@ -497,11 +535,35 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textLong(string $column, string $comment = null): Column
+    public function longText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_LONG;
 
         return $this->addColumn('text', $column, compact('limit', 'comment'));
+    }
+
+    /**
+     * 创建 JSON 列（MySQL 5.7.8+ 原生支持）
+     *
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function json(string $column, string $comment = null): Column
+    {
+        return $this->addColumn('json', $column, compact('comment'));
+    }
+
+    /**
+     * 创建 BLOB 列（二进制大对象，需要更大容量可链式调用 length() 指定）
+     *
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function blob(string $column, string $comment = null): Column
+    {
+        return $this->addColumn('blob', $column, compact('comment'));
     }
 
     /**
@@ -640,13 +702,15 @@ class Builder
     }
 
     /**
+     * 创建 YEAR 列（年份，Phinx 固定生成 YEAR(4)）
+     *
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
-    public function uuid(string $column, string $comment = null): Column
+    public function year(string $column, string $comment = null): Column
     {
-        return $this->addColumn('uuid', $column, compact('comment'));
+        return $this->addColumn('year', $column, compact('comment'));
     }
 
     /**
@@ -697,6 +761,9 @@ class Builder
     {
         return $this->addColumn('polygon', $column, compact('comment'));
     }
+
+    // 以下 5 个方法生成的类型串受 MysqlAdapter::getSqlType() 映射影响：
+    // geometrycollection / multipoint / multilinestring / multipolygon / multipolygonz
 
     /**
      * 创建 geometrycollection 类型的空间列（几何集合）
@@ -759,28 +826,41 @@ class Builder
     }
 
     /**
-     * 从命名
-     * @param $name
-     * @param $new_name
-     * @return Column
+     * 重命名列
+     * @param string $name
+     * @param string $new_name
+     * @return void
      */
-    public function rename($name, $new_name): Column
+    public function rename(string $name = '', string $new_name = ''): void
     {
-        $column = new Column();
-        $column->name($name);
-        $column->rename($name, $new_name);
-        $this->columns[$name] = $column;
-        return $column;
+        if ($name === '' || $new_name === '') {
+            throw new \RuntimeException('重命名列的旧名和新名都不能为空');
+        }
+
+        if ($name === $new_name) {
+            throw new \RuntimeException("重命名列的新旧名称不能相同: {$name}");
+        }
+
+        $this->renames[] = [$name, $new_name];
     }
 
     /**
-     * @param $name
-     * @param $type
+     * 修改已有列的定义
+     * @param string $name
+     * @param string $type
      * @param string|null $comment
      * @return Column
      */
-    public function change($name, $type, string $comment = null): Column
+    public function change(string $name = '', string $type = '', string $comment = null): Column
     {
+        if ($name === '') {
+            throw new \RuntimeException('修改列的列名不能为空');
+        }
+
+        if ($type === '') {
+            throw new \RuntimeException("修改列的类型不能为空: {$name}");
+        }
+
         $column = new Column();
         $column->name($name);
         $column->type($type);
@@ -791,17 +871,17 @@ class Builder
     }
 
     /**
-     * 请不要再change方法中调用，如果在change方法中调用，将被舍弃
-     * @param $name
-     * @return Column
+     * 删除列，只能在 up() 中使用
+     * @param string $name
+     * @return void
      */
-    public function remove($name): Column
+    public function remove(string $name = ''): void
     {
-        $column = new Column();
-        $column->name($name);
-        $column->remove();
-        $this->columns[$name] = $column;
-        return $column;
+        if ($name === '') {
+            throw new \RuntimeException('删除列的列名不能为空');
+        }
+
+        $this->removes[] = $name;
     }
 
     /**

@@ -17,7 +17,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否热门 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_hot', $comment)->default($default);
+        return $this->builder->tinyInteger('is_hot', $comment)->default($default);
     }
 
     /**
@@ -29,7 +29,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否推荐 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_recommend', $comment)->default($default);
+        return $this->builder->tinyInteger('is_recommend', $comment)->default($default);
     }
 
     /**
@@ -41,7 +41,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否发布 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_published', $comment)->default($default);
+        return $this->builder->tinyInteger('is_published', $comment)->default($default);
     }
 
     /**
@@ -53,7 +53,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否原创 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_original', $comment)->default($default);
+        return $this->builder->tinyInteger('is_original', $comment)->default($default);
     }
 
     /**
@@ -65,7 +65,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否上架 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_up', $comment)->default($default);
+        return $this->builder->tinyInteger('is_up', $comment)->default($default);
     }
 
     /**
@@ -77,7 +77,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否禁用 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_forbid', $comment)->default($default);
+        return $this->builder->tinyInteger('is_forbid', $comment)->default($default);
     }
 
     /**
@@ -89,7 +89,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否展示 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_show', $comment)->default($default);
+        return $this->builder->tinyInteger('is_show', $comment)->default($default);
     }
 
     /**
@@ -102,7 +102,7 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否收藏 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_collection', $comment)->default($default);
+        return $this->builder->tinyInteger('is_collection', $comment)->default($default);
     }
 
     /**
@@ -114,6 +114,6 @@ class FlagPreset extends PresetGroup
     {
         $comment = $comment ?: '是否发送 0 否 no 1 是 yes';
 
-        return $this->builder->integerTiny('is_send', $comment)->default($default);
+        return $this->builder->tinyInteger('is_send', $comment)->default($default);
     }
 }

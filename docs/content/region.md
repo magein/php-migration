@@ -12,7 +12,7 @@ $builder->string('parent_code', '父级 code', 20);
 $builder->basic->name();
 $builder->string('pinyin', '拼音', 20)->default('');
 $builder->string('first_char', '首字母', 20)->default('');
-$builder->integerTiny('level', '层级 1 省 2 市 3 县/区')->default(1);
+$builder->tinyInteger('level', '层级 1 省 2 市 3 县/区')->default(1);
 $builder->basic->status();
 $builder->basic->sort();
 $this->create($builder);

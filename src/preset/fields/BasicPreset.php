@@ -41,7 +41,7 @@ class BasicPreset extends PresetGroup
     {
         $comment = $comment ?: '状态 0 禁用 forbid 1 启用 open';
 
-        return $this->builder->integerTiny('status', $comment)->default($default);
+        return $this->builder->tinyInteger('status', $comment)->default($default);
     }
 
     /**
@@ -53,7 +53,7 @@ class BasicPreset extends PresetGroup
     {
         $comment = $comment ?: '排序 正序';
 
-        return $this->builder->integerSmall('sort', $comment)->default($default);
+        return $this->builder->smallInteger('sort', $comment)->default($default);
     }
 
     /**
@@ -65,7 +65,7 @@ class BasicPreset extends PresetGroup
     {
         $comment = $comment ?: '类型';
 
-        return $this->builder->integerTiny('type', $comment)->default($default);
+        return $this->builder->tinyInteger('type', $comment)->default($default);
     }
 
     /**

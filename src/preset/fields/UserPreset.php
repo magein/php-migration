@@ -80,7 +80,7 @@ class UserPreset extends PresetGroup
     {
         $comment = $comment ?: '年龄';
 
-        return $this->builder->integerTiny('age', $comment);
+        return $this->builder->tinyInteger('age', $comment);
     }
 
     /**
@@ -140,7 +140,7 @@ class UserPreset extends PresetGroup
     {
         $comment = $comment ?: '证件类型 1 身份证 id 2 港澳通行证 hk_macao 3 tai_wan  4 护照 passport 99 其他 other';
 
-        return $this->builder->integerTiny('id_type', $comment)->default($default);
+        return $this->builder->tinyInteger('id_type', $comment)->default($default);
     }
 
     /**
@@ -200,7 +200,7 @@ class UserPreset extends PresetGroup
     {
         $comment = $comment ?: '民族';
 
-        return $this->builder->integerTiny('ethnic_id', $comment)->default(1);
+        return $this->builder->tinyInteger('ethnic_id', $comment)->default(1);
     }
 
     /**

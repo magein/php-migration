@@ -65,32 +65,14 @@ class PhinxCreation implements CreationInterface
      */
     protected function tableName(): string
     {
-        $table_name = '';
         $name = $this->input->getArgument('name');
         if (str_starts_with($name, 'Create')) {
             $this->template = 'create';
             $table_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $name);
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
-        }
-
-        if (str_contains($name, 'Append')) {
-            $this->template = 'append';
-            $table_name = preg_replace('/Append.*/', '', $name);
-        }
-
-        if (str_contains($name, 'Update')) {
+        } else {
             $this->template = 'update';
             $table_name = preg_replace('/Update.*/', '', $name);
-        }
-
-        if (str_contains($name, 'Rename')) {
-            $this->template = 'rename';
-            $table_name = preg_replace('/Rename$/', '', $name);
-        }
-
-        if (str_contains($name, 'Remove')) {
-            $this->template = 'remove';
-            $table_name = preg_replace('/Remove.*/', '', $name);
         }
 
         if ($table_name) {

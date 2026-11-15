@@ -18,6 +18,6 @@ $builder->addr->district();
 $builder->addr->address();
 $builder->addr->postcode();
 $builder->addr->location();
-$builder->integerTiny('is_default', '默认地址')->default(0);
+$builder->tinyInteger('is_default', '默认地址')->default(0);
 $this->create($builder);
 ```

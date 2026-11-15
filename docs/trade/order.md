@@ -10,8 +10,8 @@
 $builder = $this->builder('订单表');
 $builder->id();
 $builder->order->orderNo();
-$builder->integerTiny('from', '来源')->default(1);
-$builder->integerTiny('channel', '渠道')->default(1);
+$builder->tinyInteger('from', '来源')->default(1);
+$builder->tinyInteger('channel', '渠道')->default(1);
 $builder->order->buyerId();
 $builder->order->buyerName();
 $builder->order->buyerPhone();
