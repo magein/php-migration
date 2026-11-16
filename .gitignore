@@ -4,5 +4,4 @@ composer.lock
 composer.phar
 .phpunit.result.cache
 phinx.php
-.workbuddy
 issues.md
