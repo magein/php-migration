@@ -52,14 +52,6 @@ class Builder
     ];
 
     /**
-     * 表选项白名单：只透传 Phinx 能识别的键
-     * @var array
-     */
-    private const TABLE_OPTIONS = [
-        'id', 'primary_key', 'comment', 'engine', 'collation', 'row_format', 'signed', 'limit',
-    ];
-
-    /**
      * 普通索引
      * @var array
      */
@@ -78,18 +70,10 @@ class Builder
     public $foreign = [];
 
     /**
-     * 表选项（构造函数按 TABLE_OPTIONS 白名单合并）：
-     *   id           是否自动创建自增主键（默认 false）
-     *   primary_key  主键列名或列名数组
-     *   comment      表注释
-     *   engine       表引擎（默认 InnoDB）
-     *   collation    表字符集（默认 utf8_unicode_ci）
-     *   row_format   行记录格式
-     *   signed       自增主键是否有符号
-     *   limit        自增主键列的 limit
-     * @var array
+     * 表级选项（引擎、注释、字符集、主键策略等）
+     * @var Schema
      */
-    protected $options = [];
+    public $schema;
 
     protected static $defaultStringLength = 255;
 
@@ -100,36 +84,11 @@ class Builder
     protected $columns = [];
 
     /**
-     * @param array|string|null $options 字符串按表注释处理，数组按表选项处理
+     * @param Schema|array|string|null $options Schema 实例、表选项数组或表注释字符串
      */
     public function __construct($options = null)
     {
-        if (is_string($options)) {
-            $options = ['comment' => $options];
-        }
-
-        if (!is_array($options)) {
-            $options = [];
-        }
-
-        foreach (self::TABLE_OPTIONS as $key) {
-            if (array_key_exists($key, $options)) {
-                $this->options[$key] = $options[$key];
-            }
-        }
-
-        // 未声明 id 时 Phinx 会自动补一个自增主键，这里默认关掉
-        if (!array_key_exists('id', $this->options)) {
-            $this->options['id'] = false;
-        }
-
-        if (empty($this->options['engine'])) {
-            $this->setEngine('InnoDB');
-        }
-
-        if (empty($this->options['collation'])) {
-            $this->setCollation('utf8_unicode_ci');
-        }
+        $this->schema = Schema::from($options);
     }
 
     public function __get($name)
@@ -141,74 +100,6 @@ class Builder
         $class = self::GROUPS[$name];
 
         return new $class($this);
-    }
-
-    /**
-     * 设置主键
-     * @param $value
-     * @return void
-     */
-    public function setPrimaryKey($value = null): void
-    {
-        if (is_null($value)) {
-            $this->options['id'] = false;
-            unset($this->options['primary_key']);
-        } else {
-            $this->options['id'] = true;
-            $this->options['primary_key'] = $value;
-        }
-    }
-
-    /**
-     * @param $engine
-     */
-    public function setEngine($engine): void
-    {
-        $this->options['engine'] = $engine;
-    }
-
-    /**
-     * 设置表注释
-     * @param $comment
-     */
-    public function setComment($comment): void
-    {
-        $this->options['comment'] = $comment;
-    }
-
-    /**
-     * 设置排序比对方法
-     * @param $collation
-     */
-    public function setCollation($collation): void
-    {
-        $this->options['collation'] = $collation;
-    }
-
-    /**
-     * 设置InnoDB引擎
-     * @return void
-     */
-    public function innoDB(): void
-    {
-        $this->options['engine'] = 'InnoDB';
-    }
-
-    /**
-     * 设置MyISAM引擎
-     * @return void
-     */
-    public function myISAM(): void
-    {
-        $this->options['engine'] = 'MyISAM';
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
     }
 
     /**
@@ -339,11 +230,6 @@ class Builder
         }
 
         $this->foreign[] = [$columns, $referenced_table, $referenced_columns, $options];
-    }
-
-    public function id(): void
-    {
-        $this->options['id'] = true;
     }
 
     /**

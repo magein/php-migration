@@ -14,7 +14,7 @@ class SaveIdempotent extends Migrator
     public function up()
     {
         $builder = $this->builder('系统配置表');
-        $builder->id();
+        $builder->schema->id();
 
         $builder->string('config_key', '配置键', 60)->unique();
         $builder->text('config_value', '配置值')->nullable();

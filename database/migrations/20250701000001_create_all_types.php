@@ -18,9 +18,9 @@ class CreateAllTypes extends Migrator
     public function change()
     {
         $builder = $this->builder('全字段类型测试表');
-        $builder->innoDB();
-        $builder->setCollation('utf8mb4_unicode_ci');
-        $builder->id();
+        $builder->schema->innoDB();
+        $builder->schema->setCollation('utf8mb4_unicode_ci');
+        $builder->schema->id();
 
         // 标识与枚举
         $builder->uuid('uuid_col', 'UUID');

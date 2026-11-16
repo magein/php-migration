@@ -45,7 +45,7 @@ return \magein\migration\PhinxConfig::config(
 
 ## 字段说明
 
-`PhinxConfig::config()` 先合并一份默认配置，再用传入的 `environments` 覆盖：
+`PhinxConfig::config()` 先提供一份默认配置，再与传入的配置**递归合并**——只传部分键不会丢掉其余默认值（如只覆盖 `paths.migrations` 时 `paths.seeds` 仍保留默认）；`environments` 没有默认值，传入即整体生效；`paths.migrations` 这类列表值是整体替换，不做追加：
 
 | 键                                                                                | 说明                                            |
 |----------------------------------------------------------------------------------|-----------------------------------------------|

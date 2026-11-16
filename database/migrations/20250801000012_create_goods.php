@@ -5,7 +5,7 @@ use magein\migration\Migrator;
 /**
  * 建表：商品表
  * 演示：价格 / 库存 / 销量 / 规格预设组、图文内容预设、addIndex() 组合索引、
- *       innoDB() 供后续外键与表选项示例使用。
+ *       schema->innoDB() 供后续外键与表选项示例使用。
  */
 class CreateGoods extends Migrator
 {
@@ -14,8 +14,8 @@ class CreateGoods extends Migrator
     public function change()
     {
         $builder = $this->builder('商品表');
-        $builder->innoDB();
-        $builder->id();
+        $builder->schema->innoDB();
+        $builder->schema->id();
 
         $builder->basic->name('商品名称');
         $builder->goods->sku();

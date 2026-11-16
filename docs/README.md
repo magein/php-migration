@@ -4,7 +4,7 @@ Builder 的表选项配置、支持的字段类型、预设分组、迁移文件
 
 ## 表选项配置
 
-`$builder = $this->builder()` 的入参就是表配置：传**字符串**当表注释，传**数组**当表选项。
+`$builder = $this->builder()` 的入参就是表配置：传**字符串**当表注释，传**数组**当表选项，也可以直接传 `Schema` 实例（表级选项由 `magein\migration\Schema` 承载）。
 
 ```php
 // 最常用：只写表注释
@@ -20,13 +20,13 @@ $builder = $this->builder([
 ]);
 
 // 也可以建好之后再逐个设置
-$builder->setComment('用户表');
-$builder->setEngine('InnoDB');
-$builder->setCollation('utf8mb4_unicode_ci');
-$builder->setPrimaryKey('id');        // 传 null 则关闭主键
-$builder->innoDB();                   // 快捷切到 InnoDB
-$builder->myISAM();                   // 快捷切到 MyISAM
-$builder->id();                       // 让 Phinx 自动建自增主键 id
+$builder->schema->setComment('用户表');
+$builder->schema->setEngine('InnoDB');
+$builder->schema->setCollation('utf8mb4_unicode_ci');
+$builder->schema->setPrimaryKey('id');        // 传 null 则关闭主键
+$builder->schema->innoDB();                   // 快捷切到 InnoDB
+$builder->schema->myISAM();                   // 快捷切到 MyISAM
+$builder->schema->id();                       // 让 Phinx 自动建自增主键 id
 ```
 
 数组只透传下面这些键（Phinx 能识别的表选项），其余键静默丢弃：
@@ -42,11 +42,17 @@ $builder->id();                       // 让 Phinx 自动建自增主键 id
 | `signed` | 自增主键是否有符号 | 无 |
 | `limit` | 自增主键列的 limit | 无 |
 
+表选项方法也可以在建好之后通过 $builder->schema 的方法随时修改，或先建 Schema 再传入：
+
+```php
+$builder = $this->builder(new Schema('用户表'));
+```
+
 不传 `id` 时默认关掉自增主键；Phinx 在缺少该选项时会自动补一个，所以「不要主键」必须显式写 `false` 或 `null`。
 
 ## 支持的字段类型
 
-以下都是 `Builder` 的列原语，返回值是 `Column`，可继续链式调用 `nullable()`、`default()`、`comment()`、`length()`、`after()`、`index()`、`unique()`。第一参统一是列名，第二参是注释。
+以下都是 `Builder` 的列原语，返回值是 `Column`，可继续链式调用 `nullable()`、`default()`、`comment()`、`length()`、`after()`、`index()`、`unique()`。第一参统一是列名，第二参是注释。`nullable()` 与 `default()` 相互独立：`->nullable()->default(0)` 生成 `NULL DEFAULT 0`，不声明 default 的 nullable 列由 MySQL 隐式 `DEFAULT NULL`。
 
 ### 主键与枚举
 
@@ -140,7 +146,7 @@ $this->table('t')->addColumn('col', \Phinx\Util\Literal::from('MULTIPOINT'))->sa
 
 MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` 默认 ON，5.7 的 `innodb_default_row_format` 默认 `DYNAMIC`，`DYNAMIC` / `COMPRESSED` 的索引前缀上限是 3072 字节；`utf8mb4` 的 `VARCHAR(255)` 占 1020 字节，可以直接建唯一索引。8.0 起这是默认行为。
 
-前提是 InnoDB + `DYNAMIC`。本包默认引擎是 InnoDB（要 MyISAM 用 `$builder->myISAM()`），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
+前提是 InnoDB + `DYNAMIC`。本包默认引擎是 InnoDB（要 MyISAM 用 `$builder->schema->myISAM()`），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
 
 ## 预设字段分组
 
@@ -167,7 +173,7 @@ MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` �
 
 ```php
 $builder = $this->builder('用户表');
-$builder->id();
+$builder->schema->id();
 
 // 用户
 $builder->user->username();

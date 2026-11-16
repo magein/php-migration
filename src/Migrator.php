@@ -24,15 +24,12 @@ class Migrator extends AbstractMigration
     protected $name = '';
 
     /**
-     * @param $message
+     * @param string $message
      * @return void
      */
-    protected function exception($message)
+    protected function exception(string $message): void
     {
-        echo "文件 : " . static::class;
-        echo "\n";
-        echo $message;
-        exit(1);
+        throw new \RuntimeException(static::class . ': ' . $message);
     }
 
     public function builder($options = null): Builder
@@ -52,7 +49,7 @@ class Migrator extends AbstractMigration
 
         $options = [];
         if ($this->builder) {
-            $options = $this->builder->getOptions();
+            $options = $this->builder->schema->toArray();
         }
 
         return $this->table($name, $options);
@@ -94,10 +91,8 @@ class Migrator extends AbstractMigration
             $options['comment'] = $column->getComment();
         }
 
+        // nullable 只决定 NULL / NOT NULL，与 default 相互独立，NULL DEFAULT 0 由上游正常生成
         $options['null'] = $column->getNull();
-        if ($column->getNull()) {
-            unset($options['default']);
-        }
 
         if (isset($options['increment']) && $options['increment'] === false) {
             unset($options['increment']);
