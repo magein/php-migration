@@ -30,7 +30,7 @@ composer require magein/migration
 
 > 根目录生成phinx.php
 
-完整配置模板与字段说明见 [docs/config.md](docs/config.md)；`phinx.php` 含本机数据库信息，不纳入版本控制，按模板自行创建。
+完整配置模板与字段说明见 [docs/phinx.config.md](docs/phinx.config.md)；`phinx.php` 含本机数据库信息，不纳入版本控制，按模板自行创建。
 
 #### 命令行
 

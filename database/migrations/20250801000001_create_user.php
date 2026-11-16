@@ -5,7 +5,7 @@ use magein\migration\Migrator;
 /**
  * 建表：用户表
  * 演示：change() 可逆迁移、create() 默认注入 created_at / updated_at / deleted_at、
- *       字段预设组与 Builder 原语混用、schema->innoDB() 指定存储引擎。
+ *       字段预设组与 Builder 原语混用、schema->setEngineInnodb() 指定存储引擎。
  */
 class CreateUser extends Migrator
 {
@@ -14,8 +14,8 @@ class CreateUser extends Migrator
     public function change()
     {
         $builder = $this->builder('用户表');
-        $builder->schema->innoDB();
-        $builder->schema->id();
+        $builder->schema->setEngineInnodb();
+        $builder->id();
 
         $builder->user->username();
         $builder->user->password();

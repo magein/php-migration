@@ -25,14 +25,14 @@
 - `OrderPreset::couponId()` 去掉 nullable 使 `default(0)` 生效；`refundedAt()` 统一为 dateTime
 - `AddressPreset::lng()/lat()` 改 `decimal(10,6)`，`location()` 仍为 string
 - `Column::unique()` 不再把 string 列长度截到 191，`VARCHAR(255)` 加唯一索引时列定义保持不变
-- 修复 P0：`Migrator::parse()` 批量唯一索引与普通索引改为两个独立 `if`，不再因 `elseif` 静默丢弃普通索引
-- 修复 #9：`dateTime()` / `time()` / `timestamp()` 仅 `$precision > 0` 时写精度，默认不写括号以兼容 MySQL 5.5 / 5.6 全系；显式精度需 ≥ 5.6.4
-- 修复 #10：`->default(-1)` 不再被静默丢弃，`0` / `''` / `false` / `null` 等任意标量默认值均可声明
-- 修复 #11：`Builder` 新增 `registerColumn()` 统一登记与重复列名检查，`change()` 同名不再静默覆盖；`create()` 自动注入时间戳为既有设计，不加开关
-- 修复 #14：`nullable()` 不再丢弃 default，`->nullable()->default(0)` 生成 `NULL DEFAULT 0`，两者相互独立
-- 修复 #15：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
-- 修复 #16：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
-- 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 ``，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`
+- 修复：`Migrator::parse()` 批量唯一索引与普通索引改为两个独立 `if`，不再因 `elseif` 静默丢弃普通索引
+- 修复：`dateTime()` / `time()` / `timestamp()` 仅 `$precision > 0` 时写精度，默认不写括号以兼容 MySQL 5.5 / 5.6 全系；显式精度需 ≥ 5.6.4
+- 修复：`->default(-1)` 不再被静默丢弃，`0` / `''` / `false` / `null` 等任意标量默认值均可声明
+- 修复：`Builder` 新增 `registerColumn()` 统一登记与重复列名检查，`change()` 同名不再静默覆盖；`create()` 自动注入时间戳为既有设计，不加开关
+- 修复：`nullable()` 不再丢弃 default，`->nullable()->default(0)` 生成 `NULL DEFAULT 0`，两者相互独立
+- 修复：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
+- 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
+- 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 `$builder->schema`，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`；引擎快捷方法更名为 `setEngineInnodb()` / `setEngineMyISAM()`，`id()` 为高频操作保留在 `Builder` 上并转发 schema
 
 **其他**
 

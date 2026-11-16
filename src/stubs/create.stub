@@ -36,7 +36,7 @@ class $className extends Migrator
         $builder = $this->builder('');
         $builder->id();
 
-        $builder->innoDB();
+        $builder->schema->setEngineInnodb();
 
         $this->create($builder,false);
     }

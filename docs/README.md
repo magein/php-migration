@@ -1,6 +1,6 @@
 # Builder 参考与表结构场景
 
-Builder 的表选项配置、支持的字段类型、预设分组、迁移文件写法与常见表结构场景统一放在这里。命令行与迁移文件的基本用法见 [根目录 README](../README.md)，`phinx.php` 配置见 [config.md](config.md)。
+Builder 的表选项配置、支持的字段类型、预设分组、迁移文件写法与常见表结构场景统一放在这里。命令行与迁移文件的基本用法见 [根目录 README](../README.md)，`phinx.php` 配置见 [phinx.config.md](phinx.config.md)。
 
 ## 表选项配置
 
@@ -24,9 +24,9 @@ $builder->schema->setComment('用户表');
 $builder->schema->setEngine('InnoDB');
 $builder->schema->setCollation('utf8mb4_unicode_ci');
 $builder->schema->setPrimaryKey('id');        // 传 null 则关闭主键
-$builder->schema->innoDB();                   // 快捷切到 InnoDB
-$builder->schema->myISAM();                   // 快捷切到 MyISAM
-$builder->schema->id();                       // 让 Phinx 自动建自增主键 id
+$builder->schema->setEngineInnodb();                   // 快捷切到 InnoDB
+$builder->schema->setEngineMyISAM();                   // 快捷切到 MyISAM
+$builder->id();                       // 让 Phinx 自动建自增主键 id
 ```
 
 数组只透传下面这些键（Phinx 能识别的表选项），其余键静默丢弃：
@@ -146,7 +146,7 @@ $this->table('t')->addColumn('col', \Phinx\Util\Literal::from('MULTIPOINT'))->sa
 
 MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` 默认 ON，5.7 的 `innodb_default_row_format` 默认 `DYNAMIC`，`DYNAMIC` / `COMPRESSED` 的索引前缀上限是 3072 字节；`utf8mb4` 的 `VARCHAR(255)` 占 1020 字节，可以直接建唯一索引。8.0 起这是默认行为。
 
-前提是 InnoDB + `DYNAMIC`。本包默认引擎是 InnoDB（要 MyISAM 用 `$builder->schema->myISAM()`），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
+前提是 InnoDB + `DYNAMIC`。本包默认引擎是 InnoDB（要 MyISAM 用 `$builder->schema->setEngineMyISAM()`），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
 
 ## 预设字段分组
 
@@ -173,7 +173,7 @@ MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` �
 
 ```php
 $builder = $this->builder('用户表');
-$builder->schema->id();
+$builder->id();
 
 // 用户
 $builder->user->username();

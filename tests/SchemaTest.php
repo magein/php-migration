@@ -65,8 +65,8 @@ class SchemaTest extends TestCase
         $this->assertSame('utf8mb4_unicode_ci', $options['collation']);
         $this->assertTrue($options['id']);
 
-        $schema->innoDB();
-        $schema->myISAM();
+        $schema->setEngineInnodb();
+        $schema->setEngineMyISAM();
         $this->assertSame('MyISAM', $schema->toArray()['engine']);
     }
 

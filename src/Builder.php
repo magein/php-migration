@@ -55,33 +55,31 @@ class Builder
      * 普通索引
      * @var array
      */
-    public $index = [];
+    public array $index = [];
 
     /**
      * 唯一索引
      * @var array
      */
-    public $unique = [];
+    public array $unique = [];
 
     /**
      * 外键
      * @var array
      */
-    public $foreign = [];
+    public array $foreign = [];
 
     /**
      * 表级选项（引擎、注释、字符集、主键策略等）
      * @var Schema
      */
-    public $schema;
-
-    protected static $defaultStringLength = 255;
+    public Schema $schema;
 
     /**
      * 添加的列
      * @var array
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     /**
      * @param Schema|array|string|null $options Schema 实例、表选项数组或表注释字符串
@@ -89,6 +87,16 @@ class Builder
     public function __construct($options = null)
     {
         $this->schema = Schema::from($options);
+    }
+
+    /**
+     * 让 Phinx 自动创建自增主键 id。构建时 schema 通常不单独声明、用默认值，
+     * 所以这个高频操作直接挂在 Builder 上，转发表选项到 schema
+     * @return void
+     */
+    public function id(): void
+    {
+        $this->schema->id();
     }
 
     public function __get($name)
@@ -441,7 +449,7 @@ class Builder
      */
     public function char(string $column, string $comment = null, $length = null): Column
     {
-        $length = $length ?: self::$defaultStringLength;
+        $length = $length ?: 255;
 
         return $this->addColumn('char', $column, compact('length', 'comment'));
     }
@@ -454,7 +462,7 @@ class Builder
      */
     public function string(string $column, string $comment = null, $length = null): Column
     {
-        $length = $length ?: self::$defaultStringLength;
+        $length = $length ?: 255;
 
         return $this->addColumn('string', $column, compact('length', 'comment'));
     }

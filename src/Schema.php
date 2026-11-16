@@ -109,6 +109,22 @@ class Schema
     }
 
     /**
+     * @return void
+     */
+    public function setEngineInnodb(): void
+    {
+        $this->options['engine'] = 'InnoDB';
+    }
+
+    /**
+     * @return void
+     */
+    public function setEngineMyISAM(): void
+    {
+        $this->options['engine'] = 'MyISAM';
+    }
+
+    /**
      * @param string $comment
      * @return void
      */
@@ -124,22 +140,6 @@ class Schema
     public function setCollation(string $collation): void
     {
         $this->options['collation'] = $collation;
-    }
-
-    /**
-     * @return void
-     */
-    public function innoDB(): void
-    {
-        $this->options['engine'] = 'InnoDB';
-    }
-
-    /**
-     * @return void
-     */
-    public function myISAM(): void
-    {
-        $this->options['engine'] = 'MyISAM';
     }
 
     /**

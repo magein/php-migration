@@ -67,6 +67,15 @@ class BuilderTest extends TestCase
         $this->assertArrayNotHasKey('not_in_whitelist', $builder->schema->toArray());
     }
 
+    public function test_id_shortcut_on_builder(): void
+    {
+        $builder = new Builder('用户表');
+        $this->assertFalse($builder->schema->toArray()['id']);
+
+        $builder->id();
+        $this->assertTrue($builder->schema->toArray()['id']);
+    }
+
     public function test_duplicate_column_throws(): void
     {
         $builder = new Builder();
