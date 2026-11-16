@@ -76,6 +76,38 @@ class BuilderTest extends TestCase
         $this->assertTrue($builder->schema->toArray()['id']);
     }
 
+    public function test_index_name_defaults_to_columns(): void
+    {
+        $builder = new Builder('用户表');
+        $builder->addIndex(['cate_id', 'status']);
+        $builder->addUniqueKey('sku');
+
+        $this->assertSame([
+            [['cate_id', 'status'], ['name' => 'cate_id_status']],
+        ], $builder->index);
+
+        $this->assertSame([
+            [['sku'], ['name' => 'sku', 'unique' => true]],
+        ], $builder->unique);
+    }
+
+    public function test_index_string_option_becomes_name(): void
+    {
+        $builder = new Builder('用户表');
+        $builder->addIndex(['cate_id', 'status'], 'idx_cate_status');
+
+        $this->assertSame([
+            [['cate_id', 'status'], ['name' => 'idx_cate_status']],
+        ], $builder->index);
+    }
+
+    public function test_index_invalid_options_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('索引选项只接受数组或字符串');
+
+        (new Builder('用户表'))->addIndex('sku', 1);
+    }
     public function test_duplicate_column_throws(): void
     {
         $builder = new Builder();

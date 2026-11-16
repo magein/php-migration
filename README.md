@@ -18,7 +18,7 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 
 ### 安装
 
-> php:^7.1
+> php:^7.4
 
 ```
 composer require magein/migration
@@ -159,3 +159,24 @@ Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记
 - 其他类名 → `update.stub`：生成 `up()` / `down()`，骨架是 `$this->update($builder)` 加一个空 `down()`，字段与回滚逻辑自行补齐。
 
 `Builder::change()` 必须给出列名与新类型，无参调用会抛异常。完整迁移示例、字段预设、列类型原语、常见表结构与注意事项见 [docs/README.md](docs/README.md)。
+
+### 测试
+
+依赖 `phpunit/phpunit ^9.6`（在 `require-dev`），SQLite 用例需要 `pdo_sqlite` 扩展。
+
+```shell
+composer test                                              # 全量
+php vendor/phpunit/phpunit/phpunit --filter BuilderTest    # 单个测试类
+```
+
+| 文件                                | 覆盖                            |
+|-----------------------------------|-------------------------------|
+| `tests/BuilderTest.php`           | 表选项归一、重复列名、列定义 SQL、预设组、索引选项归一 |
+| `tests/SchemaTest.php`            | 表级选项白名单与默认值、各 setter          |
+| `tests/PhinxConfigTest.php`       | 配置递归合并                        |
+| `tests/PhinxInputTest.php`        | CLI 参数归一、`--class` 注入、非法输入    |
+| `tests/PhinxCreationTest.php`     | 模板表名推断                        |
+| `tests/SqliteIntegrationTest.php` | SQLite 内存库真实建表、索引、外键、删表       |
+| `tests/support/`                  | 列定义 SQL 与列选项探针                |
+
+CI 见 `.github/workflows/ci.yml`：PHP 7.4 / 8.0 / 8.2 三档执行 `vendor/bin/phpunit`。

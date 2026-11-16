@@ -11,16 +11,16 @@ class PhinxCreation implements CreationInterface
     /**
      * @var InputInterface
      */
-    protected $input;
+    protected InputInterface $input;
 
     /**
      * @var OutputInterface
      */
-    protected $output;
+    protected OutputInterface $output;
 
-    protected $template = 'migrate';
+    protected string $template = 'migrate';
 
-    protected $table_name = '';
+    protected string $table_name = '';
 
     public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
     {

@@ -155,13 +155,16 @@ class Migrator extends AbstractMigration
     /**
      * 执行create方法
      * @param Builder $builder
+     * @param bool $created_at
      * @param bool $soft_delete
      * @return void
      */
-    public function create(Builder $builder, bool $soft_delete = true): void
+    public function create(Builder $builder, bool $created_at = true, bool $soft_delete = true): void
     {
-        $builder->dateTime('created_at', '创建时间');
-        $builder->dateTime('updated_at', '更新时间');
+        if ($created_at) {
+            $builder->dateTime('created_at', '创建时间');
+            $builder->dateTime('updated_at', '更新时间');
+        }
 
         if ($soft_delete) {
             $builder->dateTime('deleted_at', '删除时间', 0, true);

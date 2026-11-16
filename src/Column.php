@@ -14,31 +14,31 @@ class Column
      * 字段名称
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * 字段类型
      * @var string
      */
-    protected $type = '';
+    protected string $type = '';
 
     /**
      * 注释
      * @var string
      */
-    protected $comment = '';
+    protected string $comment = '';
 
     /**
      * 长度
      * @var int
      */
-    protected $length = 0;
+    protected int $length = 0;
 
     /**
      * 在某个字段之后
      * @var string
      */
-    protected $after = '';
+    protected string $after = '';
 
     /**
      * 默认值
@@ -50,7 +50,7 @@ class Column
      * 是否显式声明过默认值（-1 也是合法默认值，不能用具体值当哨兵）
      * @var bool
      */
-    protected $has_default = false;
+    protected bool $has_default = false;
 
     /**
      * 允许null
@@ -62,7 +62,7 @@ class Column
      * 其他
      * @var array
      */
-    protected $others = [];
+    protected array $others = [];
 
     /**
      * 常规索引
@@ -80,7 +80,7 @@ class Column
      * 更新已有列的定义
      * @var bool
      */
-    protected $change = false;
+    protected bool $change = false;
 
     /**
      * @param $type
@@ -300,6 +300,6 @@ class Column
      */
     public function isChange(): bool
     {
-        return boolval($this->change);
+        return $this->change;
     }
 }

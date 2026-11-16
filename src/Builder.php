@@ -191,7 +191,7 @@ class Builder
     /**
      * 添加索引或者组合索引
      * @param array|string $columns
-     * @param $options
+     * @param array|string|null $options 数组为索引选项，字符串为索引名
      * @return void
      */
     public function addIndex($columns, $options = null): void
@@ -200,15 +200,13 @@ class Builder
             $columns = [$columns];
         }
 
-        $options = $this->indexOptions($columns, $options);
-
-        $this->index[] = [$columns, $options];
+        $this->index[] = [$columns, $this->normalizeIndexOptions($columns, $options)];
     }
 
     /**
      * 添加唯一索引
      * @param array|string $columns
-     * @param $options
+     * @param array|string|null $options 数组为索引选项，字符串为索引名
      * @return void
      */
     public function addUniqueKey($columns, $options = null): void
@@ -217,7 +215,7 @@ class Builder
             $columns = [$columns];
         }
 
-        $options = $this->indexOptions($columns, $options);
+        $options = $this->normalizeIndexOptions($columns, $options);
         $options['unique'] = true;
 
         $this->unique[] = [$columns, $options];
@@ -753,25 +751,22 @@ class Builder
     }
 
     /**
-     * @param array|string $columns
-     * @param null $options
+     * 归一索引选项：字符串按索引名处理，未指定名字时用列名下划线拼接
+     * @param array $columns 已数组化的列名
+     * @param array|string|null $options 数组为索引选项，字符串为索引名
      * @return array
      */
-    protected function indexOptions($columns, $options = null): array
+    protected function normalizeIndexOptions(array $columns, $options = null): array
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
+        if (is_string($options)) {
+            $options = ['name' => $options];
+        } elseif ($options === null) {
+            $options = [];
+        } elseif (!is_array($options)) {
+            throw new \InvalidArgumentException('索引选项只接受数组或字符串（字符串按索引名处理）');
         }
 
-        if (is_null($options)) {
-            $options = [];
-        } elseif (is_string($options)) {
-            $name = $options;
-            $options = [];
-            $options['name'] = $name;
-        }
-
-        if (empty($options['name'] ?? '')) {
+        if (empty($options['name'])) {
             $options['name'] = implode('_', $columns);
         }
 

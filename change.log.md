@@ -33,13 +33,14 @@
 - 修复：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
 - 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
 - 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 `$builder->schema`，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`；引擎快捷方法更名为 `setEngineInnodb()` / `setEngineMyISAM()`，`id()` 为高频操作保留在 `Builder` 上并转发 schema
+- 修复：`Builder::indexOptions()` 更名 `normalizeIndexOptions()`，`$columns` 收窄为 `array`（调用方已数组化）；`$options` 只接受数组 / 字符串 / null，其余类型抛 `InvalidArgumentException`，不再静默返回标量、到 `addIndex()` 才报 TypeError
 
 **其他**
 
 - `Builder::__get` 改显式映射表，未知预设组抛 `InvalidArgumentException`；移除 `magein/utils` 依赖
 - 新增 `docs/` 场景库：17 个业务场景 + 常用片段，按 `account / content / trade / system / parts` 分组，中文索引可跳转，代码块已给出表注释
 - `README.md` 回滚段补 `--target` / `--date` 语义速查与 `-x` dry-run，订正「回滚上一批」为「回滚最后一个迁移」
-- 新增 PHPUnit 9.6 冒烟测试（`tests/`，46 例：列定义 SQL、预设组唯一性、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
+- 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、预设组唯一性、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
 - `composer.json` 补 `require-dev` / `autoload-dev` / `scripts.test`，声明 `ext-pdo`，运行时零 composer 依赖，PHP 下限 `^7.4`；新增 `THIRD_PARTY.md` 说明提取代码来源与许可证
 - 移除 `cakephp/database` / `psr/container` 依赖：本包迁移链路走 PDO 直连不触发加载，保持零运行时依赖（`composer.json` 仅声明 `php` / `ext-pdo`）
 

@@ -351,39 +351,39 @@ $table->save();
 
 ### 用户与账号
 
-| 场景 | 说明 | 表名 |
-| --- | --- | --- |
-| [用户表](account/user.md) | 账号基础信息：登录名、密码、昵称、头像、手机邮箱 | `user` |
-| [用户收货地址](account/user-address.md) | 省市区、详细地址、邮编、经纬度、默认地址 | `user_address` |
-| [员工表](account/employee.md) | 人员档案：证件正反面、籍贯民族、居住地址 | `employee` |
-| [商家 / 店铺表](account/shop.md) | 平台店铺主体：归属用户、图片、联系人、地区 | `shop` |
-| [企业表](account/business.md) | 企业主体：名称简称、企业代码、行业规模、联系人 | `business` |
-| [银行字典表](account/bank.md) | 支付 / 提现场景的银行字典 | `bank` |
+| 场景                                | 说明                       | 表名             |
+|-----------------------------------|--------------------------|----------------|
+| [用户表](account/user.md)            | 账号基础信息：登录名、密码、昵称、头像、手机邮箱 | `user`         |
+| [用户收货地址](account/user-address.md) | 省市区、详细地址、邮编、经纬度、默认地址     | `user_address` |
+| [员工表](account/employee.md)        | 人员档案：证件正反面、籍贯民族、居住地址     | `employee`     |
+| [商家 / 店铺表](account/shop.md)       | 平台店铺主体：归属用户、图片、联系人、地区    | `shop`         |
+| [企业表](account/business.md)        | 企业主体：名称简称、企业代码、行业规模、联系人  | `business`     |
+| [银行字典表](account/bank.md)          | 支付 / 提现场景的银行字典           | `bank`         |
 
 ### 内容与展示
 
-| 场景 | 说明 | 表名 |
-| --- | --- | --- |
-| [分类表](content/category.md) | 通用树形分类，带状态与排序 | `category` |
-| [文章表](content/article.md) | 内容发布：正文、缩略图、推荐标记、互动计数 | `article` |
-| [轮播图表](content/carousel.md) | 图片、跳转、生效时间、投放场景 | `carousel` |
-| [行政区划表](content/region.md) | 省市区字典，code + 拼音 + 层级 | `region` |
-| [行业字典表](content/industry.md) | 树形行业分类 | `industry` |
+| 场景                           | 说明                    | 表名         |
+|------------------------------|-----------------------|------------|
+| [分类表](content/category.md)   | 通用树形分类，带状态与排序         | `category` |
+| [文章表](content/article.md)    | 内容发布：正文、缩略图、推荐标记、互动计数 | `article`  |
+| [轮播图表](content/carousel.md)  | 图片、跳转、生效时间、投放场景       | `carousel` |
+| [行政区划表](content/region.md)   | 省市区字典，code + 拼音 + 层级  | `region`   |
+| [行业字典表](content/industry.md) | 树形行业分类                | `industry` |
 
 ### 商品与交易
 
-| 场景 | 说明 | 表名 |
-| --- | --- | --- |
-| [商品表](trade/goods.md) | 货号、封面、简介详情、三种价格、库存销量、规格 | `goods` |
-| [订单表](trade/order.md) | 交易主表：买卖双方、收货地址、金额、状态时间线 | `order` |
-| [支付订单表](trade/pay-order.md) | 支付流水、第三方交易号、回调地址与结果 | `pay_order` |
-| [优惠券规则表](trade/coupon-rule.md) | 类型、生效时间、抵扣与门槛金额 | `coupon_rule` |
-| [发票表](trade/invoice.md) | 发票类型、抬头、纳税人识别号、开票状态 | `invoice` |
+| 场景                             | 说明                      | 表名            |
+|--------------------------------|-------------------------|---------------|
+| [商品表](trade/goods.md)          | 货号、封面、简介详情、三种价格、库存销量、规格 | `goods`       |
+| [订单表](trade/order.md)          | 交易主表：买卖双方、收货地址、金额、状态时间线 | `order`       |
+| [支付订单表](trade/pay-order.md)    | 支付流水、第三方交易号、回调地址与结果     | `pay_order`   |
+| [优惠券规则表](trade/coupon-rule.md) | 类型、生效时间、抵扣与门槛金额         | `coupon_rule` |
+| [发票表](trade/invoice.md)        | 发票类型、抬头、纳税人识别号、开票状态     | `invoice`     |
 
 ### 系统与附件
 
-| 场景 | 说明 | 表名 |
-| --- | --- | --- |
+| 场景                         | 说明                        | 表名     |
+|----------------------------|---------------------------|--------|
 | [附件 / 文件表](system/file.md) | 上传文件记录：路径、大小、后缀、mime、hash | `file` |
 
 ### 不成表的片段
@@ -394,5 +394,13 @@ $table->save();
 
 - `create()` 自动注入 `created_at` / `updated_at` / `deleted_at`，前两列非空无默认，手写 INSERT 必须给值。
 - 外键要求两张表都是 InnoDB、外键列与主键列类型和符号一致；Phinx 自动主键是 unsigned，外键列要用 `unsignedInteger()`。
-- 列级 `->index()` / `->unique()` 只支持单列；批量组合索引用 `$builder->addIndex()`。
+- 列级 `->index()` / `->unique()` 只支持单列；批量组合索引用 `$builder->addIndex()` / `$builder->addUniqueKey()`，第二参可传索引名简写或完整选项，不传时索引名用列名下划线拼接：
+
+  ```php
+  $builder->addIndex(['cate_id', 'status']);                                // 索引名 cate_id_status
+  $builder->addIndex(['cate_id', 'status'], 'idx_cate_status');             // 直接指定索引名
+  $builder->addIndex(['cate_id', 'status'], ['name' => 'idx_cate_status']); // 完整选项
+  $builder->addUniqueKey(['goods_id', 'cate_id'], 'uk_goods_cate');         // 唯一索引，选项里自动补 unique
+  ```
+
 - 删列、改列名、表重命名、索引 / 外键、删表等表级操作统一走 Phinx 原生 `$this->table()` 链式调用，并且必须显式写 `up()` / `down()`；`Builder` 只构建字段与表选项，`change()` 是它唯一的「改已有列定义」入口。

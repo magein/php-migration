@@ -26,7 +26,7 @@ class Schema
      *   limit        自增主键列的 limit
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * @param Schema|array|string|null $options Schema 实例原样返回，字符串按表注释处理，数组按白名单处理
