@@ -8,7 +8,7 @@
 
 - 字段预设重组：去掉 MF 前缀，统一 `XxxPreset` 命名并迁入 `src/preset/fields/`；最终 12 个组 `user / basic / addr / file / image / article / goods / spec / date / contact / flag / order`，其中 `is` 更名 `flag`
 - 移除运行时整表预设（`TablePreset` 与 `$builder->table`）：表结构改由 `docs/` 场景库提供，复制场景里的 `change()` 到项目自己的迁移文件
-- 移除 `Builder::createdAt()` / `updatedAt()` / `deletedAt()`：三个时间列仍由 `Migrator::create()` 自动注入，软删开关行为不变
+- 移除 `Builder::createdAt()` / `updatedAt()` / `deletedAt()`：三个时间列仍由 `Migrator::create()` 自动注入，时间戳与软删分别由第二参 `$created_at`、第三参 `$soft_delete` 控制
 - 方法重命名：`integerTiny/integerSmall/integerMedium` → `tinyInteger/smallInteger/mediumInteger`；`textTiny/textMedium/textLong` → `tinyText/mediumText/longText`；`invoice()` → `isInvoice()`；`ethnic()/ethnicStr()` → `ethnicId()/ethnicText()`
 - `Builder::point()` 第二参改为 `$comment`，`$srid` 顺延为第三参
 - `php migrate` 类名原样传入，不再自动补 `Create` 前缀或 `Table` 后缀；移除 `--column` 选项与 append / remove / rename 三个迁移模板，变更迁移统一使用空骨架
@@ -32,7 +32,7 @@
 - 修复：`Migrator::parse()` 批量唯一索引与普通索引改为两个独立 `if`，不再因 `elseif` 静默丢弃普通索引
 - 修复：`dateTime()` / `time()` / `timestamp()` 仅 `$precision > 0` 时写精度，默认不写括号以兼容 MySQL 5.5 / 5.6 全系；显式精度需 ≥ 5.6.4
 - 修复：`->default(-1)` 不再被静默丢弃，`0` / `''` / `false` / `null` 等任意标量默认值均可声明
-- 修复：`Builder` 新增 `registerColumn()` 统一登记与重复列名检查，`change()` 同名不再静默覆盖；`create()` 自动注入时间戳为既有设计，不加开关
+- 修复：`Builder` 新增 `registerColumn()` 统一登记与重复列名检查，`change()` 同名不再静默覆盖；`create()` 默认自动注入 `created_at` / `updated_at`，保留第二参 `$created_at` 开关，第三参 `$soft_delete` 单独控制 `deleted_at`
 - 修复：`nullable()` 不再丢弃 default，`->nullable()->default(0)` 生成 `NULL DEFAULT 0`，两者相互独立
 - 修复：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
 - 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换

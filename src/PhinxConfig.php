@@ -6,14 +6,6 @@ class PhinxConfig
 {
 
     /**
-     * @return string
-     */
-    public static function template(): string
-    {
-        return __DIR__ . '/stubs/migrate.stub';
-    }
-
-    /**
      * 默认配置与传入配置递归合并：只传部分键不会丢掉其余默认值；
      * 列表值（如 paths.migrations 的多个路径）视为整体替换，不做追加
      * @param array $config
@@ -25,9 +17,6 @@ class PhinxConfig
             'paths' => [
                 'migrations' => '%%PHINX_CONFIG_DIR%%/database/migrations',
                 'seeds' => '%%PHINX_CONFIG_DIR%%/database/seeds'
-            ],
-            'templates' => [
-                'file' => self::template()
             ],
             'version_order' => 'creation',
             // 可选的外部依赖配置

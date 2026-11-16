@@ -53,9 +53,11 @@ php migrate rename_user_to_member  # RenameUserToMember，表重命名
 
 ```shell
 php migrate create create_user
-php migrate create create_user --template=custom.stub --path=./database/migrations
+php migrate create create_user --path=./database/migrations
 php migrate create create_user --class=MyCreator
 ```
+
+自定义骨架用 `--class=你的类`：类实现 `Phinx\Migration\CreationInterface`，由 `getMigrationTemplate()` 返回模板内容。`--template` 与自动注入的 `--class` 互斥，本包不支持该写法。
 
 只有含大写字母或下划线的裸词才会被当成迁移类名；纯小写单词（如 `user`）一律按命令解析，拼错会直接报「无法识别的命令」，不会误生成迁移文件。变更模板只给骨架：只有 `Create` 开头的类名会自动推断表名，其余 `protected $name` 为空需要手填；`up()` 里的字段定义和 `down()` 都要按实际迁移手写。
 
@@ -117,7 +119,7 @@ $app->run($input->init());
 
 本包的迁移类继承 `magein\migration\Migrator`，最终由 `create()` / `update()` / `save()` 之一提交。**用哪个方法、写在哪个生命周期里，直接决定能不能自动回滚**，这是最容易踩的坑。
 
-> **核心规则**（`migrate.stub` / `create.stub` 模板内的提醒）
+> **核心规则**（`create.stub` 模板内的提醒）
 > 如果希望实现自动升级降级，就把逻辑写在 `change()` 里，最终只调用 `create()` 和 `update()`，**不要调用 `save()`**；创建使用 `create()`、更新使用 `update()`。
 > 涉及删列、改列、重命名、删表等无法自动反转的操作，改用 `up()` / `down()` 分开写，`down()` 不能省。
 
@@ -125,9 +127,11 @@ $app->run($input->init());
 
 | 方法                                      | 作用            | Phinx 底层                                                     | 自动追加列                                                                           | 适用                                   |
 |-----------------------------------------|---------------|--------------------------------------------------------------|---------------------------------------------------------------------------------|--------------------------------------|
-| `create($builder, $soft_delete = true)` | 建新表           | `Table::create()` → 固定补一条 `CreateTable` 动作                   | `created_at`、`updated_at`；`$soft_delete` 为 `true` 时再加 `deleted_at`，传 `false` 不加 | 建表                                   |
+| `create($builder, $created_at = true, $soft_delete = true)` | 建新表 | `Table::create()` → 固定补一条 `CreateTable` 动作 | `$created_at` 为 `true` 加 `created_at`、`updated_at`；`$soft_delete` 为 `true` 加 `deleted_at` | 建表 |
 | `update($builder)`                      | 改已存在的表        | `Table::update()` → 只执行列 / 索引动作，不建表                          | 无                                                                               | 加列、改列、加索引                            |
 | `save($builder)`                        | 运行时自己判断建表还是改表 | `Table::save()` → `hasTable()` 为真走 `update()`，否则走 `create()` | **无**（时间戳只在 `create()` 里补）                                                      | `up()` / `down()`；**`change()` 里禁用** |
+
+> `create()` 的第二参是 `$created_at`（创建 / 更新时间列），第三参才是 `$soft_delete`。只传 `false` 去掉的是时间戳，`deleted_at` 照样加；要「保留时间戳、不要软删」得写 `$this->create($builder, true, false)`。
 
 **为什么 `change()` 里不能用 `save()`**
 
@@ -155,7 +159,7 @@ Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记
 
 **模板对应关系**
 
-- `CreateXxx` 类名 → `create.stub`：生成 `change()`，骨架是 `$this->create($builder, false)`（不加软删列）。
+- `CreateXxx` 类名 → `create.stub`：生成 `change()`，骨架是 `$this->create($builder, true, false)`，即自动注入 `created_at` / `updated_at`、不加软删列；要软删就省略参数或把第三参传 `true`，不要时间戳就把第二参传 `false`。
 - 其他类名 → `update.stub`：生成 `up()` / `down()`，骨架是 `$this->update($builder)` 加一个空 `down()`，字段与回滚逻辑自行补齐。
 
 `Builder::change()` 必须给出列名与新类型，无参调用会抛异常。

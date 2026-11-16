@@ -51,7 +51,6 @@ return \magein\migration\PhinxConfig::config(
 |----------------------------------------------------------------------------------|-----------------------------------------------|
 | `paths.migrations`                                                               | 默认 `%%PHINX_CONFIG_DIR%%/database/migrations` |
 | `paths.seeds`                                                                    | 默认 `%%PHINX_CONFIG_DIR%%/database/seeds`      |
-| `templates.file`                                                                 | 默认指向包内 `src/stubs/migrate.stub`               |
 | `version_order`                                                                  | 默认 `creation`                                 |
 | `default_migration_table`                                                        | 记录迁移版本的日志表，默认 `phinx_log`                     |
 | `default_environment`                                                            | 未指定 `-e` 时使用的环境                               |
@@ -59,6 +58,8 @@ return \magein\migration\PhinxConfig::config(
 | `adapter` / `host` / `name` / `user` / `pass` / `port` / `charset` / `collation` | 数据库连接参数                                       |
 
 `%%PHINX_CONFIG_DIR%%` 会解析成配置文件所在目录，模板里的相对路径始终以项目根目录为基准。`testing` 用 sqlite，指向的 `./tests/_data/database` 需自行准备，本包不含测试数据。
+
+迁移骨架由 `PhinxCreation::getMigrationTemplate()` 生成，不使用 `templates.file`；自定义骨架用 `--class=你的类` 指定（`CreationInterface`）。
 
 ## 指定配置
 

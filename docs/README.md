@@ -246,7 +246,7 @@ $builder->addr->lat();
 
 变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。
 
-> **提交方法：`create()` / `update()` / `save()` 不能混用**（`migrate.stub` 模板内的提醒）
+> **提交方法：`create()` / `update()` / `save()` 不能混用**（`create.stub` 模板内的提醒）
 > 想让 Phinx 自动升级 / 降级，就把逻辑写在 `change()` 里，最终只调用 `create()` 和 `update()`，**不要调用 `save()`**；创建使用 `create()`、更新使用 `update()`。
 > `save()` 靠 `hasTable()` 运行时判断建表还是改表，升级与回滚两次判断结果不同，反转会出错；删列、重命名、索引、外键等依赖 `->save()` 提交的表级操作同理，都不要放进 `change()`。
 > 无法自动反转的操作改用 `up()` / `down()` 分开写 —— **下面三个示例都是这种写法**，其中出现的 `->save()` 是提交动作的必要一环，与 `change()` 里禁用 `$this->save($builder)` 并不冲突。
@@ -364,7 +364,7 @@ $table->save();
 
 - `$builder = $this->builder('用户表');` 和 `$this->create($builder);` 已经写在每段代码里，复制整块即可；`protected $name` 改成文档里给的**表名**。
 - `builder()` 的字符串参数是**表注释**：`Migrator::builder()` 原样传给 `Builder::__construct()`，构造函数写入 `options['comment']`，建表时由 `Migrator` 内部读取。每个场景都填好了对应的中文注释，不要传空串。
-- `id` 需要手写；`created_at / updated_at / deleted_at` 由 `Migrator::create()` 自动注入，不用重复写。不需要软删就传 `$this->create($builder, false);`。
+- `id` 需要手写；`created_at / updated_at / deleted_at` 由 `Migrator::create()` 自动注入，不用重复写。签名是 `create($builder, $created_at = true, $soft_delete = true)`：第二参关时间戳、第三参关软删，所以不需要软删要传 `$this->create($builder, true, false);`；只传 `false` 会把时间戳一起去掉。
 - `$builder->user->xxx()` 这类是字段预设组，`$builder->string()` 这类是 Builder 原语；两者可以混用。金额统一「单位分」，`integer()` 的第三参是 `signed`，不要当默认值用。
 
 目录按业务分组：`account/` 用户与账号、`content/` 内容与展示、`trade/` 商品与交易、`system/` 系统与附件、`parts/` 常用片段。

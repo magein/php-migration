@@ -23,6 +23,7 @@ class CreateGoodsCategory extends Migrator
 
         $builder->addUniqueKey(['goods_id', 'cate_id'], 'uk_goods_cate');
 
-        $this->create($builder, false);
+        // 关联表不需要软删：保留自动注入的时间戳，只关掉 deleted_at
+        $this->create($builder, true, false);
     }
 }

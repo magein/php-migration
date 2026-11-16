@@ -6,6 +6,13 @@ use Phinx\Migration\CreationInterface;
 use Phinx\Component\Input\InputInterface;
 use Phinx\Component\Output\OutputInterface;
 
+/**
+ * CLI 自动注入 --class 走这里生成迁移骨架。
+ *
+ * 用 --class=你的类（实现 CreationInterface、getMigrationTemplate() 返回模板）
+ * 即可替代 --template 读固定 stub：能按类名选 create/update 骨架、推断表名，
+ * 并保证生成的迁移继承 Migrator。
+ */
 class PhinxCreation implements CreationInterface
 {
     /**

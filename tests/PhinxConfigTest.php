@@ -14,7 +14,7 @@ class PhinxConfigTest extends TestCase
         $this->assertSame('custom/migrations', $config['paths']['migrations']);
         $this->assertSame('%%PHINX_CONFIG_DIR%%/database/seeds', $config['paths']['seeds']);
         $this->assertSame('creation', $config['version_order']);
-        $this->assertArrayHasKey('file', $config['templates']);
+        $this->assertArrayNotHasKey('templates', $config);
     }
 
     public function test_list_value_is_replaced_not_merged(): void

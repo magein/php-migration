@@ -38,6 +38,7 @@ class $className extends Migrator
 
         $builder->schema->setEngineInnodb();
 
-        $this->create($builder,false);
+        // 第二参控制 created_at / updated_at，第三参控制 deleted_at
+        $this->create($builder, true, false);
     }
 }

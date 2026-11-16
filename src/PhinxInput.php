@@ -31,23 +31,26 @@ class PhinxInput
      * 自定义迁移创建类
      * @var string
      */
-    public $class = '';
+    public string $class = '';
 
     /**
      * 自定义配置文件路径
      * @var string
      */
-    public $configuration = '';
+    public string $configuration = '';
 
     /**
      * 创建迁移时可接收值的选项
      * 用于在参数中跳过选项的值，正确定位迁移类名
+     *
+     * 不含 --template：create 时总会注入 --class，Phinx 规定两者互斥；
+     * 自定义骨架改用 --class=你的类（CreationInterface::getMigrationTemplate()）
      * @var array
      */
-    protected $value_options = [
+    protected array $value_options = [
         '-e', '-t', '-d', '-c', '-p', '-l', '-s', '-f',
         '--environment', '--target', '--date', '--configuration',
-        '--parser', '--class', '--path', '--template', '--style',
+        '--parser', '--class', '--path', '--style',
         '--seed', '--format',
     ];
 
