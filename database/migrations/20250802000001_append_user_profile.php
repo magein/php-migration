@@ -9,7 +9,7 @@ use magein\migration\Migrator;
  */
 class AppendUserProfile extends Migrator
 {
-    protected $name = 'user';
+    protected string $name = 'user';
 
     public function up()
     {

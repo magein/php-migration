@@ -16,12 +16,12 @@ class Migrator extends AbstractMigration
     /**
      * @var Builder|null
      */
-    protected $builder = null;
+    protected ?Builder $builder = null;
 
     /**
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * @param string $message

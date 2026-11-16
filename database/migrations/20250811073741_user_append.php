@@ -4,7 +4,7 @@ use magein\migration\Migrator;
 
 class UserAppend extends Migrator
 {
-    protected $name = 'user';
+    protected string $name = 'user';
 
     public function up()
     {

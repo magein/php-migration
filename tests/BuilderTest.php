@@ -159,6 +159,41 @@ class BuilderTest extends TestCase
         ];
     }
 
+    /**
+     * change() 只带类型与注释，缺省属性等于整列重建，精度要用链式方法补回来
+     */
+    public function test_change_column_carries_precision_and_scale(): void
+    {
+        $builder = new Builder('探针表');
+        $builder->change('price', 'decimal', '商品售价 单位分')
+            ->default(0)
+            ->precision(10)
+            ->scale(2);
+
+        $this->assertSame(
+            "DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT '商品售价 单位分'",
+            $this->sql($builder, 'price')
+        );
+    }
+
+    /**
+     * others() 整体替换，precision() / scale() 是往 others 里加键，两者可以混用
+     */
+    public function test_others_and_precision_merge(): void
+    {
+        $builder = new Builder('探针表');
+        $column = $builder->change('amount', 'decimal', '金额')
+            ->others(['signed' => false])
+            ->precision(12)
+            ->scale(4);
+
+        $this->assertSame(['signed' => false, 'precision' => 12, 'scale' => 4], $column->getOthers());
+        $this->assertSame(
+            "DECIMAL(12,4) unsigned NOT NULL COMMENT '金额'",
+            $this->sql($builder, 'amount')
+        );
+    }
+
     public function test_preset_groups_register_unique_columns(): void
     {
         $groups = [

@@ -13,7 +13,7 @@ use magein\migration\Migrator;
  */
 class CreateAllTypes extends Migrator
 {
-    protected $name = 'all_types';
+    protected string $name = 'all_types';
 
     public function change()
     {

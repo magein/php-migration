@@ -9,7 +9,7 @@ use magein\migration\Migrator;
  */
 class CreateGoods extends Migrator
 {
-    protected $name = 'goods';
+    protected string $name = 'goods';
 
     public function change()
     {

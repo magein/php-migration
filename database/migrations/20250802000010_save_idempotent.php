@@ -9,7 +9,7 @@ use magein\migration\Migrator;
  */
 class SaveIdempotent extends Migrator
 {
-    protected $name = 'demo_config';
+    protected string $name = 'demo_config';
 
     public function up()
     {

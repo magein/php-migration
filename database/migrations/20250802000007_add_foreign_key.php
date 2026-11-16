@@ -10,7 +10,7 @@ use magein\migration\Migrator;
  */
 class AddForeignKey extends Migrator
 {
-    protected $name = 'goods_category';
+    protected string $name = 'goods_category';
 
     public function up()
     {

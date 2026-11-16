@@ -19,6 +19,8 @@
 - 新增 `Column::hasDefault()`：默认值改用独立布尔标记，`getDefault()` 未声明时返回 `null`（原哨兵 `-1` 移除）
 - 移除 `Builder` 的 5 个空间集合类型方法（`geometryCollection()` / `multiPoint()` / `multiLineString()` / `multiPolygon()` / `multiPolygonZ()`）：上游 Phinx 未映射，调用必抛异常；替代写法见 `docs/README.md`
 
+- 新增 `Column::precision()` / `scale()`：小数精度与位数，写入 Phinx 选项 `precision` / `scale`；`change()` 改 decimal 不给精度会生成裸 `DECIMAL`（MySQL 按 `DECIMAL(10,0)` 处理）
+
 **修复**
 
 - 修正 9 处预设方法列名写错导致的同名覆盖（原本会丢列）
@@ -46,6 +48,8 @@
 - 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、预设组唯一性、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
 - `composer.json` 补 `require-dev` / `autoload-dev` / `scripts.test`，声明 `ext-pdo`，运行时零 composer 依赖，PHP 下限 `^7.4`；新增 `THIRD_PARTY.md` 说明提取代码来源与许可证
 - 移除 `cakephp/database` / `psr/container` 依赖：本包迁移链路走 PDO 直连不触发加载，保持零运行时依赖（`composer.json` 仅声明 `php` / `ext-pdo`）
+- 迁移示例补 3 个：`up()` 侧删字段 + 删索引（含 `hasColumn()` / `hasIndexByName()` 守卫与对应 `down()` 还原）、`renameColumn()` 重命名列、`execute()` 原生 DDL 切换表引擎
+- 修复示例 `alter_goods_price`：`change()` 是整列重建，只写类型与注释会清掉默认值、精度，up 补 `->default(0)->precision(10)->scale(2)`，down 补 `->default(0)` 并把注释还原为原定义「价格 单位分」
 
 #### v2.0.1
 

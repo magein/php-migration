@@ -127,6 +127,30 @@ class Column
     }
 
     /**
+     * 小数精度（decimal / float / double 才有意义）
+     * @param int $precision
+     * @return $this
+     */
+    public function precision(int $precision): Column
+    {
+        $this->others['precision'] = $precision;
+
+        return $this;
+    }
+
+    /**
+     * 小数位数（decimal / float / double 才有意义）
+     * @param int $scale
+     * @return $this
+     */
+    public function scale(int $scale): Column
+    {
+        $this->others['scale'] = $scale;
+
+        return $this;
+    }
+
+    /**
      * @param mixed $value
      * @return $this
      */

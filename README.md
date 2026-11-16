@@ -158,7 +158,21 @@ Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记
 - `CreateXxx` 类名 → `create.stub`：生成 `change()`，骨架是 `$this->create($builder, false)`（不加软删列）。
 - 其他类名 → `update.stub`：生成 `up()` / `down()`，骨架是 `$this->update($builder)` 加一个空 `down()`，字段与回滚逻辑自行补齐。
 
-`Builder::change()` 必须给出列名与新类型，无参调用会抛异常。完整迁移示例、字段预设、列类型原语、常见表结构与注意事项见 [docs/README.md](docs/README.md)。
+`Builder::change()` 必须给出列名与新类型，无参调用会抛异常。
+
+**`change()` 是整列重建，不是打补丁**：它只带「类型 + 注释」，Phinx 按新定义重写整个列，没写的属性一律回落默认值——默认值被清空、`nullable()` 变回 `NOT NULL`、注释丢失。改列时把要保留的属性一起链式写全：
+
+```php
+// 价格从整数改定点数：默认值、精度、位数都要显式给
+$builder->change('price', 'decimal', '商品售价 单位分')
+    ->default(0)
+    ->precision(10)
+    ->scale(2);
+```
+
+常用属性都有链式方法：`default()` / `nullable()` / `length()` / `precision()` / `scale()`；`others()` 是 Phinx 选项的兜底通道（**整体替换，不是合并**），补没有专职方法的键，如 `->others(['signed' => false])`。
+
+完整迁移示例、字段预设、列类型原语、常见表结构与注意事项见 [docs/README.md](docs/README.md)。
 
 ### 测试
 

@@ -129,6 +129,8 @@ $builder = $this->builder(new Schema('用户表'));
 
 Phinx 用 `!isSigned()` 生成 UNSIGNED，所以只有 `*Unsigned()` 系列是无符号，基础的三个默认有符号。经纬度、金额可能为负的场景别用错。
 
+改已有小数列走 `Builder::change()` 时，精度必须显式补：`->precision(10)->scale(2)`，不给就生成裸 `DECIMAL`（MySQL 按 `DECIMAL(10,0)` 处理）。`change()` 是整列重建，`default()` / `nullable()` 同理，不写就等于清空。
+
 ### 布尔与日期时间
 
 | 方法 | 生成类型 | 说明 |

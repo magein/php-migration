@@ -4,7 +4,7 @@ use magein\migration\Migrator;
 
 class RenameUserToUsers extends Migrator
 {
-    protected $name = 'user';
+    protected string $name = 'user';
 
     protected $new_name = 'users';
 

@@ -9,7 +9,7 @@ use magein\migration\Migrator;
  */
 class ChangeTableOptions extends Migrator
 {
-    protected $name = 'goods';
+    protected string $name = 'goods';
 
     public function up()
     {
