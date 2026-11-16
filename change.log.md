@@ -4,6 +4,8 @@
 
 **API 变更**（现有 migration 需按此调整）
 
+**版本支持**：PHP `^7.1` → **`^7.4`**（与上游 phinx 0.14 一致），运行时仅要求 `ext-pdo`，零 composer 依赖
+
 - 字段预设重组：去掉 MF 前缀，统一 `XxxPreset` 命名并迁入 `src/preset/fields/`；最终 12 个组 `user / basic / addr / file / image / article / goods / spec / date / contact / flag / order`，其中 `is` 更名 `flag`
 - 移除运行时整表预设（`TablePreset` 与 `$builder->table`）：表结构改由 `docs/` 场景库提供，复制场景里的 `change()` 到项目自己的迁移文件
 - 移除 `Builder::createdAt()` / `updatedAt()` / `deletedAt()`：三个时间列仍由 `Migrator::create()` 自动注入，软删开关行为不变
@@ -33,6 +35,7 @@
 - 修复：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
 - 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
 - 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 `$builder->schema`，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`；引擎快捷方法更名为 `setEngineInnodb()` / `setEngineMyISAM()`，`id()` 为高频操作保留在 `Builder` 上并转发 schema
+- 修复：`PhinxCreation::tableName()` 的 `str_starts_with()` 为 PHP 8.0 函数，7.4 上执行 create 必 fatal，改 `strpos() === 0`
 - 修复：`Builder::indexOptions()` 更名 `normalizeIndexOptions()`，`$columns` 收窄为 `array`（调用方已数组化）；`$options` 只接受数组 / 字符串 / null，其余类型抛 `InvalidArgumentException`，不再静默返回标量、到 `addIndex()` 才报 TypeError
 
 **其他**
