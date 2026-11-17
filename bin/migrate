@@ -9,12 +9,18 @@ $__autoload = [
 
 foreach ($__autoload as $file) {
     if (file_exists($file)) {
-        define('MIGRATION_COMPOSER_INSTALL', $file);
+        define('MIGRATION_COMPOSER_INSTALL_COMPLETED', $file);
         break;
     }
 }
 
-require MIGRATION_COMPOSER_INSTALL;
+// 三个候选路径都不存在时不进 require，避免引用未定义常量导致不可读的 Fatal error
+if (!defined('MIGRATION_COMPOSER_INSTALL_COMPLETED')) {
+    fwrite(STDERR, '未找到 composer 的 autoload.php，请先执行 composer install' . PHP_EOL);
+    exit(1);
+}
+
+require MIGRATION_COMPOSER_INSTALL_COMPLETED;
 
 $input = new \magein\migration\PhinxInput();
 $app = new \Phinx\Console\PhinxApplication();

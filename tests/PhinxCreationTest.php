@@ -18,6 +18,8 @@ class PhinxCreationTest extends TestCase
         $input->method('getArgument')->with('name')->willReturn($name);
 
         $creation = new PhinxCreation($input);
+        // 表名推断已延后到 getMigrationTemplate()，反射前先触发一次
+        $creation->getMigrationTemplate();
 
         $template = new \ReflectionProperty(PhinxCreation::class, 'template');
         $template->setAccessible(true);
@@ -61,7 +63,7 @@ class PhinxCreationTest extends TestCase
 
         $creation = new PhinxCreation($input);
 
-        $this->assertStringContainsString("protected \$name = 'user';", $creation->getMigrationTemplate());
+        $this->assertStringContainsString("protected string \$name = 'user';", $creation->getMigrationTemplate());
     }
 
     public function test_update_template_keeps_empty_table_name(): void
@@ -71,6 +73,6 @@ class PhinxCreationTest extends TestCase
 
         $creation = new PhinxCreation($input);
 
-        $this->assertStringContainsString("protected \$name = '';", $creation->getMigrationTemplate());
+        $this->assertStringContainsString("protected string \$name = '';", $creation->getMigrationTemplate());
     }
 }

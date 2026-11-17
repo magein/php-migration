@@ -13,8 +13,8 @@ composer.json不依赖phinx:0.14.0,而是将phinx跟其依赖的包提取到phin
 ### 修改
 
 1. 可以链式调用
-2. 命令与选项原样透传给 Phinx，`-e` / `--target` / `--configuration` 等参数不再被吞掉
-3. 省略 create 命令，直接写驼峰或下划线形式的迁移类名即可创建（如 `create_user`）
+2. 已注册命令原样透传给 Phinx；`run` 是 `migrate` 的快捷写法（可带 `-e`）
+3. 省略 create 命令，直接写迁移类名即可创建（如 `create_user`），自动转驼峰并注入本包骨架
 
 ### 安装
 
@@ -34,11 +34,11 @@ composer require magein/migration
 
 #### 命令行
 
-所有命令都通过 `bin/migrate` 执行：**命令必须是第一个参数**，选项跟在命令之后原样透传给 Phinx。下面按实际使用顺序排列。
+所有命令都通过 `bin/migrate` 执行。第一个参数是已注册命令（含 `create`、`seed:create`、`seed:run`）或 `-` 开头的全局选项时，原封不动透传给 Phinx；要带 `-c / -p / -t / -d` 等参数就用原生写法。
 
 **1. 创建迁移文件**
 
-迁移类名原样传入，不再自动补 `Create` 前缀或 `Table` 后缀；下划线写法只做命名转换，最终转成驼峰，文件名也由类名生成，动作写在名字里就能一眼看出用途。
+省略 `create` 直接写类名：下划线转驼峰并校验合法性，自动注入本包骨架。不补 `create_` 前缀 —— `create_` 开头走建表骨架，其余走变更骨架（表名留空手填），建议统一用 `create_` 开头。
 
 ```shell
 php migrate create_user            # CreateUser，建表
@@ -49,25 +49,25 @@ php migrate remove_user_legacy     # RemoveUserLegacy，删除字段
 php migrate rename_user_to_member  # RenameUserToMember，表重命名
 ```
 
-也可以显式写 `create`，并在命令后追加选项：
+显式写 `create` 即 Phinx 原生命令：类名须是 CamelCase、生成默认骨架、不注入 `--class`，可追加选项：
 
 ```shell
-php migrate create create_user
-php migrate create create_user --path=./database/migrations
-php migrate create create_user --class=MyCreator
+php migrate create CreateUser
+php migrate create CreateUser --path=./database/migrations
+php migrate create CreateUser --class=MyCreator
 ```
 
-自定义骨架用 `--class=你的类`：类实现 `Phinx\Migration\CreationInterface`，由 `getMigrationTemplate()` 返回模板内容。`--template` 与自动注入的 `--class` 互斥，本包不支持该写法。
+自定义骨架用 `--class=你的类`：类实现 `Phinx\Migration\CreationInterface`，由 `getMigrationTemplate()` 返回模板内容。`--template` 与 `--class` 互斥，本包不支持该写法。
 
-只有含大写字母或下划线的裸词才会被当成迁移类名；纯小写单词（如 `user`）一律按命令解析，拼错会直接报「无法识别的命令」，不会误生成迁移文件。变更模板只给骨架：只有 `Create` 开头的类名会自动推断表名，其余 `protected $name` 为空需要手填；`up()` 里的字段定义和 `down()` 都要按实际迁移手写。
+非命令的裸词都当作迁移类名，`user` 会生成 `User`（变更骨架）。只有 `Create` 开头的类名自动推断表名，其余 `protected $name` 为空需要手填；`up()` 里的字段定义和 `down()` 都要按实际迁移手写。
 
 **2. 执行迁移**
 
 ```shell
 php migrate migrate                            # 执行迁移
-php migrate run                                # run 是 migrate 的别名
-php migrate migrate -e production              # 指定环境
-php migrate migrate --target 20250801000001    # 迁移到指定版本
+php migrate run                                # 任意位置出现 run 都执行 migrate
+php migrate run -e production                  # run 只保留 -e / --environment
+php migrate migrate --target 20250801000001    # 原生写法可带任意参数
 ```
 
 **3. 回滚与断点**
@@ -99,7 +99,7 @@ php migrate list
 php migrate --help
 ```
 
-选项只支持 `-x`（值单独跟在后面，如 `-e production`）与 `--name` / `--name=value`（如 `--class=MyCreator`、`--configuration=/path/phinx.php`）两种写法，不支持 `-eproduction` 这类连写值；自定义配置文件用 `--configuration` 指定。不再支持 `php migrate user run` 这类把动作词放在任意位置的写法。
+便捷写法（裸词类名、`run`）只保留 `-e` / `--environment`，其余参数丢弃；要指定别的参数就用原生命令，选项怎么写由 Phinx 自己解析。自定义配置文件用 `--configuration` 指定。
 
 #### 调用
 
@@ -131,7 +131,7 @@ $app->run($input->init());
 **另外三条必记**
 
 - `change()` 提交建表与改列只用 `create()` / `update()`，**不要调用 `save()`**；删列、改名、删表等无法自动反转的操作改写 `up()` / `down()`，`down()` 不能省。
-- `create($builder, $created_at = true, $soft_delete = true)`：第二参是时间戳开关，第三参才是软删。要「保留时间戳、不要软删」写 `$this->create($builder, true, false)`；只传 `false` 去掉的是时间戳。
+- `create($builder, $created_at = true, $soft_delete = true)`：第二参是时间戳开关，第三参才是软删。要「保留时间戳、不要软删」写 `$this->create($builder, true, false)`；只传 `false` 去掉的是时间戳。时间列非空无默认、**不使用 `CURRENT_TIMESTAMP`**，由应用层维护（原因见 [docs/README.md](docs/README.md)）。
 - `Builder` **不提供任何索引 / 外键 API**，组合索引、唯一索引、外键一律用 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。
 
 `$this->table()` 的第一个参数是**实际表名**，不是 `Builder`。`Builder::change()` 必须给出列名与新类型，且是整列重建 —— 要保留的 `default()` / `nullable()` / `precision()` / `scale()` 都要一起写全，否则回落默认值。

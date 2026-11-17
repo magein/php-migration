@@ -18,7 +18,7 @@
 1. **无法自动反转的操作改写 `up()` / `down()`**：删列、改名、删表都要自己写反向逻辑，`down()` 不能省；`change()` 里只放可逆命令，提交方式见上方表格。
 2. **`Builder` 不提供任何索引 / 外键 API**：组合索引、唯一索引、外键一律用 Phinx 原生 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。
 3. **`create($builder, $created_at = true, $soft_delete = true)`**：第二参关时间戳、第三参关软删。不需要软删要写 `create($builder, true, false)`；只传 `false` 会把 `created_at` / `updated_at` 一起去掉。
-4. **自动注入的时间列非空无默认**：`created_at` / `updated_at` 是 `NOT NULL` 且无默认值，手写 `INSERT` 必须给值。
+4. **自动注入的时间列非空无默认，值由应用层维护**：`created_at` / `updated_at` 是 `NOT NULL` 且无默认值，手写 `INSERT` 必须给值。本包**不设 `CURRENT_TIMESTAMP` / `ON UPDATE`**：ORM 的自动时间戳会与数据库默认值冲突、数据库时钟可能偏移、`ON UPDATE` 又是 MySQL 方言。确实需要数据库默认值，就第二参传 `false` 关掉自动注入，在自己的 Builder 里写 `->default('CURRENT_TIMESTAMP')`。
 5. **外键列用 `unsignedInteger()`**：两张表都要 InnoDB，外键列与主键列的类型、符号一致；Phinx 自动主键是 unsigned。
 6. **主键只能声明一次**：`id()` / `setPrimaryKey()` / `*Increments()` 都在声明主键，三者互斥；一张表只能有一个自增列，重复声明直接抛异常。
 7. **`Builder::change()` 是整列重建**：只带「类型 + 注释」，没写的属性一律回落默认值（默认值被清空、`nullable()` 变回 `NOT NULL`、注释丢失），要保留的属性一起写全。

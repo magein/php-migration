@@ -87,7 +87,7 @@ class Migrator extends AbstractMigration
             $options['after'] = $column->getAfter();
         }
 
-        if ($column->getComment()) {
+        if ($column->getComment() !== '') {
             $options['comment'] = $column->getComment();
         }
 
@@ -153,6 +153,8 @@ class Migrator extends AbstractMigration
     public function create(Builder $builder, bool $created_at = true, bool $soft_delete = true): void
     {
         if ($created_at) {
+            // 只建列，不设 CURRENT_TIMESTAMP / ON UPDATE：时间戳由应用层维护，避免与 ORM 冲突、时钟偏移和跨库方言限制
+            // 要数据库默认值就第二参传 false，自己在 Builder 里 ->default('CURRENT_TIMESTAMP')
             $builder->dateTime('created_at', '创建时间');
             $builder->dateTime('updated_at', '更新时间');
         }
@@ -177,12 +179,18 @@ class Migrator extends AbstractMigration
     }
 
     /**
-     * 执行save方法
+     * 执行save方法（仅用于 up() / down()，change() 中调用会抛异常）
      * @param Builder $builder
      * @return void
      */
     public function save(Builder $builder): void
     {
+        // 有 change() 时 Phinx 升级与回滚都走它并忽略 up()/down()；save() 的 hasTable()
+        // 两次结果不同会让反转动作不一致，必须在升级阶段就拒绝，不能等回滚才暴露
+        if (method_exists($this, 'change')) {
+            $this->exception('change() 里禁止调用 save()，请改用 create() / update()');
+        }
+
         $this->setBuilder($builder);
         $this->parse($this->invokeTable())->save();
     }

@@ -35,7 +35,15 @@ class CreateTest extends Migrator
     {
         $builder = $this->builder('');
         $builder->integerIncrements();
+        $builder->user->username();
 
-        $this->create($builder, true, false);
+        $this->save($builder);
+    }
+
+    public function down()
+    {
+        if ($this->hasTable($this->name)) {
+            $this->table($this->name)->drop()->save();
+        }
     }
 }

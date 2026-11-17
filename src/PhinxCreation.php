@@ -39,8 +39,6 @@ class PhinxCreation implements CreationInterface
             $this->setOutput($output);
         }
 
-        $this->tableName();
-
     }
 
     public function setInput(InputInterface $input): PhinxCreation

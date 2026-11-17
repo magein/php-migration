@@ -163,7 +163,7 @@ class Builder
         $column = new Column();
         $column->name($name);
         $column->type($type);
-        $column->comment($comment ?: '');
+        $column->comment($comment ?? '');
         $column->change();
         $this->registerColumn($name, $column);
 

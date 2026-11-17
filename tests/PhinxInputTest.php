@@ -17,76 +17,115 @@ class PhinxInputTest extends TestCase
         return (new PhinxInput())->init($argv);
     }
 
-    public function test_run_is_alias_of_migrate(): void
+    public function test_registered_command_is_passed_through_verbatim(): void
     {
-        $this->assertSame('migrate', $this->input(['migrate.php', 'run', '-e', 'production'])->getFirstArgument());
+        $rendered = (string)$this->input([
+            'migrate.php', 'migrate', '-e', 'production', '--target', '20250802000012',
+        ]);
+
+        $this->assertStringContainsString('migrate -e production', $rendered);
+        $this->assertStringContainsString('--target 20250802000012', $rendered);
     }
 
-    public function test_bare_class_name_becomes_create_with_class_injection(): void
+    public function test_create_is_kept_as_native_command(): void
     {
-        $input = $this->input(['migrate.php', 'create_user']);
-        $rendered = (string)$input;
+        $rendered = (string)$this->input(['migrate.php', 'create', 'CreateUser']);
 
-        $this->assertSame('create', $input->getFirstArgument());
-        $this->assertStringContainsString('CreateUser', $rendered);
+        $this->assertStringContainsString('create CreateUser', $rendered);
+        $this->assertStringNotContainsString('--class=', $rendered);
+    }
+
+    public function test_seed_commands_are_passed_through(): void
+    {
+        $rendered = (string)$this->input(['migrate.php', 'seed:run', '-e', 'production']);
+
+        $this->assertStringContainsString('seed:run', $rendered);
+        $this->assertStringContainsString('-e production', $rendered);
+    }
+
+    public function test_global_option_is_passed_through(): void
+    {
+        $this->assertStringContainsString('--help', (string)$this->input(['migrate.php', '--help']));
+    }
+
+    public function test_bare_name_becomes_create_with_class_injection(): void
+    {
+        $rendered = (string)$this->input(['migrate.php', 'create_user']);
+
+        $this->assertStringContainsString('create CreateUser', $rendered);
         $this->assertStringContainsString('--class=', $rendered);
         $this->assertStringContainsString('PhinxCreation', $rendered);
     }
 
-    public function test_explicit_create_normalizes_underscore_name(): void
+    public function test_create_prefix_is_not_added(): void
     {
-        $this->assertStringContainsString(
-            'UserAppendBalance',
-            (string)$this->input(['migrate.php', 'create', 'user_append_balance'])
-        );
+        $rendered = (string)$this->input(['migrate.php', 'user_order']);
+
+        $this->assertStringContainsString('UserOrder', $rendered);
+        $this->assertStringNotContainsString('CreateUserOrder', $rendered);
     }
 
-    public function test_options_are_passed_through(): void
+    public function test_invalid_class_name_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('迁移类名不合法');
+
+        $this->input(['migrate.php', 'user--name']);
+    }
+
+    public function test_run_anywhere_becomes_migrate(): void
+    {
+        foreach ([['run', 'create_user'], ['create_user', 'run']] as $tail) {
+            $input = $this->input(array_merge(['migrate.php'], $tail));
+
+            $this->assertSame('migrate', $input->getFirstArgument());
+            $this->assertStringNotContainsString('create_user', (string)$input);
+        }
+    }
+
+    public function test_run_keeps_only_environment(): void
     {
         $rendered = (string)$this->input([
-            'migrate.php', 'status', '--target', '20250802000012', '-e', 'production',
+            'migrate.php', 'run', '-e', 'production', '--target', '20250802000012',
         ]);
 
-        $this->assertStringContainsString('status', $rendered);
-        $this->assertStringContainsString('--target 20250802000012', $rendered);
         $this->assertStringContainsString('-e production', $rendered);
+        $this->assertStringNotContainsString('--target', $rendered);
     }
 
-    public function test_existing_class_option_is_not_overridden(): void
+    public function test_convenient_create_keeps_only_environment(): void
     {
-        $rendered = (string)$this->input(['migrate.php', 'create', '-l', 'MyCreator', 'create_user']);
+        $rendered = (string)$this->input([
+            'migrate.php', 'create_user', '-e', 'production', '-t', '2025',
+        ]);
 
-        $this->assertStringContainsString('MyCreator', $rendered);
-        $this->assertSame(0, substr_count($rendered, '--class='), '已用 -l 指定创建类时不应再注入 --class');
+        $this->assertStringContainsString('create CreateUser', $rendered);
+        $this->assertStringContainsString('-e production', $rendered);
+        $this->assertStringNotContainsString('-t 2025', $rendered);
     }
 
-    public function test_unknown_lowercase_word_throws(): void
+    public function test_long_environment_option_is_kept(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('无法识别的命令：wrongcmd');
+        $rendered = (string)$this->input(['migrate.php', 'run', '--environment=production']);
 
-        $this->input(['migrate.php', 'wrongcmd']);
+        $this->assertStringContainsString('--environment=production', $rendered);
     }
 
-    public function test_joined_short_option_value_throws(): void
+    public function test_command_with_run_as_value_is_not_rewritten(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('不支持的选项写法');
+        $rendered = (string)$this->input(['migrate.php', 'migrate', '-e', 'run']);
 
-        // 校验发生在 create 的类名定位路径上；选项在首位时属于全局选项，原样透传
-        $this->input(['migrate.php', 'create', '-eproduction', 'create_user']);
+        $this->assertStringContainsString('-e run', $rendered);
     }
 
-    public function test_create_without_name_throws(): void
+    public function test_set_class_and_configuration_are_injected(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('请输入表名称');
+        $rendered = (string)(new PhinxInput())
+            ->setClass('MyCreator')
+            ->setConfiguration('/path/phinx.php')
+            ->init(['migrate.php', 'create_user']);
 
-        $this->input(['migrate.php', 'create']);
-    }
-
-    public function test_global_options_are_passed_through_verbatim(): void
-    {
-        $this->assertStringContainsString('--help', (string)$this->input(['migrate.php', '--help']));
+        $this->assertStringContainsString('--class=MyCreator', $rendered);
+        $this->assertStringContainsString('phinx.php', $rendered);
     }
 }
