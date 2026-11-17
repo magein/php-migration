@@ -91,8 +91,11 @@ class Migrator extends AbstractMigration
             $options['comment'] = $column->getComment();
         }
 
-        // nullable 只决定 NULL / NOT NULL，与 default 相互独立，NULL DEFAULT 0 由上游正常生成
-        $options['null'] = $column->getNull();
+        // null 与 default 相互独立；others() 显式声明的优先，未声明才用 getNull() 兜底
+        // （Phinx 默认允许 NULL，这个兜底不能省，否则未调 nullable() 的列会全变成可空）
+        if (!array_key_exists('null', $options)) {
+            $options['null'] = $column->getNull();
+        }
 
         // increment 是 SQL Server 的 IDENTITY 步长；自增开关统一用 identity（Phinx 各适配器通用）
         if (!empty($options['increment'])) {
