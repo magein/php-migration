@@ -76,38 +76,35 @@ class BuilderTest extends TestCase
         $this->assertTrue($builder->schema->toArray()['id']);
     }
 
-    public function test_index_name_defaults_to_columns(): void
+    public function test_increments_marks_primary_key(): void
     {
         $builder = new Builder('用户表');
-        $builder->addIndex(['cate_id', 'status']);
-        $builder->addUniqueKey('sku');
+        $builder->integerIncrements('uid');
 
-        $this->assertSame([
-            [['cate_id', 'status'], ['name' => 'cate_id_status']],
-        ], $builder->index);
-
-        $this->assertSame([
-            [['sku'], ['name' => 'sku', 'unique' => true]],
-        ], $builder->unique);
+        $this->assertFalse($builder->schema->toArray()['id']);
+        $this->assertSame(['uid'], $builder->schema->toArray()['primary_key']);
     }
 
-    public function test_index_string_option_becomes_name(): void
+    public function test_increments_rejects_existing_primary_key(): void
     {
         $builder = new Builder('用户表');
-        $builder->addIndex(['cate_id', 'status'], 'idx_cate_status');
+        $builder->id();
 
-        $this->assertSame([
-            [['cate_id', 'status'], ['name' => 'idx_cate_status']],
-        ], $builder->index);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('自增主键与已声明的主键冲突');
+        $builder->integerIncrements();
     }
 
-    public function test_index_invalid_options_throws(): void
+    public function test_increments_rejects_second_auto_column(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('索引选项只接受数组或字符串');
+        $builder = new Builder('用户表');
+        $builder->integerIncrements();
 
-        (new Builder('用户表'))->addIndex('sku', 1);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('一张表只能有一个自增列');
+        $builder->bigIncrements('big_id');
     }
+
     public function test_duplicate_column_throws(): void
     {
         $builder = new Builder();
@@ -151,7 +148,7 @@ class BuilderTest extends TestCase
             'datetime with milliseconds' => [$factory(function (Builder $b) { $b->dateTime('dt_ms', null, 3); }), 'dt_ms', 'DATETIME(3) NOT NULL'],
             'timestamp with microseconds' => [$factory(function (Builder $b) { $b->timestamp('ts_col', null, 6); }), 'ts_col', 'TIMESTAMP(6) NOT NULL'],
             'json' => [$factory(function (Builder $b) { $b->json('json_col'); }), 'json_col', 'JSON NOT NULL'],
-            'big increments' => [$factory(function (Builder $b) { $b->bigIncrements('big_inc'); }), 'big_inc', 'BIGINT(20) unsigned NOT NULL'],
+            'big increments' => [$factory(function (Builder $b) { $b->bigIncrements('big_inc'); }), 'big_inc', 'BIGINT(20) unsigned NOT NULL AUTO_INCREMENT'],
             'nullable with default 0' => [$factory(function (Builder $b) { $b->string('st')->nullable()->default(0); }), 'st', 'VARCHAR(255) NULL DEFAULT 0'],
             'nullable without default' => [$factory(function (Builder $b) { $b->text('txt')->nullable(); }), 'txt', 'TEXT NULL'],
             'default -1 survives' => [$factory(function (Builder $b) { $b->integer('dft')->default(-1); }), 'dft', 'INT(11) NOT NULL DEFAULT -1'],

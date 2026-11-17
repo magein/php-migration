@@ -70,4 +70,4 @@ php migrate status -e production
 php migrate migrate --configuration=/path/to/phinx.php
 ```
 
-命令行与迁移文件的基本用法见 [根目录 README](../README.md)，字段类型与表结构场景见 [docs/README](README.md)。
+命令行见 [根目录 README](../README.md)；迁移文件的必读规则、完整写法、字段类型与表结构场景见 [docs/README](README.md)。

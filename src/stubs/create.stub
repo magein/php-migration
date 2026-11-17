@@ -29,16 +29,13 @@ class $className extends Migrator
     /**
      * @var string
      */
-    protected $name = '{$name}';
+    protected string $name = '{$name}';
 
     public function change()
     {
         $builder = $this->builder('');
         $builder->id();
 
-        $builder->schema->setEngineInnodb();
-
-        // 第二参控制 created_at / updated_at，第三参控制 deleted_at
         $this->create($builder, true, false);
     }
 }

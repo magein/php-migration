@@ -76,12 +76,33 @@ class SchemaTest extends TestCase
 
         $schema->setPrimaryKey(['user_id', 'tenant_id']);
         $options = $schema->toArray();
-        $this->assertTrue($options['id']);
+        $this->assertFalse($options['id']);
         $this->assertSame(['user_id', 'tenant_id'], $options['primary_key']);
 
-        $schema->setPrimaryKey(null);
+        $schema->setPrimaryKey('user_id');
         $options = $schema->toArray();
         $this->assertFalse($options['id']);
-        $this->assertArrayNotHasKey('primary_key', $options);
+        $this->assertSame('user_id', $options['primary_key']);
+    }
+
+    public function test_set_primary_key_disables_auto_id(): void
+    {
+        $schema = new Schema();
+        $schema->id();
+        $schema->setPrimaryKey('user_id');
+
+        $this->assertFalse($schema->toArray()['id']);
+    }
+
+    public function test_set_primary_key_requires_explicit_columns(): void
+    {
+        foreach ([null, '', [], 0, ['user_id', '']] as $value) {
+            try {
+                (new Schema())->setPrimaryKey($value);
+                $this->fail('空主键应当抛异常');
+            } catch (\InvalidArgumentException $e) {
+                $this->assertStringContainsString('主键', $e->getMessage());
+            }
+        }
     }
 }

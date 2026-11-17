@@ -312,11 +312,13 @@ class Column
 
     /**
      * @param bool $change
-     * @return void
+     * @return $this
      */
-    public function change(bool $change = true): void
+    public function change(bool $change = true): Column
     {
         $this->change = $change;
+
+        return $this;
     }
 
     /**

@@ -63,6 +63,28 @@ class SqliteIntegrationTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey('smoke_children', ['user_id']));
     }
 
+    public function test_custom_composite_primary_key(): void
+    {
+        $schema = new \magein\migration\Schema();
+        $schema->setPrimaryKey(['user_id', 'tenant_id']);
+
+        (new Table('smoke_pk', $schema->toArray(), $this->adapter))
+            ->addColumn('user_id', 'integer')
+            ->addColumn('tenant_id', 'integer')
+            ->create();
+
+        $columns = $this->adapter->getConnection()
+            ->query("PRAGMA table_info('smoke_pk')")->fetchAll(\PDO::FETCH_ASSOC);
+        $pk = [];
+        foreach ($columns as $column) {
+            if ($column['pk']) {
+                $pk[] = $column['name'];
+            }
+        }
+
+        $this->assertSame(['user_id', 'tenant_id'], $pk);
+    }
+
     public function test_drop_table(): void
     {
         $table = $this->usersTable();

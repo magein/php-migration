@@ -16,8 +16,9 @@ class Schema
     ];
 
     /**
-     *   id           是否自动创建自增主键（默认 false）
-     *   primary_key  主键列名或列名数组
+     *   id           自增主键列名，三种取值：true（等同 'id'）/ 列名字符串（按该列名建）/ false（不建，默认）
+     *                true 或字符串会建出带 identity 的自增列并自动成为 primary_key，故与 primary_key 互斥
+     *   primary_key  主键列名或列名数组（复合主键）；须配合 id=false，且主键列要自行声明并设 NOT NULL
      *   comment      表注释
      *   engine       表引擎（默认 InnoDB）
      *   collation    字符集排序规则（默认 utf8_unicode_ci）
@@ -75,19 +76,25 @@ class Schema
     }
 
     /**
-     * 设置主键，传 null 则关闭自增主键并清除 primary_key
-     * @param string|array|null $value
+     * 设置主键，必须显式指定列名或列名数组（复合主键）
+     * 会关闭自增主键；主键列须在 Builder 中自行声明并设 NOT NULL
+     * 不设主键时不要调用本方法，也不要调用 id()
+     * @param string|array $value
      * @return void
      */
-    public function setPrimaryKey($value = null): void
+    public function setPrimaryKey($value): void
     {
-        if (is_null($value)) {
-            $this->options['id'] = false;
-            unset($this->options['primary_key']);
-        } else {
-            $this->options['id'] = true;
-            $this->options['primary_key'] = $value;
+        $names = is_array($value) ? $value : [$value];
+        $valid = array_filter($names, function ($name) {
+            return is_string($name) && trim($name) !== '';
+        });
+
+        if (!$names || count($valid) !== count($names)) {
+            throw new \InvalidArgumentException('主键必须显式指定列名或列名数组');
         }
+
+        $this->options['id'] = false;
+        $this->options['primary_key'] = $value;
     }
 
     /**

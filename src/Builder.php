@@ -52,24 +52,6 @@ class Builder
     ];
 
     /**
-     * 普通索引
-     * @var array
-     */
-    public array $index = [];
-
-    /**
-     * 唯一索引
-     * @var array
-     */
-    public array $unique = [];
-
-    /**
-     * 外键
-     * @var array
-     */
-    public array $foreign = [];
-
-    /**
      * 表级选项（引擎、注释、字符集、主键策略等）
      * @var Schema
      */
@@ -189,56 +171,6 @@ class Builder
     }
 
     /**
-     * 添加索引或者组合索引
-     * @param array|string $columns
-     * @param array|string|null $options 数组为索引选项，字符串为索引名
-     * @return void
-     */
-    public function addIndex($columns, $options = null): void
-    {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        $this->index[] = [$columns, $this->normalizeIndexOptions($columns, $options)];
-    }
-
-    /**
-     * 添加唯一索引
-     * @param array|string $columns
-     * @param array|string|null $options 数组为索引选项，字符串为索引名
-     * @return void
-     */
-    public function addUniqueKey($columns, $options = null): void
-    {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        $options = $this->normalizeIndexOptions($columns, $options);
-        $options['unique'] = true;
-
-        $this->unique[] = [$columns, $options];
-    }
-
-    /**
-     * 添加外键索引
-     * @param $columns
-     * @param $referenced_table
-     * @param array $referenced_columns
-     * @param array $options
-     * @return void
-     */
-    public function addForeignKey($columns, $referenced_table, array $referenced_columns = ['id'], array $options = []): void
-    {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        $this->foreign[] = [$columns, $referenced_table, $referenced_columns, $options];
-    }
-
-    /**
      * @param string $column
      * @param string|null $comment
      * @return Column
@@ -315,57 +247,85 @@ class Builder
     }
 
     /**
-     * 添加 tinyint 自增列
+     * 添加 tinyint 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function tinyIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedTinyInteger($column, $comment, true);
+        return $this->increments('unsignedTinyInteger', $column, $comment);
     }
 
     /**
-     * 添加 smallint 自增列
+     * 添加 smallint 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function smallIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedSmallInteger($column, $comment, true);
+        return $this->increments('unsignedSmallInteger', $column, $comment);
     }
 
     /**
-     * 添加 mediumint 自增列
+     * 添加 mediumint 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function mediumIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedMediumInteger($column, $comment, true);
+        return $this->increments('unsignedMediumInteger', $column, $comment);
     }
 
     /**
-     * 添加自增列
+     * 添加 int 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function integerIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedInteger($column, $comment, true);
+        return $this->increments('unsignedInteger', $column, $comment);
     }
 
     /**
+     * 添加 bigint 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function bigIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedBigInteger($column, $comment, true);
+        return $this->increments('unsignedBigInteger', $column, $comment);
+    }
+
+    /**
+     * 自增主键：列上打开 increment（Migrator 转成 identity），表级主键指向同一列名
+     * 本包 increment 是自增开关，与 Phinx 上游 SQL Server 的 IDENTITY 步长同名不同义
+     * @param string $method unsigned*() 方法名
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    protected function increments(string $method, string $column, string $comment = null): Column
+    {
+        foreach ($this->columns as $existing) {
+            if (!empty($existing->getOthers()['increment'])) {
+                throw new \RuntimeException('一张表只能有一个自增列');
+            }
+        }
+
+        $options = $this->schema->toArray();
+        if (!empty($options['primary_key']) || !empty($options['id'])) {
+            throw new \RuntimeException('自增主键与已声明的主键冲突');
+        }
+
+        $builder = $this->$method($column, $comment, true);
+        $this->schema->setPrimaryKey([$column]);
+
+        return $builder;
     }
 
     /**
@@ -748,28 +708,5 @@ class Builder
     public function polygon(string $column, string $comment = null): Column
     {
         return $this->addColumn('polygon', $column, compact('comment'));
-    }
-
-    /**
-     * 归一索引选项：字符串按索引名处理，未指定名字时用列名下划线拼接
-     * @param array $columns 已数组化的列名
-     * @param array|string|null $options 数组为索引选项，字符串为索引名
-     * @return array
-     */
-    protected function normalizeIndexOptions(array $columns, $options = null): array
-    {
-        if (is_string($options)) {
-            $options = ['name' => $options];
-        } elseif ($options === null) {
-            $options = [];
-        } elseif (!is_array($options)) {
-            throw new \InvalidArgumentException('索引选项只接受数组或字符串（字符串按索引名处理）');
-        }
-
-        if (empty($options['name'])) {
-            $options['name'] = implode('_', $columns);
-        }
-
-        return $options;
     }
 }

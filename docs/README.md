@@ -1,6 +1,28 @@
 # Builder 参考与表结构场景
 
-Builder 的表选项配置、支持的字段类型、预设分组、迁移文件写法与常见表结构场景统一放在这里。命令行与迁移文件的基本用法见 [根目录 README](../README.md)，`phinx.php` 配置见 [phinx.config.md](phinx.config.md)。
+这里是**完整参考手册**：必读规则、表选项、字段类型、预设分组、迁移文件写法与可复制的表结构场景都放在这里。[根目录 README](../README.md) 只保留安装、命令行与迁移文件的重点规则；`phinx.php` 配置见 [phinx.config.md](phinx.config.md)。
+
+## 必读规则
+
+写迁移前先过一遍。以下任一条写错，都会直接导致建表失败、回滚出错或字段属性丢失。
+
+> **⚠️ 表级动作（加 / 删索引、外键、删列、重命名、删表）的提交方式**
+>
+> | 写在哪 | 结尾 |
+> |---|---|
+> | `change()` | **`->update()`**（禁止 `->save()`） |
+> | `up()` / `down()` | `->save()` |
+>
+> `addIndex` / `addForeignKey` 在 `change()` 中由 Phinx 自动反转；`save()` 靠 `hasTable()` 实时判断，升级与回滚两次结果不同，反转会留下空表（原因见「迁移文件写法」）。
+
+1. **无法自动反转的操作改写 `up()` / `down()`**：删列、改名、删表都要自己写反向逻辑，`down()` 不能省；`change()` 里只放可逆命令，提交方式见上方表格。
+2. **`Builder` 不提供任何索引 / 外键 API**：组合索引、唯一索引、外键一律用 Phinx 原生 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。
+3. **`create($builder, $created_at = true, $soft_delete = true)`**：第二参关时间戳、第三参关软删。不需要软删要写 `create($builder, true, false)`；只传 `false` 会把 `created_at` / `updated_at` 一起去掉。
+4. **自动注入的时间列非空无默认**：`created_at` / `updated_at` 是 `NOT NULL` 且无默认值，手写 `INSERT` 必须给值。
+5. **外键列用 `unsignedInteger()`**：两张表都要 InnoDB，外键列与主键列的类型、符号一致；Phinx 自动主键是 unsigned。
+6. **主键只能声明一次**：`id()` / `setPrimaryKey()` / `*Increments()` 都在声明主键，三者互斥；一张表只能有一个自增列，重复声明直接抛异常。
+7. **`Builder::change()` 是整列重建**：只带「类型 + 注释」，没写的属性一律回落默认值（默认值被清空、`nullable()` 变回 `NOT NULL`、注释丢失），要保留的属性一起写全。
+8. **`others()` 整体替换、不是合并**：用来补没有专职方法的 Phinx 选项，如 `->others(['signed' => false])`。
 
 ## MySQL 版本兼容
 
@@ -41,10 +63,10 @@ $builder = $this->builder([
 $builder->schema->setComment('用户表');
 $builder->schema->setEngine('InnoDB');
 $builder->schema->setCollation('utf8mb4_unicode_ci');
-$builder->schema->setPrimaryKey('id');        // 传 null 则关闭主键
-$builder->schema->setEngineInnodb();                   // 快捷切到 InnoDB
-$builder->schema->setEngineMyISAM();                   // 快捷切到 MyISAM
-$builder->id();                       // 让 Phinx 自动建自增主键 id
+$builder->schema->setPrimaryKey('user_id');  // 显式指定主键列，须自己声明该列并设 NOT NULL
+$builder->schema->setEngineInnodb();                 // 快捷切到 InnoDB
+$builder->schema->setEngineMyISAM();                 // 快捷切到 MyISAM
+$builder->id();                                     // 改用自增主键，与 setPrimaryKey() 二选一；不要主键就两个都不调
 ```
 
 数组只透传下面这些键（Phinx 能识别的表选项），其余键静默丢弃：
@@ -76,13 +98,13 @@ $builder = $this->builder(new Schema('用户表'));
 
 | 方法 | 生成类型 | 说明 |
 | --- | --- | --- |
-| `id()` | — | 写入表选项 `id = true`，由 Phinx 建自增主键 |
+| `id()` | — | 写入表选项 `id = true`，由 Phinx 建自增主键；与 `*Increments()` 二选一 |
 | `uuid($col, $comment)` | UUID | 定长字符串，适合分布式主键 |
 | `enum($col, $values)` | ENUM | 第二参是枚举值数组 |
 
 ### 整数
 
-基础方法签名都是 `($col, $comment = null, $signed = true, $increment = false)`，靠 `limit` 区分宽度：
+基础方法签名都是 `($col, $comment = null, $signed = true, $increment = false)`，靠 `limit` 区分宽度。第四参 `$increment` 在本包是自增开关，由 `Migrator` 转成 `identity`，与 Phinx 上游 SQL Server 的 `IDENTITY` 步长同名不同义；自增主键只走 `*Increments()`，手动给基础方法传 `true` 不会补主键，建表会报 1075。
 
 | 方法 | 生成类型 |
 | --- | --- |
@@ -99,7 +121,7 @@ $builder = $this->builder(new Schema('用户表'));
 | 无符号 | `unsignedTinyInteger()` `unsignedSmallInteger()` `unsignedMediumInteger()` `unsignedInteger()` `unsignedBigInteger()` |
 | 自增 | `tinyIncrements()` `smallIncrements()` `mediumIncrements()` `integerIncrements()` `bigIncrements()` |
 
-`*Increments()` 默认列名为 `id`，内部走对应的 `unsigned*()` 并打开 `increment`。外键列要用 `unsignedInteger()`：Phinx 自动主键是 unsigned，符号不一致会建不上外键。
+`*Increments()` 默认列名为 `id`，内部走对应的 `unsigned*()` 打开自增，并把表级 `primary_key` 设成该列名的数组形态（数组而非字符串，SQLite 下才不会撞 Phinx 的 `array_search`）。所以它们建的是完整自增主键，与 `id()` / `setPrimaryKey()` 二选一，一张表只能有一个；重复声明会直接抛异常。外键列要用 `unsignedInteger()`：Phinx 自动主键是 unsigned，符号不一致会建不上外键。
 
 ### 字符串与文本
 
@@ -189,170 +211,54 @@ MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` �
 
 预设组与列原语可以混用，同一列名重复声明会抛「重复的列名」。
 
-### 常规字段示例
+常规字段示例见文末「示例代码」。
 
-```php
-$builder = $this->builder('用户表');
-$builder->id();
+## 迁移文件写法
 
-// 用户
-$builder->user->username();
-$builder->user->password();
-$builder->basic->name();
-$builder->user->nickname();
-$builder->contact->phone();
-$builder->contact->email();
-$builder->user->gender();
-$builder->user->age();
-$builder->user->birthday();
-// 民族
-$builder->user->ethnicId();
-// 籍贯
-$builder->user->nativePlace();
-// 用户可积累、兑换的积分系统
-$builder->user->points();
-// 分数或得分
-$builder->user->score();
-// 证件类型  身份证 港澳通行证  台胞证等
-$builder->user->idType();
-// 证件号码
-$builder->user->idNumber();
+变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。可复制的完整片段见文末「示例代码」。
 
-// 常规
-$builder->basic->type();
-$builder->article->title();
-$builder->article->content();
-$builder->basic->remark();
-$builder->basic->sort();
-$builder->date->beginTime();
-$builder->date->startTime();
-$builder->date->endTime();
-$builder->basic->status();
+### 三个方法的区别
 
-// 地址
-$builder->addr->address();
-$builder->addr->province();
-$builder->addr->city();
-$builder->addr->area();
-$builder->addr->district();
-$builder->addr->street();
-$builder->addr->postcode();
-$builder->addr->location();
-$builder->addr->lng();
-$builder->addr->lat();
-```
+| 方法 | 作用 | Phinx 底层 | 自动追加列 | 适用 |
+|---|---|---|---|---|
+| `create($builder, $created_at = true, $soft_delete = true)` | 建新表 | `Table::create()` → 固定补一条 `CreateTable` 动作 | `$created_at` 为 true 加 `created_at` / `updated_at`；`$soft_delete` 为 true 加 `deleted_at` | 建表 |
+| `update($builder)` | 改已存在的表 | `Table::update()` → 只执行列 / 索引动作，不建表 | 无 | 加列、改列、加索引 |
+| `save($builder)` | 运行时判断建表还是改表 | `Table::save()` → `hasTable()` 为真走 `update()`，否则走 `create()` | 无（时间戳只在 `create()` 里补） | `up()` / `down()`；**`change()` 里禁用** |
 
-## 迁移文件推荐写法
+> 第二参是 `$created_at`（创建 / 更新时间列），第三参才是 `$soft_delete`。只传 `false` 去掉的是时间戳，`deleted_at` 照样加；要「保留时间戳、不要软删」得写 `$this->create($builder, true, false)`。
 
-变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。
+### 为什么 `change()` 里不能用 `save()`
 
-> **提交方法：`create()` / `update()` / `save()` 不能混用**（`create.stub` 模板内的提醒）
-> 想让 Phinx 自动升级 / 降级，就把逻辑写在 `change()` 里，最终只调用 `create()` 和 `update()`，**不要调用 `save()`**；创建使用 `create()`、更新使用 `update()`。
-> `save()` 靠 `hasTable()` 运行时判断建表还是改表，升级与回滚两次判断结果不同，反转会出错；删列、重命名、索引、外键等依赖 `->save()` 提交的表级操作同理，都不要放进 `change()`。
-> 无法自动反转的操作改用 `up()` / `down()` 分开写 —— **下面三个示例都是这种写法**，其中出现的 `->save()` 是提交动作的必要一环，与 `change()` 里禁用 `$this->save($builder)` 并不冲突。
-> 表级操作不再有 `Migrator` 封装，统一走 Phinx 原生 `$this->table($this->name)->...->save()`；`Builder` 只负责字段与表选项构建，`Builder::change()` 用于改已有列定义。
->
-> 三个方法的完整区别与表级操作速查见 [根目录 README](../README.md) 的「迁移文件」小节。
+Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记录动作再反序回放（`CreateTable` → `DropTable`、`AddColumn` → `RemoveColumn`）。`create()` / `update()` 每次都产生同一组动作，反转稳定；`save()` 靠 `hasTable()` 实时判断：升级时表还不存在走 `create()`，回滚时表已存在走 `update()`，两次动作不一致 —— 本该整表删除（`DropTable`），结果只删掉几列（`RemoveColumn`）、把空表留下。
 
-字段在 `up()` 里用 `$builder` 声明。`Builder::change()` 必须给出列名与新类型，无参调用会抛异常：
+同理，任何依赖 `save()` 运行时判断的表级操作都不要放进 `change()`，改用 `->update()` 提交。
 
-```php
-$builder->change('username', 'string', '登录账号');   // 列名 + 新类型 + 注释
-```
+### 表级操作：统一用 `$this->table()`
 
-新增字段（`AppendUserProfile`）：
+`Builder` 只负责字段与表选项构建，`Migrator` 只保留 `builder()` / `create()` / `update()` / `save()` 四个入口。删列、重命名、索引、外键、删表等一律走 Phinx 原生链式调用，同一个表对象可以攒多个动作一次提交；第一个参数是**实际表名**，不是 `Builder`。
 
-```php
-use magein\migration\Migrator;
+下表是 `up()` / `down()` 的写法，结尾一律 `->save()`：
 
-class AppendUserProfile extends Migrator
-{
-    protected $name = 'user';
+| 操作 | 写法 |
+|---|---|
+| 删列 | `$this->table($this->name)->removeColumn('age')->removeColumn('score')->save();` |
+| 改列名 | `$this->table($this->name)->renameColumn('old_name', 'new_name')->save();` |
+| 表重命名 | `$this->table($this->name)->rename($this->new_name)->save();` |
+| 删表 | `$this->table($this->name)->drop()->save();` |
+| 加普通 / 唯一索引 | `$this->table($this->name)->addIndex(['status','sort'], ['name'=>'idx_status_sort'])->addIndex('sku', ['name'=>'uk_sku','unique'=>true])->save();` |
+| 删索引 | `$this->table($this->name)->removeIndex(['status','sort'])->removeIndexByName('uk_sku')->save();` |
+| 加外键 | `$this->table($this->name)->addForeignKey('goods_id','goods',['id'],['delete'=>'CASCADE'])->save();` |
+| 删外键 | `$this->table($this->name)->dropForeignKey('goods_id')->save();` |
+| 存在性判断 | `$this->hasTable($this->name)`；`$this->table($this->name)->hasColumn('age')` / `hasIndex([...])` / `hasIndexByName('...')` / `hasForeignKey('goods_id')` |
 
-    public function up()
-    {
-        $builder = $this->builder();
-        $builder->user->age();
-        $builder->string('wechat_openid', '微信 openid', 64)->default('')->after('email');
+> **⚠️ 写在 `change()` 里时，把上表结尾的 `->save()` 换成 `->update()`**（`addIndex` / `addForeignKey` 由 Phinx 自动反转）。删除前先判断存在，避免回滚重复执行报错。
 
-        $this->update($builder);
-    }
+### 模板对应关系
 
-    public function down()
-    {
-        $this->table($this->name)
-            ->removeColumn('age')
-            ->removeColumn('wechat_openid')
-            ->save();
-    }
-}
-```
+- `CreateXxx` 类名 → `create.stub`：生成 `change()`，骨架是 `$this->create($builder, true, false)`，即自动注入 `created_at` / `updated_at`、不加软删列；要软删就省略参数或把第三参传 `true`，不要时间戳就把第二参传 `false`。
+- 其他类名 → `update.stub`：生成 `up()` / `down()`，骨架是 `$this->update($builder)` 加一个空 `down()`，字段与回滚逻辑自行补齐。
 
-删除字段（`down()` 里要写出原来的列定义，列才建得回来）：
-
-```php
-use magein\migration\Migrator;
-
-class RemoveUserLegacy extends Migrator
-{
-    protected $name = 'user';
-
-    public function up()
-    {
-        $this->table($this->name)->removeColumn('legacy_flag')->save();
-    }
-
-    public function down()
-    {
-        $builder = $this->builder();
-        $builder->tinyInteger('legacy_flag', '历史标记')->default(0);
-
-        $this->update($builder);
-    }
-}
-```
-
-表重命名：
-
-```php
-use magein\migration\Migrator;
-
-class RenameUserToMember extends Migrator
-{
-    protected $name = 'user';
-
-    protected $new_name = 'member';
-
-    public function up()
-    {
-        $this->table($this->name)->rename($this->new_name)->save();
-    }
-
-    public function down()
-    {
-        $this->table($this->new_name)->rename($this->name)->save();
-    }
-}
-```
-
-**表级操作统一写法**
-
-`Builder` 只构建字段与表选项，`Migrator` 只保留 `builder()` / `create()` / `update()` / `save()`；删列、重命名、索引、外键、删表一律用 Phinx 原生 `$this->table()`，最后 `->save()` 提交，同一个表对象可以攒多个动作一次提交：
-
-```php
-$table = $this->table($this->name);
-
-if ($table->hasIndex(['status', 'sort'])) {
-    $table->removeIndex(['status', 'sort']);
-}
-if ($table->hasForeignKey('goods_id')) {
-    $table->dropForeignKey('goods_id');
-}
-
-$table->save();
-```
-
-常用动作（`removeColumn()` / `renameColumn()` / `rename()` / `drop()` / `addIndex()` / `removeIndexByName()` / `addForeignKey()` / `dropForeignKey()`）与存在性判断的完整速查表见 [根目录 README](../README.md) 的「表级操作」小节。删除前先判断存在，避免回滚时重复执行报错。
+`Builder::change()` 必须给出列名与新类型，无参调用会抛异常；常用属性 `default()` / `nullable()` / `length()` / `precision()` / `scale()` 都有链式方法，整列重建示例见文末「示例代码」。
 
 ## 常见表结构场景
 
@@ -410,17 +316,169 @@ $table->save();
 
 [常用片段](parts/parts.md)：省市区、省市区+详细地址、状态+排序、生效起止时间——复制到任意表里用。
 
-## 注意事项
+## 示例代码
 
-- `create()` 自动注入 `created_at` / `updated_at` / `deleted_at`，前两列非空无默认，手写 INSERT 必须给值。
-- 外键要求两张表都是 InnoDB、外键列与主键列类型和符号一致；Phinx 自动主键是 unsigned，外键列要用 `unsignedInteger()`。
-- 列级 `->index()` / `->unique()` 只支持单列；批量组合索引用 `$builder->addIndex()` / `$builder->addUniqueKey()`，第二参可传索引名简写或完整选项，不传时索引名用列名下划线拼接：
+以下片段可直接复制。**示例不是运行时 API**：包不预设整张表，表结构属于每个项目自己的领域模型，迁移文件应当自包含，读一个文件就能知道当时建了什么。
 
-  ```php
-  $builder->addIndex(['cate_id', 'status']);                                // 索引名 cate_id_status
-  $builder->addIndex(['cate_id', 'status'], 'idx_cate_status');             // 直接指定索引名
-  $builder->addIndex(['cate_id', 'status'], ['name' => 'idx_cate_status']); // 完整选项
-  $builder->addUniqueKey(['goods_id', 'cate_id'], 'uk_goods_cate');         // 唯一索引，选项里自动补 unique
-  ```
+### 常规字段
 
-- 删列、改列名、表重命名、索引 / 外键、删表等表级操作统一走 Phinx 原生 `$this->table()` 链式调用，并且必须显式写 `up()` / `down()`；`Builder` 只构建字段与表选项，`change()` 是它唯一的「改已有列定义」入口。
+```php
+$builder = $this->builder('用户表');
+$builder->id();
+
+// 用户
+$builder->user->username();
+$builder->user->password();
+$builder->basic->name();
+$builder->user->nickname();
+$builder->contact->phone();
+$builder->contact->email();
+$builder->user->gender();
+$builder->user->age();
+$builder->user->birthday();
+// 民族
+$builder->user->ethnicId();
+// 籍贯
+$builder->user->nativePlace();
+// 用户可积累、兑换的积分系统
+$builder->user->points();
+// 分数或得分
+$builder->user->score();
+// 证件类型  身份证 港澳通行证  台胞证等
+$builder->user->idType();
+// 证件号码
+$builder->user->idNumber();
+
+// 常规
+$builder->basic->type();
+$builder->article->title();
+$builder->article->content();
+$builder->basic->remark();
+$builder->basic->sort();
+$builder->date->beginTime();
+$builder->date->startTime();
+$builder->date->endTime();
+$builder->basic->status();
+
+// 地址
+$builder->addr->address();
+$builder->addr->province();
+$builder->addr->city();
+$builder->addr->area();
+$builder->addr->district();
+$builder->addr->street();
+$builder->addr->postcode();
+$builder->addr->location();
+$builder->addr->lng();
+$builder->addr->lat();
+```
+
+### 新增字段（AppendUserProfile）
+
+```php
+use magein\migration\Migrator;
+
+class AppendUserProfile extends Migrator
+{
+    protected $name = 'user';
+
+    public function up()
+    {
+        $builder = $this->builder();
+        $builder->user->age();
+        $builder->string('wechat_openid', '微信 openid', 64)->default('')->after('email');
+
+        $this->update($builder);
+    }
+
+    public function down()
+    {
+        $this->table($this->name)
+            ->removeColumn('age')
+            ->removeColumn('wechat_openid')
+            ->save();
+    }
+}
+```
+
+### 删除字段（RemoveUserLegacy）
+
+`down()` 里要写出原来的列定义，列才建得回来。
+
+```php
+use magein\migration\Migrator;
+
+class RemoveUserLegacy extends Migrator
+{
+    protected $name = 'user';
+
+    public function up()
+    {
+        $this->table($this->name)->removeColumn('legacy_flag')->save();
+    }
+
+    public function down()
+    {
+        $builder = $this->builder();
+        $builder->tinyInteger('legacy_flag', '历史标记')->default(0);
+
+        $this->update($builder);
+    }
+}
+```
+
+### 表重命名（RenameUserToMember）
+
+```php
+use magein\migration\Migrator;
+
+class RenameUserToMember extends Migrator
+{
+    protected $name = 'user';
+
+    protected $new_name = 'member';
+
+    public function up()
+    {
+        $this->table($this->name)->rename($this->new_name)->save();
+    }
+
+    public function down()
+    {
+        $this->table($this->new_name)->rename($this->name)->save();
+    }
+}
+```
+
+### 表级操作：一次提交多个动作
+
+```php
+$table = $this->table($this->name);
+
+if ($table->hasIndex(['status', 'sort'])) {
+    $table->removeIndex(['status', 'sort']);
+}
+if ($table->hasForeignKey('goods_id')) {
+    $table->dropForeignKey('goods_id');
+}
+
+$table->save();
+```
+
+上例是 `up()` / `down()` 的写法，用 `->save()` 提交；写进 `change()` 时把结尾换成 `->update()`。需要表选项时才给 `$this->table()` 传第二个数组参数。
+
+### 改列定义：整列重建
+
+```php
+$builder->change('username', 'string', '登录账号');   // 列名 + 新类型 + 注释
+```
+
+改列时把要保留的属性一起链式写全，没写的会回落默认值：默认值被清空、`nullable()` 变回 `NOT NULL`、注释丢失。
+
+```php
+// 价格从整数改定点数：默认值、精度、位数都要显式给
+$builder->change('price', 'decimal', '商品售价 单位分')
+    ->default(0)
+    ->precision(10)
+    ->scale(2);
+```

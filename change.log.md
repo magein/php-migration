@@ -14,6 +14,7 @@
 - `php migrate` 类名原样传入，不再自动补 `Create` 前缀或 `Table` 后缀；移除 `--column` 选项与 append / remove / rename 三个迁移模板，变更迁移统一使用空骨架
 - 精简 API：`Builder` 移除 `rename()` / `remove()`（保留 `change()`），`Migrator` 移除 11 个表级操作薄封装、`invokeTable()` 改 `protected`；对外只留 `builder()` / `create()` / `update()` / `save()`
 - 删列、重命名、索引、外键等统一用 Phinx 原生 `$this->table(...)->...->save()`；README / docs / 迁移示例的调用方式已同步
+- `Builder` 移除 `addIndex()` / `addUniqueKey()` / `addForeignKey()` 及 `$index` / `$unique` / `$foreign`，`Migrator::parse()` 不再解析批量索引；组合索引、唯一索引、外键统一走 Phinx 原生 `$this->table()`。列级 `->index()` / `->unique()` 保留（仅单列）；`change()` 里的表级动作改用 `->update()` 提交
 - 新增 `Builder::year()` / `json()` / `blob()` 三个字段原语，分别生成 YEAR、JSON、BLOB 列（JSON 需 MySQL 5.7.8+）
 - 移除 `Builder::setVersion()` / `getVersion()` 与 `$version`：全仓无调用的版本探测，`precision` 不再依赖 MySQL 版本
 - 新增 `Column::hasDefault()`：默认值改用独立布尔标记，`getDefault()` 未声明时返回 `null`（原哨兵 `-1` 移除）
@@ -29,7 +30,6 @@
 - `OrderPreset::couponId()` 去掉 nullable 使 `default(0)` 生效；`refundedAt()` 统一为 dateTime
 - `AddressPreset::lng()/lat()` 改 `decimal(10,6)`，`location()` 仍为 string
 - `Column::unique()` 不再把 string 列长度截到 191，`VARCHAR(255)` 加唯一索引时列定义保持不变
-- 修复：`Migrator::parse()` 批量唯一索引与普通索引改为两个独立 `if`，不再因 `elseif` 静默丢弃普通索引
 - 修复：`dateTime()` / `time()` / `timestamp()` 仅 `$precision > 0` 时写精度，默认不写括号以兼容 MySQL 5.5 / 5.6 全系；显式精度需 ≥ 5.6.4
 - 修复：`->default(-1)` 不再被静默丢弃，`0` / `''` / `false` / `null` 等任意标量默认值均可声明
 - 修复：`Builder` 新增 `registerColumn()` 统一登记与重复列名检查，`change()` 同名不再静默覆盖；`create()` 默认自动注入 `created_at` / `updated_at`，保留第二参 `$created_at` 开关，第三参 `$soft_delete` 单独控制 `deleted_at`
@@ -38,7 +38,6 @@
 - 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
 - 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 `$builder->schema`，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`；引擎快捷方法更名为 `setEngineInnodb()` / `setEngineMyISAM()`，`id()` 为高频操作保留在 `Builder` 上并转发 schema
 - 修复：`PhinxCreation::tableName()` 的 `str_starts_with()` 为 PHP 8.0 函数，7.4 上执行 create 必 fatal，改 `strpos() === 0`
-- 修复：`Builder::indexOptions()` 更名 `normalizeIndexOptions()`，`$columns` 收窄为 `array`（调用方已数组化）；`$options` 只接受数组 / 字符串 / null，其余类型抛 `InvalidArgumentException`，不再静默返回标量、到 `addIndex()` 才报 TypeError
 
 **其他**
 

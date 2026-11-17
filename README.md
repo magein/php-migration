@@ -117,66 +117,26 @@ $app->run($input->init());
 
 #### 迁移文件
 
-本包的迁移类继承 `magein\migration\Migrator`，最终由 `create()` / `update()` / `save()` 之一提交。**用哪个方法、写在哪个生命周期里，直接决定能不能自动回滚**，这是最容易踩的坑。
+迁移类继承 `magein\migration\Migrator`。这一节只列**最容易踩的规则**；三个方法的完整区别、表级操作速查表、模板对应关系与可复制的迁移示例统一放在 [docs/README.md](docs/README.md)。
 
-> **核心规则**（`create.stub` 模板内的提醒）
-> 如果希望实现自动升级降级，就把逻辑写在 `change()` 里，最终只调用 `create()` 和 `update()`，**不要调用 `save()`**；创建使用 `create()`、更新使用 `update()`。
-> 涉及删列、改列、重命名、删表等无法自动反转的操作，改用 `up()` / `down()` 分开写，`down()` 不能省。
+> **⚠️ 重点：加 / 删索引、外键等表级动作，最后用 `save()` 还是 `update()`？**
+>
+> | 写在哪 | 结尾 |
+> |---|---|
+> | `change()` | **`->update()`**（禁止 `->save()`） |
+> | `up()` / `down()` | `->save()` |
+>
+> `change()` 里写 `$this->table(...)->addIndex(...)->update()`；`up()` / `down()` 里写 `...->addIndex(...)->save()`。`addIndex` / `addForeignKey` 在 `change()` 中由 Phinx 自动反转，用 `->update()` 提交即可。`save()` 靠 `hasTable()` 实时判断，升级与回滚两次结果不同，放进 `change()` 反转会留下空表。
 
-**三个方法的区别**
+**另外三条必记**
 
-| 方法                                      | 作用            | Phinx 底层                                                     | 自动追加列                                                                           | 适用                                   |
-|-----------------------------------------|---------------|--------------------------------------------------------------|---------------------------------------------------------------------------------|--------------------------------------|
-| `create($builder, $created_at = true, $soft_delete = true)` | 建新表 | `Table::create()` → 固定补一条 `CreateTable` 动作 | `$created_at` 为 `true` 加 `created_at`、`updated_at`；`$soft_delete` 为 `true` 加 `deleted_at` | 建表 |
-| `update($builder)`                      | 改已存在的表        | `Table::update()` → 只执行列 / 索引动作，不建表                          | 无                                                                               | 加列、改列、加索引                            |
-| `save($builder)`                        | 运行时自己判断建表还是改表 | `Table::save()` → `hasTable()` 为真走 `update()`，否则走 `create()` | **无**（时间戳只在 `create()` 里补）                                                      | `up()` / `down()`；**`change()` 里禁用** |
+- `change()` 提交建表与改列只用 `create()` / `update()`，**不要调用 `save()`**；删列、改名、删表等无法自动反转的操作改写 `up()` / `down()`，`down()` 不能省。
+- `create($builder, $created_at = true, $soft_delete = true)`：第二参是时间戳开关，第三参才是软删。要「保留时间戳、不要软删」写 `$this->create($builder, true, false)`；只传 `false` 去掉的是时间戳。
+- `Builder` **不提供任何索引 / 外键 API**，组合索引、唯一索引、外键一律用 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。
 
-> `create()` 的第二参是 `$created_at`（创建 / 更新时间列），第三参才是 `$soft_delete`。只传 `false` 去掉的是时间戳，`deleted_at` 照样加；要「保留时间戳、不要软删」得写 `$this->create($builder, true, false)`。
+`$this->table()` 的第一个参数是**实际表名**，不是 `Builder`。`Builder::change()` 必须给出列名与新类型，且是整列重建 —— 要保留的 `default()` / `nullable()` / `precision()` / `scale()` 都要一起写全，否则回落默认值。
 
-**为什么 `change()` 里不能用 `save()`**
-
-Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记录动作再反序回放（`CreateTable` → `DropTable`、`AddColumn` → `RemoveColumn`）。`create()` / `update()` 每次都产生同一组动作，反转稳定；`save()` 靠 `hasTable()` 实时判断：升级时表还不存在走 `create()`，回滚时表已存在走 `update()`，两次动作不一致 —— 本该整表删除（`DropTable`），结果只删掉几列（`RemoveColumn`）、把空表留下。
-
-同理，任何依赖 `save()` 运行时判断的表级操作都不要放进 `change()`，一律写到 `up()` / `down()` 里。本包不再为这些操作提供封装，直接用 Phinx 原生的 `$this->table()` 链式调用（见下节）。
-
-**表级操作：直接用 `$this->table()`**
-
-`Builder` 只负责字段与表选项的构建（含 `change()` 改列定义），`Migrator` 只保留 `builder()` / `create()` / `update()` / `save()` 四个对外入口。删列、重命名、索引、外键、删表等一律用 Phinx 原生链式写法，最后一次 `->save()` 提交：
-
-| 操作         | 写法                                                                                                                                                               |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 删列         | `$this->table($this->name)->removeColumn('age')->removeColumn('score')->save();`                                                                                 |
-| 改列名        | `$this->table($this->name)->renameColumn('old_name', 'new_name')->save();`                                                                                       |
-| 表重命名       | `$this->table($this->name)->rename($this->new_name)->save();`                                                                                                    |
-| 删表         | `$this->table($this->name)->drop()->save();`                                                                                                                     |
-| 加普通 / 唯一索引 | `$this->table($this->name)->addIndex(['status', 'sort'], ['name' => 'idx_status_sort'])->addIndex('sku', ['name' => 'uk_sku', 'unique' => true])->save();`       |
-| 删索引        | `$this->table($this->name)->removeIndex(['status', 'sort'])->removeIndexByName('uk_sku')->save();`                                                               |
-| 加外键        | `$this->table($this->name)->addForeignKey('goods_id', 'goods', ['id'], ['delete' => 'CASCADE'])->save();`                                                        |
-| 删外键        | `$this->table($this->name)->dropForeignKey('goods_id')->save();`                                                                                                 |
-| 存在性判断      | `$this->hasTable($this->name)`；列 / 索引用 `$this->table($this->name)->hasColumn('age')` / `hasIndex([...])` / `hasIndexByName('...')` / `hasForeignKey('goods_id')` |
-
-`$this->table()` 的第一个参数是**实际表名**，不是 `Builder`；需要表选项时才显式传第二个数组参数，或直接走 `create()` / `update()` / `save()`。删除前先判断存在，可以避免回滚重复执行时报错；完整示例见 [docs/README.md](docs/README.md)。
-
-**模板对应关系**
-
-- `CreateXxx` 类名 → `create.stub`：生成 `change()`，骨架是 `$this->create($builder, true, false)`，即自动注入 `created_at` / `updated_at`、不加软删列；要软删就省略参数或把第三参传 `true`，不要时间戳就把第二参传 `false`。
-- 其他类名 → `update.stub`：生成 `up()` / `down()`，骨架是 `$this->update($builder)` 加一个空 `down()`，字段与回滚逻辑自行补齐。
-
-`Builder::change()` 必须给出列名与新类型，无参调用会抛异常。
-
-**`change()` 是整列重建，不是打补丁**：它只带「类型 + 注释」，Phinx 按新定义重写整个列，没写的属性一律回落默认值——默认值被清空、`nullable()` 变回 `NOT NULL`、注释丢失。改列时把要保留的属性一起链式写全：
-
-```php
-// 价格从整数改定点数：默认值、精度、位数都要显式给
-$builder->change('price', 'decimal', '商品售价 单位分')
-    ->default(0)
-    ->precision(10)
-    ->scale(2);
-```
-
-常用属性都有链式方法：`default()` / `nullable()` / `length()` / `precision()` / `scale()`；`others()` 是 Phinx 选项的兜底通道（**整体替换，不是合并**），补没有专职方法的键，如 `->others(['signed' => false])`。
-
-完整迁移示例、字段预设、列类型原语、常见表结构与注意事项见 [docs/README.md](docs/README.md)。
+字段类型原语、预设分组、表选项、常见表结构场景、完整速查表与迁移示例见 [docs/README.md](docs/README.md)；`phinx.php` 配置见 [docs/phinx.config.md](docs/phinx.config.md)。
 
 ### 测试
 

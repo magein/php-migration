@@ -94,9 +94,11 @@ class Migrator extends AbstractMigration
         // nullable 只决定 NULL / NOT NULL，与 default 相互独立，NULL DEFAULT 0 由上游正常生成
         $options['null'] = $column->getNull();
 
-        if (isset($options['increment']) && $options['increment'] === false) {
-            unset($options['increment']);
+        // increment 是 SQL Server 的 IDENTITY 步长；自增开关统一用 identity（Phinx 各适配器通用）
+        if (!empty($options['increment'])) {
+            $options['identity'] = true;
         }
+        unset($options['increment']);
 
         return $options;
     }
@@ -132,20 +134,6 @@ class Migrator extends AbstractMigration
                 $table->addIndex($column->getName(), [
                     'name' => $column->getIndex(),
                 ]);
-            }
-        }
-
-
-        // 批量索引在列声明之后追加；列级 ->index() / ->unique() 是单列索引，不冲突
-        // unique 与 index 是两组独立动作，分别提交，不能写成 elseif
-        if ($this->builder->unique) {
-            foreach ($this->builder->unique as $item) {
-                $table->addIndex($item[0], $item[1] ?? []);
-            }
-        }
-        if ($this->builder->index) {
-            foreach ($this->builder->index as $item) {
-                $table->addIndex($item[0], $item[1] ?? []);
             }
         }
 
