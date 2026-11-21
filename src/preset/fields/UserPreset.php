@@ -106,7 +106,7 @@ class UserPreset extends PresetGroup
 
         $default = $default . '';
 
-        return $this->builder->enum('gender', [0, 1, 2])->comment($comment)->default($default);
+        return $this->builder->enum('gender', ['0', '1', '2'])->comment($comment)->default($default);
     }
 
     /**

@@ -115,6 +115,29 @@ class BuilderTest extends TestCase
     }
 
     /**
+     * change() 修改列上标记 index/unique 会整列重建时被吞掉，必须在调用点拒绝
+     */
+    public function test_change_column_rejects_index(): void
+    {
+        $builder = new Builder('探针表');
+        $column = $builder->change('email', 'string', '邮箱');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('不支持 ->index()');
+        $column->index();
+    }
+
+    public function test_change_column_rejects_unique(): void
+    {
+        $builder = new Builder('探针表');
+        $column = $builder->change('email', 'string', '邮箱');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('不支持 ->unique()');
+        $column->unique();
+    }
+
+    /**
      * @dataProvider columnDefinitionProvider
      * @param \Closure $builder_factory
      * @param string $column_name

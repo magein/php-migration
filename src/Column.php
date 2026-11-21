@@ -54,9 +54,9 @@ class Column
 
     /**
      * 允许null
-     * @var int
+     * @var bool
      */
-    protected $null = false;
+    protected bool $null = false;
 
     /**
      * 其他
@@ -201,6 +201,12 @@ class Column
      */
     public function index(string $index_name = ''): Column
     {
+        if ($this->change) {
+            throw new \RuntimeException(
+                "修改列 {$this->name} 不支持 ->index()，请用 \$this->table(表名)->addIndex() 显式声明"
+            );
+        }
+
         $this->index = $index_name ?: 'idx_' . $this->name;
 
         return $this;
@@ -217,6 +223,12 @@ class Column
      */
     public function unique(string $index_name = ''): Column
     {
+        if ($this->change) {
+            throw new \RuntimeException(
+                "修改列 {$this->name} 不支持 ->unique()，请用 \$this->table(表名)->addIndex() 显式声明"
+            );
+        }
+
         $this->unique = $index_name ?: 'uniq_' . $this->name;
 
         return $this;

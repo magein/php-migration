@@ -111,6 +111,28 @@ class PhinxInputTest extends TestCase
         $this->assertStringContainsString('--environment=production', $rendered);
     }
 
+    /**
+     * -e 悬空（末尾无值）会被静默丢弃打到 default 环境，必须直接拒绝
+     */
+    public function test_dangling_environment_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('环境名缺失');
+
+        $this->input(['migrate.php', 'run', '-e']);
+    }
+
+    /**
+     * -e 后面跟的是另一个选项时视为漏了环境名，同样拒绝
+     */
+    public function test_environment_value_is_not_another_option_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('环境名缺失');
+
+        $this->input(['migrate.php', 'run', '-e', '--fake']);
+    }
+
     public function test_command_with_run_as_value_is_not_rewritten(): void
     {
         $rendered = (string)$this->input(['migrate.php', 'migrate', '-e', 'run']);

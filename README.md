@@ -132,7 +132,7 @@ $app->run($input->init());
 
 - `change()` 提交建表与改列只用 `create()` / `update()`，**不要调用 `save()`**；删列、改名、删表等无法自动反转的操作改写 `up()` / `down()`，`down()` 不能省。
 - `create($builder, $created_at = true, $soft_delete = true)`：第二参是时间戳开关，第三参才是软删。要「保留时间戳、不要软删」写 `$this->create($builder, true, false)`；只传 `false` 去掉的是时间戳。时间列非空无默认、**不使用 `CURRENT_TIMESTAMP`**，由应用层维护（原因见 [docs/README.md](docs/README.md)）。
-- `Builder` **不提供任何索引 / 外键 API**，组合索引、唯一索引、外键一律用 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。
+- `Builder` **不提供任何索引 / 外键 API**，组合索引、唯一索引、外键一律用 `$this->table(实际表名)->addIndex()` / `addForeignKey()`；列级 `->index()` / `->unique()` 仍可用，但只支持单列。`change()` 修改列不支持这两个标记（整列重建时索引会被丢弃），调用会直接抛异常。
 
 `$this->table()` 的第一个参数是**实际表名**，不是 `Builder`。`Builder::change()` 必须给出列名与新类型，且是整列重建 —— 要保留的 `default()` / `nullable()` / `precision()` / `scale()` 都要一起写全，否则回落默认值。
 

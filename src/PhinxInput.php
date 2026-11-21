@@ -95,6 +95,8 @@ class PhinxInput
 
     /**
      * 只抽出 -e / --environment（及其值），run 与便捷创建共用
+     * -e / --environment 必须带环境名：末尾悬空或值是下一个选项（- 开头）时抛异常，
+     * 避免静默丢弃后打到 default 环境
      * @param array $args
      * @return array
      */
@@ -108,7 +110,11 @@ class PhinxInput
 
             if (strpos($token, '--environment=') === 0) {
                 $result[] = $token;
-            } elseif (($token === '-e' || $token === '--environment') && isset($args[$i + 1])) {
+            } elseif ($token === '-e' || $token === '--environment') {
+                if (!isset($args[$i + 1]) || strpos($args[$i + 1], '-') === 0) {
+                    throw new \InvalidArgumentException('环境名缺失：-e / --environment 后面必须跟环境名');
+                }
+
                 $result[] = $token;
                 $result[] = $args[++$i];
             }
