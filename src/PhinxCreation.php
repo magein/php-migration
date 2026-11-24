@@ -6,6 +6,13 @@ use Phinx\Migration\CreationInterface;
 use Phinx\Component\Input\InputInterface;
 use Phinx\Component\Output\OutputInterface;
 
+/**
+ * CLI 自动注入 --class 走这里生成迁移骨架。
+ *
+ * 用 --class=你的类（实现 CreationInterface、getMigrationTemplate() 返回模板）
+ * 即可替代 --template 读固定 stub：能按类名选 create/update 骨架、推断表名，
+ * 并保证生成的迁移继承 Migrator。
+ */
 class PhinxCreation implements CreationInterface
 {
     /**
@@ -32,11 +39,9 @@ class PhinxCreation implements CreationInterface
             $this->setOutput($output);
         }
 
-        $this->tableName();
-
     }
 
-    public function setInput(InputInterface $input): PhinxCreation|static
+    public function setInput(InputInterface $input): PhinxCreation
     {
         $this->input = $input;
 
@@ -48,7 +53,7 @@ class PhinxCreation implements CreationInterface
         return $this->input;
     }
 
-    public function setOutput(OutputInterface $output): PhinxCreation|static
+    public function setOutput(OutputInterface $output): PhinxCreation
     {
         $this->output = $output;
 
@@ -65,39 +70,19 @@ class PhinxCreation implements CreationInterface
      */
     protected function tableName(): string
     {
-        $table_name = '';
         $name = $this->input->getArgument('name');
-        if (str_starts_with($name, 'Create')) {
+
+        // 只有 CreateXxx 推断表名，其余变更类不猜，留空由使用者手写
+        $this->template = 'update';
+        $table_name = '';
+
+        if (strpos($name, 'Create') === 0) {
             $this->template = 'create';
             $table_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $name);
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
         }
 
-        if (str_contains($name, 'Append')) {
-            $this->template = 'append';
-            $table_name = preg_replace('/Append.*/', '', $name);
-        }
-
-        if (str_contains($name, 'Update')) {
-            $this->template = 'update';
-            $table_name = preg_replace('/Update.*/', '', $name);
-        }
-
-        if (str_contains($name, 'Rename')) {
-            $this->template = 'rename';
-            $table_name = preg_replace('/Rename$/', '', $name);
-        }
-
-        if (str_contains($name, 'Remove')) {
-            $this->template = 'remove';
-            $table_name = preg_replace('/Remove.*/', '', $name);
-        }
-
-        if ($table_name) {
-            $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));
-        }
-
-        return $this->table_name = $table_name ?? '';
+        return $this->table_name = $table_name;
     }
 
     public function getMigrationTemplate(): string

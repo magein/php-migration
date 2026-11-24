@@ -61,9 +61,6 @@ class Create extends AbstractCommand
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this migration');
 
         $this->addOption('style', null, InputOption::VALUE_REQUIRED, 'Specify the style of migration to create');
-
-        // 字段信息
-        $this->addOption('column', null, InputOption::VALUE_REQUIRED, '追加或者删除字段');
     }
 
     /**
@@ -144,8 +141,6 @@ class Create extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
-
-        $columns = $input->getOption('column');
 
         // get the migration path from the config
         $path = $this->getMigrationPath($input, $output);
@@ -293,8 +288,7 @@ class Create extends AbstractCommand
             '$useClassName' => $this->getConfig()->getMigrationBaseClassName(false),
             '$className' => $className,
             '$version' => Util::getVersionFromFileName($fileName),
-            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
-            '$column' => $columns
+            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true)
         ];
         $contents = strtr($contents, $classes);
 

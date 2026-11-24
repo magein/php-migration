@@ -42,15 +42,21 @@ class Column
 
     /**
      * 默认值
-     * @var string|int|null
+     * @var mixed
      */
-    protected string|int|null $default = -1;
+    protected $default = null;
+
+    /**
+     * 是否显式声明过默认值（-1 也是合法默认值，不能用具体值当哨兵）
+     * @var bool
+     */
+    protected bool $has_default = false;
 
     /**
      * 允许null
-     * @var int
+     * @var bool
      */
-    protected int|bool $null = false;
+    protected bool $null = false;
 
     /**
      * 其他
@@ -62,28 +68,16 @@ class Column
      * 常规索引
      * @var array|string
      */
-    protected string|array $index = [];
+    protected $index = [];
 
     /**
      * 唯一索引
      * @var array|string
      */
-    protected string|array $unique = [];
+    protected $unique = [];
 
     /**
-     * 重命名字段
-     * @var array
-     */
-    protected array $rename = [];
-
-    /**
-     * 删除行
-     * @var bool
-     */
-    protected bool $remove = false;
-
-    /**
-     * 更新
+     * 更新已有列的定义
      * @var bool
      */
     protected bool $change = false;
@@ -133,12 +127,37 @@ class Column
     }
 
     /**
-     * @param int|string $value
+     * 小数精度（decimal / float / double 才有意义）
+     * @param int $precision
      * @return $this
      */
-    public function default(int|string $value = ''): Column
+    public function precision(int $precision): Column
+    {
+        $this->others['precision'] = $precision;
+
+        return $this;
+    }
+
+    /**
+     * 小数位数（decimal / float / double 才有意义）
+     * @param int $scale
+     * @return $this
+     */
+    public function scale(int $scale): Column
+    {
+        $this->others['scale'] = $scale;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $value
+     * @return $this
+     */
+    public function default($value = ''): Column
     {
         $this->default = $value;
+        $this->has_default = true;
 
         return $this;
     }
@@ -176,30 +195,41 @@ class Column
     }
 
     /**
-     * @param string $index_name
+     * 标记该列需要建普通索引
+     * @param string $index_name 索引名，不传则为 idx_{列名}
      * @return $this
      */
     public function index(string $index_name = ''): Column
     {
-        $this->index = $index_name ?: $this->name;
+        if ($this->change) {
+            throw new \RuntimeException(
+                "修改列 {$this->name} 不支持 ->index()，请用 \$this->table(表名)->addIndex() 显式声明"
+            );
+        }
+
+        $this->index = $index_name ?: 'idx_' . $this->name;
 
         return $this;
     }
 
     /**
-     * @param string $index_name
+     * 标记该列需要建唯一索引，只登记索引，不改列长度。
+     * 191 是 utf8mb4 + COMPACT/REDUNDANT 行格式下 767 字节索引前缀的旧限制；
+     * MySQL 5.7 默认 DYNAMIC + innodb_large_prefix=ON（上限 3072 字节），
+     * VARCHAR(255) 可正常建唯一索引；旧环境自行 ->length(191) 或调整行格式。
+     *
+     * @param string $index_name 索引名，不传则为 uniq_{列名}
      * @return $this
      */
     public function unique(string $index_name = ''): Column
     {
-        $this->unique = $index_name ?: $this->name;
-
-        /**
-         * 设置索引有长度要求
-         */
-        if ($this->type === 'string' && $this->length > 191) {
-            $this->length = 191;
+        if ($this->change) {
+            throw new \RuntimeException(
+                "修改列 {$this->name} 不支持 ->unique()，请用 \$this->table(表名)->addIndex() 显式声明"
+            );
         }
+
+        $this->unique = $index_name ?: 'uniq_' . $this->name;
 
         return $this;
     }
@@ -245,17 +275,25 @@ class Column
     }
 
     /**
-     * @return int|string|null
+     * @return mixed
      */
-    public function getDefault(): int|string|null
+    public function getDefault()
     {
         return $this->default;
     }
 
     /**
+     * @return bool
+     */
+    public function hasDefault(): bool
+    {
+        return $this->has_default;
+    }
+
+    /**
      * @return bool|int
      */
-    public function getNull(): bool|int
+    public function getNull()
     {
         return $this->null;
     }
@@ -271,7 +309,7 @@ class Column
     /**
      * @return array|string
      */
-    public function getIndex(): array|string
+    public function getIndex()
     {
         return $this->index;
     }
@@ -279,58 +317,20 @@ class Column
     /**
      * @return array|string
      */
-    public function getUnique(): array|string
+    public function getUnique()
     {
         return $this->unique;
     }
 
     /**
-     * @param $name
-     * @param $new_name
+     * @param bool $change
      * @return $this
      */
-    public function rename($name, $new_name): Column
-    {
-        if ($name && $new_name) {
-            $this->rename = [$name, $new_name];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function isRename(): array
-    {
-        return is_array($this->rename) ? array_filter($this->rename) : [];
-    }
-
-    /**
-     * @param bool $remove
-     * @return void
-     */
-    public function remove(bool $remove = true): void
-    {
-        $this->remove = $remove;
-    }
-
-    /**
-     * 是否删除
-     * @return bool
-     */
-    public function isRemove(): bool
-    {
-        return boolval($this->remove);
-    }
-
-    /**
-     * @param bool $change
-     * @return void
-     */
-    public function change(bool $change = true): void
+    public function change(bool $change = true): Column
     {
         $this->change = $change;
+
+        return $this;
     }
 
     /**
@@ -338,6 +338,6 @@ class Column
      */
     public function isChange(): bool
     {
-        return boolval($this->change);
+        return $this->change;
     }
 }

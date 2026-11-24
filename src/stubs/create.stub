@@ -26,6 +26,9 @@ class $className extends Migrator
      * 创建使用 create()、更新使用 update()
      */
 
+    /**
+     * @var string
+     */
     protected string $name = '{$name}';
 
     public function change()
@@ -33,8 +36,6 @@ class $className extends Migrator
         $builder = $this->builder('');
         $builder->id();
 
-        $builder->innoDB();
-
-        $this->create($builder,false);
+        $this->create($builder, true, false);
     }
 }

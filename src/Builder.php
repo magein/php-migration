@@ -2,62 +2,60 @@
 
 namespace magein\migration;
 
-use magein\migration\field\MFAddr;
-use magein\migration\field\MFComb;
-use magein\migration\field\MFFile;
-use magein\migration\field\MFGen;
-use magein\migration\field\MFIs;
-use magein\migration\field\MFOrder;
-use magein\migration\field\MFUser;
-use magein\utils\Variable;
+use magein\migration\preset\fields\AddressPreset;
+use magein\migration\preset\fields\ArticlePreset;
+use magein\migration\preset\fields\BasicPreset;
+use magein\migration\preset\fields\ContactPreset;
+use magein\migration\preset\fields\DatePreset;
+use magein\migration\preset\fields\FilePreset;
+use magein\migration\preset\fields\FlagPreset;
+use magein\migration\preset\fields\GoodsPreset;
+use magein\migration\preset\fields\ImagePreset;
+use magein\migration\preset\fields\OrderPreset;
+use magein\migration\preset\fields\SpecPreset;
+use magein\migration\preset\fields\UserPreset;
 use Phinx\Db\Adapter\MysqlAdapter;
 
 /**
- * @property MFUser user
- * @property MFGen gen
- * @property MFAddr addr
- * @property MFFile file
- * @property MFComb comb
- * @property MFIs is
- * @property MFOrder order
+ * @property UserPreset user
+ * @property BasicPreset basic
+ * @property AddressPreset addr
+ * @property FilePreset file
+ * @property ImagePreset image
+ * @property ArticlePreset article
+ * @property GoodsPreset goods
+ * @property SpecPreset spec
+ * @property DatePreset date
+ * @property ContactPreset contact
+ * @property FlagPreset flag
+ * @property OrderPreset order
  */
 class Builder
 {
     /**
-     * 普通索引
+     * 预设组映射：属性名 => 预设类
      * @var array
      */
-    public array $index = [];
+    private const GROUPS = [
+        'user' => UserPreset::class,
+        'basic' => BasicPreset::class,
+        'addr' => AddressPreset::class,
+        'file' => FilePreset::class,
+        'image' => ImagePreset::class,
+        'article' => ArticlePreset::class,
+        'goods' => GoodsPreset::class,
+        'spec' => SpecPreset::class,
+        'date' => DatePreset::class,
+        'contact' => ContactPreset::class,
+        'flag' => FlagPreset::class,
+        'order' => OrderPreset::class,
+    ];
 
     /**
-     * 唯一索引
-     * @var array
+     * 表级选项（引擎、注释、字符集、主键策略等）
+     * @var Schema
      */
-    public array $unique = [];
-
-    /**
-     * 外键
-     * @var array
-     */
-    public array $foreign = [];
-
-    /**
-     * @var string|float|int
-     */
-    protected string|int|float $version = '';
-
-    /**
-     *  可选值：
-     *   comment     给表结构设置文本注释
-     *   row_format  设置行记录模格式
-     *   engine      表引擎 (默认 InnoDB)
-     *   collation    表字符集
-     *   signed       是否无符号 signed(默认 true)
-     * @var array
-     */
-    protected array $options = [];
-
-    protected static int $defaultStringLength = 255;
+    public Schema $schema;
 
     /**
      * 添加的列
@@ -65,120 +63,33 @@ class Builder
      */
     protected array $columns = [];
 
+    /**
+     * @param Schema|array|string|null $options Schema 实例、表选项数组或表注释字符串
+     */
     public function __construct($options = null)
     {
-        if (is_string($options)) {
-            $this->options['comment'] = $options;
-        }
-
-        if (!isset($options['id'])) {
-            $this->options['id'] = false;
-        }
-
-        if (empty($this->options['engine'])) {
-            $this->setEngine(($config['engine'] ?? '') ?: 'MyISAM');
-        }
-
-        if (empty($this->options['collation'])) {
-            $this->setCollation(($config['collation'] ?? '') ?: 'utf8_unicode_ci');
-        }
+        $this->schema = Schema::from($options);
     }
 
     /**
-     * 设置主键
-     * @param $value
+     * 让 Phinx 自动创建自增主键 id。构建时 schema 通常不单独声明、用默认值，
+     * 所以这个高频操作直接挂在 Builder 上，转发表选项到 schema
      * @return void
      */
-    public function setPrimaryKey($value = null): void
+    public function id(): void
     {
-        if (is_null($value)) {
-            $this->options['id'] = false;
-            unset($this->options['primary_key']);
-        } else {
-            $this->options['id'] = true;
-            $this->options['primary_key'] = $value;
-        }
-    }
-
-    /**
-     * @param $engine
-     */
-    public function setEngine($engine): void
-    {
-        $this->options['engine'] = $engine;
-    }
-
-    /**
-     * 设置表注释
-     * @param $comment
-     */
-    public function setComment($comment): void
-    {
-        $this->options['comment'] = $comment;
-    }
-
-    /**
-     * 设置排序比对方法
-     * @param $collation
-     */
-    public function setCollation($collation): void
-    {
-        $this->options['collation'] = $collation;
-    }
-
-    /**
-     * 设置InnoDB引擎
-     * @return void
-     */
-    public function innoDB(): void
-    {
-        $this->options['engine'] = 'InnoDB';
-    }
-
-    /**
-     * 设置MyISAM引擎
-     * @return void
-     */
-    public function myISAM(): void
-    {
-        $this->options['engine'] = 'MyISAM';
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
-
-    /**
-     * 设置版本
-     * @param float|string|$version
-     * @return void
-     */
-    public function setVersion(float|string $version): void
-    {
-        if ($version) {
-            $this->version = $version;
-        }
-    }
-
-    /**
-     * @return float|int|string
-     */
-    public function getVersion(): float|int|string
-    {
-        return $this->version;
+        $this->schema->id();
     }
 
     public function __get($name)
     {
-        $name = Variable::pascal($name);
-        $namespace = 'magein\migration\field\MF' . $name;
-        if (class_exists($namespace)) {
-            return new $namespace($this);
+        if (!isset(self::GROUPS[$name])) {
+            throw new \InvalidArgumentException("未知的预设组: {$name}");
         }
+
+        $class = self::GROUPS[$name];
+
+        return new $class($this);
     }
 
     /**
@@ -212,66 +123,61 @@ class Builder
             $column->length($parameters['length']);
         }
 
-        $this->columns[$name] = $column;
+        $this->registerColumn($name, $column);
 
         return $column;
     }
 
     /**
-     * 添加索引或者组合索引
-     * @param array|string $columns
-     * @param $options
+     * 登记列：addColumn() 与 change() 共用，统一做重复列名检查
+     * @param string $name
+     * @param Column $column
      * @return void
      */
-    public function addIndex(array|string $columns, $options = null): void
+    protected function registerColumn(string $name, Column $column): void
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
+        if (isset($this->columns[$name])) {
+            throw new \RuntimeException("重复的列名: {$name}");
         }
 
-        $options = $this->indexOptions($columns, $options);
-
-        $this->index[] = [$columns, $options];
+        $this->columns[$name] = $column;
     }
 
     /**
-     * 添加唯一索引
-     * @param array|string $columns
-     * @param $options
-     * @return void
+     * 修改已有列的定义
+     * @param string $name
+     * @param string $type
+     * @param string|null $comment
+     * @return Column
      */
-    public function addUniqueKey(array|string $columns, $options = null): void
+    public function change(string $name = '', string $type = '', string $comment = null): Column
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
+        if ($name === '') {
+            throw new \RuntimeException('修改列的列名不能为空');
         }
 
-        $options = $this->indexOptions($columns, $options);
-        $options['unique'] = true;
+        if ($type === '') {
+            throw new \RuntimeException("修改列的类型不能为空: {$name}");
+        }
 
-        $this->unique[] = [$columns, $options];
+        $column = new Column();
+        $column->name($name);
+        $column->type($type);
+        $column->comment($comment ?? '');
+        $column->change();
+        $this->registerColumn($name, $column);
+
+        return $column;
     }
 
     /**
-     * 添加外键索引
-     * @param $columns
-     * @param $referenced_table
-     * @param array $referenced_columns
-     * @param array $options
-     * @return void
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
      */
-    public function addForeignKey($columns, $referenced_table, array $referenced_columns = ['id'], array $options = []): void
+    public function uuid(string $column, string $comment = null): Column
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        $this->foreign[] = [$columns, $referenced_table, $referenced_columns, $options];
-    }
-
-    public function id(): void
-    {
-        $this->options['id'] = true;
+        return $this->addColumn('uuid', $column, compact('comment'));
     }
 
     /**
@@ -288,11 +194,12 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
+     * @param bool $increment
      * @return Column
      */
-    public function bigIncrements(string $column = 'id', string $comment = null): Column
+    public function unsignedTinyInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        return $this->unsignedBigInteger($column, $comment, true);
+        return $this->tinyInteger($column, $comment, false, $increment);
     }
 
     /**
@@ -301,23 +208,20 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function unsignedBigInteger(string $column, string $comment = null, bool $increment = false): Column
+    public function unsignedSmallInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        return $this->bigInteger($column, $comment, false, $increment);
+        return $this->smallInteger($column, $comment, false, $increment);
     }
 
     /**
      * @param string $column
      * @param string|null $comment
-     * @param bool $signed
      * @param bool $increment
      * @return Column
      */
-    public function bigInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function unsignedMediumInteger(string $column, string $comment = null, bool $increment = false): Column
     {
-        $limit = MysqlAdapter::INT_BIG;
-
-        return $this->addColumn('biginteger', $column, compact('increment', 'signed', 'limit', 'comment'));
+        return $this->mediumInteger($column, $comment, false, $increment);
     }
 
     /**
@@ -332,14 +236,96 @@ class Builder
     }
 
     /**
-     * 添加自增列
+     * @param string $column
+     * @param string|null $comment
+     * @param bool $increment
+     * @return Column
+     */
+    public function unsignedBigInteger(string $column, string $comment = null, bool $increment = false): Column
+    {
+        return $this->bigInteger($column, $comment, false, $increment);
+    }
+
+    /**
+     * 添加 tinyint 自增主键列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function tinyIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->increments('unsignedTinyInteger', $column, $comment);
+    }
+
+    /**
+     * 添加 smallint 自增主键列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function smallIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->increments('unsignedSmallInteger', $column, $comment);
+    }
+
+    /**
+     * 添加 mediumint 自增主键列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function mediumIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->increments('unsignedMediumInteger', $column, $comment);
+    }
+
+    /**
+     * 添加 int 自增主键列
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
     public function integerIncrements(string $column = 'id', string $comment = null): Column
     {
-        return $this->unsignedInteger($column, $comment, true);
+        return $this->increments('unsignedInteger', $column, $comment);
+    }
+
+    /**
+     * 添加 bigint 自增主键列
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function bigIncrements(string $column = 'id', string $comment = null): Column
+    {
+        return $this->increments('unsignedBigInteger', $column, $comment);
+    }
+
+    /**
+     * 自增主键：列上打开 increment（Migrator 转成 identity），表级主键指向同一列名
+     * 本包 increment 是自增开关，与 Phinx 上游 SQL Server 的 IDENTITY 步长同名不同义
+     * @param string $method unsigned*() 方法名
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    protected function increments(string $method, string $column, string $comment = null): Column
+    {
+        foreach ($this->columns as $existing) {
+            if (!empty($existing->getOthers()['increment'])) {
+                throw new \RuntimeException('一张表只能有一个自增列');
+            }
+        }
+
+        $options = $this->schema->toArray();
+        if (!empty($options['primary_key']) || !empty($options['id'])) {
+            throw new \RuntimeException('自增主键与已声明的主键冲突');
+        }
+
+        $builder = $this->$method($column, $comment, true);
+        $this->schema->setPrimaryKey([$column]);
+
+        return $builder;
     }
 
     /**
@@ -364,7 +350,7 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerTiny(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function tinyInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_TINY;
 
@@ -378,7 +364,7 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerSmall(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function smallInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_SMALL;
 
@@ -392,11 +378,25 @@ class Builder
      * @param bool $increment
      * @return Column
      */
-    public function integerMedium(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    public function mediumInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
     {
         $limit = MysqlAdapter::INT_MEDIUM;
 
         return $this->addColumn('integer', $column, compact('comment', 'increment', 'signed', 'limit'));
+    }
+
+    /**
+     * @param string $column
+     * @param string|null $comment
+     * @param bool $signed
+     * @param bool $increment
+     * @return Column
+     */
+    public function bigInteger(string $column, string $comment = null, bool $signed = true, bool $increment = false): Column
+    {
+        $limit = MysqlAdapter::INT_BIG;
+
+        return $this->addColumn('biginteger', $column, compact('increment', 'signed', 'limit', 'comment'));
     }
 
     /**
@@ -407,7 +407,7 @@ class Builder
      */
     public function char(string $column, string $comment = null, $length = null): Column
     {
-        $length = $length ?: self::$defaultStringLength;
+        $length = $length ?: 255;
 
         return $this->addColumn('char', $column, compact('length', 'comment'));
     }
@@ -420,7 +420,7 @@ class Builder
      */
     public function string(string $column, string $comment = null, $length = null): Column
     {
-        $length = $length ?: self::$defaultStringLength;
+        $length = $length ?: 255;
 
         return $this->addColumn('string', $column, compact('length', 'comment'));
     }
@@ -440,7 +440,7 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textTiny(string $column, string $comment = null): Column
+    public function tinyText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_TINY;
 
@@ -452,7 +452,7 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textMedium(string $column, string $comment = null): Column
+    public function mediumText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_MEDIUM;
 
@@ -464,11 +464,35 @@ class Builder
      * @param string|null $comment
      * @return Column
      */
-    public function textLong(string $column, string $comment = null): Column
+    public function longText(string $column, string $comment = null): Column
     {
         $limit = MysqlAdapter::TEXT_LONG;
 
         return $this->addColumn('text', $column, compact('limit', 'comment'));
+    }
+
+    /**
+     * 创建 JSON 列（MySQL 5.7.8+ 原生支持）
+     *
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function json(string $column, string $comment = null): Column
+    {
+        return $this->addColumn('json', $column, compact('comment'));
+    }
+
+    /**
+     * 创建 BLOB 列（二进制大对象，需要更大容量可链式调用 length() 指定）
+     *
+     * @param string $column
+     * @param string|null $comment
+     * @return Column
+     */
+    public function blob(string $column, string $comment = null): Column
+    {
+        return $this->addColumn('blob', $column, compact('comment'));
     }
 
     /**
@@ -479,7 +503,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function float(string $column, string $comment = null, int $precision = 8, int $scale = 2, bool $signed = false): Column
+    public function float(string $column, string $comment = null, int $precision = 8, int $scale = 2, bool $signed = true): Column
     {
         return $this->addColumn('float', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -493,7 +517,7 @@ class Builder
      */
     public function floatUnsigned(string $column, string $comment = null, int $precision = 8, int $scale = 2): Column
     {
-        return $this->float($column, $comment, $precision, $scale, true);
+        return $this->float($column, $comment, $precision, $scale, false);
     }
 
     /**
@@ -504,7 +528,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function double(string $column, string $comment = null, int $precision = null, int $scale = null, bool $signed = false): Column
+    public function double(string $column, string $comment = null, int $precision = null, int $scale = null, bool $signed = true): Column
     {
         return $this->addColumn('double', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -518,7 +542,7 @@ class Builder
      */
     public function doubleUnsigned(string $column, string $comment = null, int $precision = null, int $scale = null): Column
     {
-        return $this->double($column, $comment, $precision, $scale, true);
+        return $this->double($column, $comment, $precision, $scale, false);
     }
 
     /**
@@ -529,7 +553,7 @@ class Builder
      * @param bool $signed
      * @return Column
      */
-    public function decimal(string $column, string $comment = null, int $precision = 10, int $scale = 2, bool $signed = false): Column
+    public function decimal(string $column, string $comment = null, int $precision = 10, int $scale = 2, bool $signed = true): Column
     {
         return $this->addColumn('decimal', $column, compact('comment', 'precision', 'scale', 'signed'));
     }
@@ -543,7 +567,7 @@ class Builder
      */
     public function decimalUnsigned(string $column, string $comment = null, int $precision = 10, int $scale = 2): Column
     {
-        return $this->decimal($column, $comment, $precision, $scale, true);
+        return $this->decimal($column, $comment, $precision, $scale, false);
     }
 
     /**
@@ -569,16 +593,16 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @param bool $null
      * @return Column
      */
     public function dateTime(string $column, string $comment = null, int $precision = 0, bool $null = false): Column
     {
-        if ($this->version < 5.6) {
-            $options = compact('comment', 'null');
-        } else {
-            $options = compact('comment', 'precision', 'null');
+        $options = compact('comment', 'null');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
         }
 
         return $this->addColumn('datetime', $column, $options);
@@ -587,64 +611,51 @@ class Builder
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @return Column
      */
     public function time(string $column, string $comment = null, int $precision = 0): Column
     {
-        return $this->addColumn('time', $column, compact('comment', 'precision'));
+        $options = compact('comment');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
+        }
+
+        return $this->addColumn('time', $column, $options);
     }
 
     /**
      * @param string $column
      * @param string|null $comment
-     * @param int $precision
+     * @param int $precision 小数秒精度 0-6，> 0 时写入列定义
      * @return Column
      */
     public function timestamp(string $column, string $comment = null, int $precision = 0): Column
     {
-        return $this->addColumn('timestamp', $column, compact('comment', 'precision'));
+        $options = compact('comment');
+
+        if ($precision > 0) {
+            $options['precision'] = $precision;
+        }
+
+        return $this->addColumn('timestamp', $column, $options);
     }
 
     /**
+     * 创建 YEAR 列（年份，Phinx 固定生成 YEAR(4)）
+     *
      * @param string $column
      * @param string|null $comment
      * @return Column
      */
-    public function uuid(string $column, string $comment = null): Column
+    public function year(string $column, string $comment = null): Column
     {
-        return $this->addColumn('uuid', $column, compact('comment'));
+        return $this->addColumn('year', $column, compact('comment'));
     }
 
     /**
-     * @param int $precision
-     * @return Column
-     */
-    public function createdAt(int $precision = 0): Column
-    {
-        return $this->dateTime('created_at', '创建时间', $precision);
-    }
-
-    /**
-     * @param int $precision
-     * @return Column
-     */
-    public function updatedAt(int $precision = 0): Column
-    {
-        return $this->dateTime('updated_at', '更新时间', $precision);
-    }
-
-    /**
-     * @param int $precision
-     * @return Column
-     */
-    public function deletedAt(int $precision = 0): Column
-    {
-        return $this->dateTime('deleted_at', '删除时间', $precision, true);
-    }
-
-    /**
-     * Create a new geometry column on the table.
+     * 创建 geometry 类型的空间列（可存放任意几何值）
      *
      * @param string $column
      * @param string|null $comment
@@ -656,19 +667,27 @@ class Builder
     }
 
     /**
-     * Create a new point column on the table.
+     * 创建 point 类型的空间列（点，坐标顺序 x=经度、y=纬度）
      *
      * @param string $column
-     * @param int|null $srid
+     * @param string|null $comment
+     * @param int|null $srid 空间参考系 ID，仅 MySQL 8.0+ 生效；不传则不写入该选项
      * @return Column
      */
-    public function point(string $column, int $srid = null): Column
+    public function point(string $column, string $comment = null, int $srid = null): Column
     {
-        return $this->addColumn('point', $column, compact('srid'));
+        $options = compact('comment');
+
+        // Phinx 的 setSrid(int) 不接受 null，未指定坐标系时不能把该选项传给列定义
+        if ($srid !== null) {
+            $options['srid'] = $srid;
+        }
+
+        return $this->addColumn('point', $column, $options);
     }
 
     /**
-     * Create a new linestring column on the table.
+     * 创建 linestring 类型的空间列（线）
      *
      * @param string $column
      * @param string|null $comment
@@ -680,7 +699,7 @@ class Builder
     }
 
     /**
-     * Create a new polygon column on the table.
+     * 创建 polygon 类型的空间列（面）
      *
      * @param string $column
      * @param string|null $comment
@@ -689,137 +708,5 @@ class Builder
     public function polygon(string $column, string $comment = null): Column
     {
         return $this->addColumn('polygon', $column, compact('comment'));
-    }
-
-    /**
-     * Create a new geometrycollection column on the table.
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function geometryCollection(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('geometrycollection', $column, compact('comment'));
-    }
-
-    /**
-     * Create a new multipoint column on the table.
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPoint(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipoint', $column, compact('comment'));
-    }
-
-    /**
-     * Create a new multilinestring column on the table.
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiLineString(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multilinestring', $column, compact('comment'));
-    }
-
-    /**
-     * Create a new multipolygon column on the table.
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPolygon(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipolygon', $column, compact('comment'));
-    }
-
-    /**
-     * Create a new multipolygon column on the table.
-     *
-     * @param string $column
-     * @param string|null $comment
-     * @return Column
-     */
-    public function multiPolygonZ(string $column, string $comment = null): Column
-    {
-        return $this->addColumn('multipolygonz', $column, compact('comment'));
-    }
-
-    /**
-     * 从命名
-     * @param $name
-     * @param $new_name
-     * @return Column
-     */
-    public function rename($name, $new_name): Column
-    {
-        $column = new Column();
-        $column->name($name);
-        $column->rename($name, $new_name);
-        $this->columns[$name] = $column;
-        return $column;
-    }
-
-    /**
-     * @param $name
-     * @param $type
-     * @param string|null $comment
-     * @return Column
-     */
-    public function change($name, $type, string $comment = null): Column
-    {
-        $column = new Column();
-        $column->name($name);
-        $column->type($type);
-        $column->comment($comment ?: '');
-        $column->change();
-        $this->columns[$name] = $column;
-        return $column;
-    }
-
-    /**
-     * 请不要再change方法中调用，如果在change方法中调用，将被舍弃
-     * @param $name
-     * @return Column
-     */
-    public function remove($name): Column
-    {
-        $column = new Column();
-        $column->name($name);
-        $column->remove();
-        $this->columns[$name] = $column;
-        return $column;
-    }
-
-    /**
-     * @param array|string $columns
-     * @param null $options
-     * @return array
-     */
-    protected function indexOptions(array|string $columns, $options = null): array
-    {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
-
-        if (is_null($options)) {
-            $options = [];
-        } elseif (is_string($options)) {
-            $name = $options;
-            $options = [];
-            $options['name'] = $name;
-        }
-
-        if (empty($options['name'] ?? '')) {
-            $options['name'] = implode('_', $columns);
-        }
-
-        return $options;
     }
 }
