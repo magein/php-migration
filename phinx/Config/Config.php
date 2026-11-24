@@ -482,7 +482,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @return mixed
      * @throws \InvalidArgumentException
      */
-    public function offsetGet($id): mixed
+    public function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {
             throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
