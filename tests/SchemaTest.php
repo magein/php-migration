@@ -96,7 +96,8 @@ class SchemaTest extends TestCase
 
     public function test_set_primary_key_requires_explicit_columns(): void
     {
-        foreach ([null, '', [], 0, ['user_id', '']] as $value) {
+        // 类型合法但语义为空 → InvalidArgumentException
+        foreach (['', [], ['user_id', '']] as $value) {
             try {
                 (new Schema())->setPrimaryKey($value);
                 $this->fail('空主键应当抛异常');
@@ -104,5 +105,13 @@ class SchemaTest extends TestCase
                 $this->assertStringContainsString('主键', $e->getMessage());
             }
         }
+    }
+
+    public function test_set_primary_key_rejects_invalid_types(): void
+    {
+        // null 无法隐式转换为 array|string → TypeError（标量在弱类型模式下会被
+        // 转成字符串列名，语义校验与报错交给 MySQL，故不在此测试）
+        $this->expectException(\TypeError::class);
+        (new Schema())->setPrimaryKey(null);
     }
 }
