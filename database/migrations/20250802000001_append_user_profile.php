@@ -15,8 +15,8 @@ class AppendUserProfile extends Migrator
     {
         $builder = $this->builder();
 
-        $builder->user->age();
-        $builder->user->memberId();
+        $builder->tinyInteger('age', '年龄');
+        $builder->unsignedInteger('member_id', '会员id');
         $builder->string('wechat_openid', '微信 openid', 64)->default('')->after('email');
 
         $this->update($builder);

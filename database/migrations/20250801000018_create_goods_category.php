@@ -4,7 +4,7 @@ use magein\migration\Migrator;
 
 /**
  * 建表：商品-分类关联表（docs 之外补充的多对多场景）
- * 演示：不用预设组的纯 Builder 原语、Phinx 原生 addIndex() 联合唯一约束代替复合主键、
+ * 演示：纯 Builder 原语、Phinx 原生 addIndex() 联合唯一约束代替复合主键、
  *       schema->setEngineInnodb() 供后续 add_foreign_key 示例引用。
  */
 class CreateGoodsCategory extends Migrator

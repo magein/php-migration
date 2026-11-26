@@ -31,9 +31,9 @@ class RemoveLegacyColumnAndIndex extends Migrator
 
     public function down()
     {
-        // 加回字段：用预设还原原定义（unsignedInteger + 注释「会员id」）
+        // 加回字段：按原定义还原（unsignedInteger + 注释「会员id」）
         $builder = $this->builder();
-        $builder->user->memberId();
+        $builder->unsignedInteger('member_id', '会员id');
         $this->update($builder);
 
         // 加回索引：列与索引名都要与原来一致
