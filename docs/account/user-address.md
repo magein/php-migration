@@ -9,15 +9,15 @@
 ```php
 $builder = $this->builder('用户收货地址');
 $builder->id();
-$builder->user->userId();
-$builder->basic->name('收货人');
-$builder->contact->phone('联系电话', 18);
-$builder->addr->province();
-$builder->addr->city();
-$builder->addr->district();
-$builder->addr->address();
-$builder->addr->postcode();
-$builder->addr->location();
+$builder->unsignedInteger('user_id', '用户id');
+$builder->string('name', '收货人', 60);
+$builder->char('phone', '联系电话', 18);
+$builder->string('province', '省份', 30)->default('');
+$builder->string('city', '城市', 30)->default('');
+$builder->string('district', '县区', 30)->default('');
+$builder->string('address', '地址', 60)->default('');
+$builder->string('postcode', '邮编', 30)->default('');
+$builder->string('location', '经纬度', 60)->default('');
 $builder->tinyInteger('is_default', '默认地址')->default(0);
 $this->create($builder);
 ```

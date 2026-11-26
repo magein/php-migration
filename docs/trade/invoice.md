@@ -7,12 +7,12 @@
 ```php
 $builder = $this->builder('发票表');
 $builder->id();
-$builder->basic->type('发票类型 0 个人 1 公司普通发票 2 专用发票');
-$builder->article->title('发票抬头');
-$builder->article->content('发票内容');
+$builder->tinyInteger('type', '发票类型 0 个人 1 公司普通发票 2 专用发票')->default(0);
+$builder->string('title', '发票抬头', 30);
+$builder->text('content', '发票内容')->nullable();
 $builder->string('tax', '纳税人识别号', 60);
 $builder->string('order_no', '关联订单编号', 32)->default('');
-$builder->basic->status('0 未开票 1 已开 2 作废')->default(0);
-$builder->basic->remark();
+$builder->tinyInteger('status', '0 未开票 1 已开 2 作废')->default(1);->default(0);
+$builder->string('remark', '备注')->default('');
 $this->create($builder);
 ```

@@ -1,6 +1,6 @@
 # Builder 参考与表结构场景
 
-这里是**完整参考手册**：必读规则、表选项、字段类型、预设分组、迁移文件写法与可复制的表结构场景都放在这里。[根目录 README](../README.md) 只保留安装、命令行与迁移文件的重点规则；`phinx.php` 配置见 [phinx.config.md](phinx.config.md)。
+这里是**完整参考手册**：必读规则、表选项、字段类型、迁移文件写法与可复制的表结构场景都放在这里。[根目录 README](../README.md) 只保留安装、命令行与迁移文件的重点规则；`phinx.php` 配置见 [phinx.config.md](phinx.config.md)。
 
 ## 必读规则
 
@@ -190,29 +190,6 @@ MySQL 5.7.7 起 `innodb_file_format` 默认 Barracuda、`innodb_large_prefix` �
 
 前提是 InnoDB + `DYNAMIC`。本包默认引擎是 InnoDB（要 MyISAM 用 `$builder->schema->setEngineMyISAM()`），若显式使用 `COMPACT` / `REDUNDANT` 或仍是旧配置，可能遇到 `ERROR 1071 Specified key was too long`；这种情况自行 `->length(191)` 或调整表选项，构建器不会替你改列定义。
 
-## 预设字段分组
-
-`$builder->user->xxx()` 这类是字段预设组，用 `__get()` 按 `GROUPS` 映射实例化，未知分组会抛 `InvalidArgumentException`。每组方法内部调用上面的列原语并预填列名、类型与注释，返回值同样是 `Column`，可以继续链式设置。下划线列名由驼峰方法名转换，如 `userId()` → `user_id`、`marketPrice()` → `market_price`。
-
-| 分组 | 预设类 | 可用字段方法 |
-| --- | --- | --- |
-| `$builder->user` | `UserPreset` | `username()` `nickname()` `avatar()` `account()` `password()` `age()` `birthday()` `gender()` `points()` `score()` `idType()` `idNumber()` `idFront()` `idBack()` `nativePlace()` `ethnicId()` `ethnicText()` `userId()` `memberId()` |
-| `$builder->basic` | `BasicPreset` | `name()` `remark()` `status()` `sort()` `type()` `alias()` `reason()` |
-| `$builder->addr` | `AddressPreset` | `postcode()` `province()` `city()` `district()` `street()` `area()` `address()` `location()` `lng()` `lat()` |
-| `$builder->file` | `FilePreset` | `filename()` `originName()` `filepath()` `filesize()` `ext()` `mime()` `hash()` `md5()` |
-| `$builder->image` | `ImagePreset` | `thumb()` `logo()` `icon()` `image()` `picture()` `photo()` `cover()` |
-| `$builder->article` | `ArticlePreset` | `title()` `description()` `intro()` `author()` `content()` `tag()` |
-| `$builder->goods` | `GoodsPreset` | `price()` `num()` `stock()` `attribute()` `sku()` `sales()` `marketPrice()` `costPrice()` |
-| `$builder->spec` | `SpecPreset` | `size()` `width()` `height()` `weight()` `unit()` |
-| `$builder->date` | `DatePreset` | `beginTime()` `startTime()` `endTime()` `auditedAt()` `expiredAt()` |
-| `$builder->contact` | `ContactPreset` | `phone()` `mobile()` `email()` `tel()` `contact()` |
-| `$builder->flag` | `FlagPreset` | `isHot()` `isRecommend()` `isPublished()` `isOriginal()` `isUp()` `isForbid()` `isShow()` `isCollection()` `isSend()` |
-| `$builder->order` | `OrderPreset` | `payNo()` `orderNo()` `refundNo()` `tradeNo()` `orderAmount()` `goodsAmount()` `discountAmount()` `actualAmount()` `freightAmount()` `refundAmount()` `refundedAt()` `orderStatus()` `payStatus()` `paidAt()` `payMethod()` `buyerId()` `buyerName()` `buyerPhone()` `receiverName()` `receiverPhone()` `couponId()` `couponAmount()` `deliveryCompany()` `deliveryNo()` `deliveryTime()` `receivedAt()` `finishedAt()` `isInvoice()` |
-
-预设组与列原语可以混用，同一列名重复声明会抛「重复的列名」。
-
-常规字段示例见文末「示例代码」。
-
 ## 迁移文件写法
 
 变更模板只给骨架，`protected $name`、`up()` 里的字段定义和 `down()` 都要按实际迁移手写；`down()` 尤其不能省，删列、改列、重命名、删表都无法自动反转。可复制的完整片段见文末「示例代码」。
@@ -264,14 +241,14 @@ Phinx 回滚 `change()` 时，会用代理适配器重跑一遍 `change()`、记
 
 按行业 / 业务场景整理的可复制字段表，作为建表参考。**点场景名 → 打开对应文档 → 复制 `change()` 里的代码**，粘到自己的 migration 中按项目需要增删改列。
 
-这里全是**示例，不是运行时 API**。包不预设整张表——表结构属于每个项目自己的领域模型，本包只提供字段预设（`src/preset/fields/`）和 Builder 原语；迁移文件应当自包含，读一个文件就能知道当时建了什么。
+这里全是**示例，不是运行时 API**。包不预设整张表——表结构属于每个项目自己的领域模型，本包只提供 Builder 原语；迁移文件应当自包含，读一个文件就能知道当时建了什么。
 
 几点约定：
 
 - `$builder = $this->builder('用户表');` 和 `$this->create($builder);` 已经写在每段代码里，复制整块即可；`protected $name` 改成文档里给的**表名**。
 - `builder()` 的字符串参数是**表注释**：`Migrator::builder()` 原样传给 `Builder::__construct()`，构造函数写入 `options['comment']`，建表时由 `Migrator` 内部读取。每个场景都填好了对应的中文注释，不要传空串。
 - `id` 需要手写；`created_at / updated_at / deleted_at` 由 `Migrator::create()` 自动注入，不用重复写。签名是 `create($builder, $created_at = true, $soft_delete = true)`：第二参关时间戳、第三参关软删，所以不需要软删要传 `$this->create($builder, true, false);`；只传 `false` 会把时间戳一起去掉。
-- `$builder->user->xxx()` 这类是字段预设组，`$builder->string()` 这类是 Builder 原语；两者可以混用。金额统一「单位分」，`integer()` 的第三参是 `signed`，不要当默认值用。
+- 示例全部使用 Builder 原语。金额统一「单位分」，`integer()` 的第三参是 `signed`，不要当默认值用。
 
 目录按业务分组：`account/` 用户与账号、`content/` 内容与展示、`trade/` 商品与交易、`system/` 系统与附件、`parts/` 常用片段。
 
@@ -327,50 +304,50 @@ $builder = $this->builder('用户表');
 $builder->id();
 
 // 用户
-$builder->user->username();
-$builder->user->password();
-$builder->basic->name();
-$builder->user->nickname();
-$builder->contact->phone();
-$builder->contact->email();
-$builder->user->gender();
-$builder->user->age();
-$builder->user->birthday();
+$builder->string('username', '登录账号', 30)->unique();
+$builder->string('password', '密码');
+$builder->string('name', '名称', 60);
+$builder->string('nickname', '昵称', 60)->default('');
+$builder->char('phone', '手机号码', 11);
+$builder->string('email', '邮箱地址', 60)->default('');
+$builder->enum('gender', ['0', '1', '2'])->comment('性别 0 未知 secret 1 男 man 2 女 woman')->default('0');
+$builder->tinyInteger('age', '年龄');
+$builder->date('birthday', '出生年月')->nullable();
 // 民族
-$builder->user->ethnicId();
+$builder->tinyInteger('ethnic_id', '民族')->default(1);
 // 籍贯
-$builder->user->nativePlace();
+$builder->string('native_place', '籍贯', 60)->default('');
 // 用户可积累、兑换的积分系统
-$builder->user->points();
+$builder->integer('points', '积分')->default(0);
 // 分数或得分
-$builder->user->score();
+$builder->integer('score', '分数')->default(0);
 // 证件类型  身份证 港澳通行证  台胞证等
-$builder->user->idType();
+$builder->tinyInteger('id_type', '证件类型 1 身份证 id 2 港澳通行证 hk_macao 3 tai_wan  4 护照 passport 99 其他 other')->default(1);
 // 证件号码
-$builder->user->idNumber();
+$builder->string('id_number', '证件号码', 30)->default('');
 
 // 常规
-$builder->basic->type();
-$builder->article->title();
-$builder->article->content();
-$builder->basic->remark();
-$builder->basic->sort();
-$builder->date->beginTime();
-$builder->date->startTime();
-$builder->date->endTime();
-$builder->basic->status();
+$builder->tinyInteger('type', '类型')->default(0);
+$builder->string('title', '标题', 30);
+$builder->text('content', '内容')->nullable();
+$builder->string('remark', '备注')->default('');
+$builder->smallInteger('sort', '排序 正序')->default(99);
+$builder->dateTime('begin_time', '开始时间');
+$builder->dateTime('start_time', '开始时间');
+$builder->dateTime('end_time', '结束时间');
+$builder->tinyInteger('status', '状态 0 禁用 forbid 1 启用 open')->default(1);
 
 // 地址
-$builder->addr->address();
-$builder->addr->province();
-$builder->addr->city();
-$builder->addr->area();
-$builder->addr->district();
-$builder->addr->street();
-$builder->addr->postcode();
-$builder->addr->location();
-$builder->addr->lng();
-$builder->addr->lat();
+$builder->string('address', '地址', 60)->default('');
+$builder->string('province', '省份', 30)->default('');
+$builder->string('city', '城市', 30)->default('');
+$builder->string('area', '地区', 30)->default('');
+$builder->string('district', '县区', 30)->default('');
+$builder->string('street', '街道', 30)->default('');
+$builder->string('postcode', '邮编', 30)->default('');
+$builder->string('location', '经纬度', 60)->default('');
+$builder->decimal('lng', '经度', 10, 6);
+$builder->decimal('lat', '纬度', 10, 6);
 ```
 
 ### 新增字段（AppendUserProfile）
@@ -385,7 +362,7 @@ class AppendUserProfile extends Migrator
     public function up()
     {
         $builder = $this->builder();
-        $builder->user->age();
+        $builder->tinyInteger('age', '年龄');
         $builder->string('wechat_openid', '微信 openid', 64)->default('')->after('email');
 
         $this->update($builder);

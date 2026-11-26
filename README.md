@@ -136,7 +136,7 @@ $app->run($input->init());
 
 `$this->table()` 的第一个参数是**实际表名**，不是 `Builder`。`Builder::change()` 必须给出列名与新类型，且是整列重建 —— 要保留的 `default()` / `nullable()` / `precision()` / `scale()` 都要一起写全，否则回落默认值。
 
-字段类型原语、预设分组、表选项、常见表结构场景、完整速查表与迁移示例见 [docs/README.md](docs/README.md)；`phinx.php` 配置见 [docs/phinx.config.md](docs/phinx.config.md)。
+字段类型原语、表选项、常见表结构场景、完整速查表与迁移示例见 [docs/README.md](docs/README.md)；`phinx.php` 配置见 [docs/phinx.config.md](docs/phinx.config.md)。
 
 ### 测试
 
@@ -149,7 +149,7 @@ php vendor/phpunit/phpunit/phpunit --filter BuilderTest    # 单个测试类
 
 | 文件                                | 覆盖                            |
 |-----------------------------------|-------------------------------|
-| `tests/BuilderTest.php`           | 表选项归一、重复列名、列定义 SQL、预设组、索引选项归一 |
+| `tests/BuilderTest.php`           | 表选项归一、重复列名、列定义 SQL、索引选项归一 |
 | `tests/SchemaTest.php`            | 表级选项白名单与默认值、各 setter          |
 | `tests/PhinxConfigTest.php`       | 配置递归合并                        |
 | `tests/PhinxInputTest.php`        | CLI 参数归一、`--class` 注入、非法输入    |

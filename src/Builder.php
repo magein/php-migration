@@ -2,55 +2,10 @@
 
 namespace magein\migration;
 
-use magein\migration\preset\fields\AddressPreset;
-use magein\migration\preset\fields\ArticlePreset;
-use magein\migration\preset\fields\BasicPreset;
-use magein\migration\preset\fields\ContactPreset;
-use magein\migration\preset\fields\DatePreset;
-use magein\migration\preset\fields\FilePreset;
-use magein\migration\preset\fields\FlagPreset;
-use magein\migration\preset\fields\GoodsPreset;
-use magein\migration\preset\fields\ImagePreset;
-use magein\migration\preset\fields\OrderPreset;
-use magein\migration\preset\fields\SpecPreset;
-use magein\migration\preset\fields\UserPreset;
 use Phinx\Db\Adapter\MysqlAdapter;
 
-/**
- * @property UserPreset user
- * @property BasicPreset basic
- * @property AddressPreset addr
- * @property FilePreset file
- * @property ImagePreset image
- * @property ArticlePreset article
- * @property GoodsPreset goods
- * @property SpecPreset spec
- * @property DatePreset date
- * @property ContactPreset contact
- * @property FlagPreset flag
- * @property OrderPreset order
- */
 class Builder
 {
-    /**
-     * 预设组映射：属性名 => 预设类
-     * @var array
-     */
-    private const GROUPS = [
-        'user' => UserPreset::class,
-        'basic' => BasicPreset::class,
-        'addr' => AddressPreset::class,
-        'file' => FilePreset::class,
-        'image' => ImagePreset::class,
-        'article' => ArticlePreset::class,
-        'goods' => GoodsPreset::class,
-        'spec' => SpecPreset::class,
-        'date' => DatePreset::class,
-        'contact' => ContactPreset::class,
-        'flag' => FlagPreset::class,
-        'order' => OrderPreset::class,
-    ];
-
     /**
      * 表级选项（引擎、注释、字符集、主键策略等）
      * @var Schema
@@ -79,17 +34,6 @@ class Builder
     public function id(): void
     {
         $this->schema->id();
-    }
-
-    public function __get($name)
-    {
-        if (!isset(self::GROUPS[$name])) {
-            throw new \InvalidArgumentException("未知的预设组: {$name}");
-        }
-
-        $class = self::GROUPS[$name];
-
-        return new $class($this);
     }
 
     /**

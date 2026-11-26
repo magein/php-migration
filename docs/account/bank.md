@@ -7,11 +7,11 @@
 ```php
 $builder = $this->builder('银行字典表');
 $builder->id();
-$builder->basic->name('银行名称');
-$builder->basic->alias('别名');
-$builder->image->icon('图标');
+$builder->string('name', '银行名称', 60);
+$builder->string('alias', '别名', 15)->default('');
+$builder->string('icon', '图标')->default('');
 $builder->string('first_letter', '首字母');
-$builder->basic->status();
-$builder->basic->sort();
+$builder->tinyInteger('status', '状态 0 禁用 forbid 1 启用 open')->default(1);
+$builder->smallInteger('sort', '排序 正序')->default(99);
 $this->create($builder);
 ```
