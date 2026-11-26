@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Support;
+namespace tests\support;
 
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Support;
+namespace tests\support;
 
 use magein\migration\Builder;
 use magein\migration\Migrator;

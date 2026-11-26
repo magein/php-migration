@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace tests;
 
 use magein\migration\PhinxInput;
 use Phinx\Component\Input\ArgvInput;
