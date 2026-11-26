@@ -19,7 +19,7 @@ class SaveIdempotent extends Migrator
         $builder->string('config_key', '配置键', 60)->unique();
         $builder->text('config_value', '配置值')->nullable();
         $builder->string('config_group', '分组', 30)->default('');
-        $builder->basic->remark('配置说明');
+        $builder->string('remark', '配置说明')->default('');
 
         $this->save($builder);
     }

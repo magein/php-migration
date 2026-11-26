@@ -35,7 +35,7 @@ class CreateTest extends Migrator
     {
         $builder = $this->builder('');
         $builder->integerIncrements();
-        $builder->user->username();
+        $builder->string('username', '登录账号', 30)->unique();
 
         $this->save($builder);
     }
