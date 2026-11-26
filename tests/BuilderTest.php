@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests;
+namespace tests;
 
 use magein\migration\Builder;
 use Phinx\Db\Table\Column;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\ColumnOptionsProbe;
-use Tests\Support\SqlDefinitionProbe;
+use tests\support\ColumnOptionsProbe;
+use tests\support\SqlDefinitionProbe;
 
 class BuilderTest extends TestCase
 {

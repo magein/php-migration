@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace tests;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table;

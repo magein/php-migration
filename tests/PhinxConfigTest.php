@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace tests;
 
 use magein\migration\PhinxConfig;
 use PHPUnit\Framework\TestCase;
