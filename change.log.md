@@ -1,16 +1,12 @@
 ### 更新日志
 
-#### 未发布（PHP 8 开发线）
-
-- **移除字段预设组**：删除 `src/preset/`（12 个分组 + `PresetGroup`）与 `Builder::__get()` / `GROUPS` 映射。本包回归纯数据库构建工具，不再携带业务字段约定；常用字段组合保留在 `docs/` 场景库，示例已全部改写为 Builder 原语写法（`$builder->user->username()` → `$builder->string('username', '登录账号', 30)->unique()`）。依赖预设的项目需把调用替换为对应原语，docs 各场景文件可对照复制。
-
 #### v2.1.0
 
 **API 变更**（现有 migration 需按此调整）
 
 **版本支持**：PHP `^7.1` → **`^7.4`**（与上游 phinx 0.14 一致），运行时仅要求 `ext-pdo`，零 composer 依赖
 
-- 字段预设重组：去掉 MF 前缀，统一 `XxxPreset` 命名并迁入 `src/preset/fields/`；最终 12 个组 `user / basic / addr / file / image / article / goods / spec / date / contact / flag / order`，其中 `is` 更名 `flag`
+- **移除字段预设组**：删除 `src/preset/`（12 个分组 + `PresetGroup`）与 `Builder::__get()` / `GROUPS` 映射，本包回归纯数据库构建工具，不再携带业务字段约定；常用字段组合保留在 `docs/` 场景库，示例已全部改写为 Builder 原语写法（`$builder->user->username()` → `$builder->string('username', '登录账号', 30)->unique()`）。依赖预设的项目需把调用替换为对应原语，docs 各场景文件可对照复制
 - 移除运行时整表预设（`TablePreset` 与 `$builder->table`）：表结构改由 `docs/` 场景库提供，复制场景里的 `change()` 到项目自己的迁移文件
 - 移除 `Builder::createdAt()` / `updatedAt()` / `deletedAt()`：三个时间列仍由 `Migrator::create()` 自动注入，时间戳与软删分别由第二参 `$created_at`、第三参 `$soft_delete` 控制
 - 方法重命名：`integerTiny/integerSmall/integerMedium` → `tinyInteger/smallInteger/mediumInteger`；`textTiny/textMedium/textLong` → `tinyText/mediumText/longText`；`invoice()` → `isInvoice()`；`ethnic()/ethnicStr()` → `ethnicId()/ethnicText()`
@@ -28,11 +24,7 @@
 
 **修复**
 
-- 修正 9 处预设方法列名写错导致的同名覆盖（原本会丢列）
 - `Builder::addColumn()` 遇重复列名直接抛 `RuntimeException`，不再静默覆盖
-- `FilePreset::ext()` 由 integer 改 string、`filesize()` 改 bigInteger
-- `OrderPreset::couponId()` 去掉 nullable 使 `default(0)` 生效；`refundedAt()` 统一为 dateTime
-- `AddressPreset::lng()/lat()` 改 `decimal(10,6)`，`location()` 仍为 string
 - `Column::unique()` 不再把 string 列长度截到 191，`VARCHAR(255)` 加唯一索引时列定义保持不变
 - 修复：`dateTime()` / `time()` / `timestamp()` 仅 `$precision > 0` 时写精度，默认不写括号以兼容 MySQL 5.5 / 5.6 全系；显式精度需 ≥ 5.6.4
 - 修复：`->default(-1)` 不再被静默丢弃，`0` / `''` / `false` / `null` 等任意标量默认值均可声明
@@ -45,10 +37,10 @@
 
 **其他**
 
-- `Builder::__get` 改显式映射表，未知预设组抛 `InvalidArgumentException`；移除 `magein/utils` 依赖
+- 移除 `magein/utils` 依赖
 - 新增 `docs/` 场景库：17 个业务场景 + 常用片段，按 `account / content / trade / system / parts` 分组，中文索引可跳转，代码块已给出表注释
 - `README.md` 回滚段补 `--target` / `--date` 语义速查与 `-x` dry-run，订正「回滚上一批」为「回滚最后一个迁移」
-- 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、预设组唯一性、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
+- 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
 - `composer.json` 补 `require-dev` / `autoload-dev` / `scripts.test`，声明 `ext-pdo`，运行时零 composer 依赖，PHP 下限 `^7.4`；新增 `THIRD_PARTY.md` 说明提取代码来源与许可证
 - 移除 `cakephp/database` / `psr/container` 依赖：本包迁移链路走 PDO 直连不触发加载，保持零运行时依赖（`composer.json` 仅声明 `php` / `ext-pdo`）
 - 迁移示例补 3 个：`up()` 侧删字段 + 删索引（含 `hasColumn()` / `hasIndexByName()` 守卫与对应 `down()` 还原）、`renameColumn()` 重命名列、`execute()` 原生 DDL 切换表引擎
