@@ -19,9 +19,9 @@ class Builder
     protected array $columns = [];
 
     /**
-     * @param Schema|array|string|null $options Schema 实例、表选项数组或表注释字符串
+     * @param array|string|Schema|null $options Schema 实例、表选项数组或表注释字符串
      */
-    public function __construct($options = null)
+    public function __construct(Schema|array|string $options = null)
     {
         $this->schema = Schema::from($options);
     }

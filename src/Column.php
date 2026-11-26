@@ -44,7 +44,7 @@ class Column
      * 默认值
      * @var mixed
      */
-    protected $default = null;
+    protected mixed $default = null;
 
     /**
      * 是否显式声明过默认值（-1 也是合法默认值，不能用具体值当哨兵）
@@ -68,13 +68,13 @@ class Column
      * 常规索引
      * @var array|string
      */
-    protected $index = [];
+    protected string|array $index = [];
 
     /**
      * 唯一索引
      * @var array|string
      */
-    protected $unique = [];
+    protected string|array $unique = [];
 
     /**
      * 更新已有列的定义

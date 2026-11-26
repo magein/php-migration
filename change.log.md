@@ -1,10 +1,10 @@
 ### 更新日志
 
-#### v2.1.0
+#### v4.1.0
 
 **API 变更**（现有 migration 需按此调整）
 
-**版本支持**：PHP `^7.1` → **`^7.4`**（与上游 phinx 0.14 一致），运行时仅要求 `ext-pdo`，零 composer 依赖
+**版本支持**：PHP **`^8.0`**（PHP 7.4 用户请使用 v2.1.x，v2 线冻结维护），运行时仅要求 `ext-pdo`，零 composer 依赖
 
 - **移除字段预设组**：删除 `src/preset/`（12 个分组 + `PresetGroup`）与 `Builder::__get()` / `GROUPS` 映射，本包回归纯数据库构建工具，不再携带业务字段约定；常用字段组合保留在 `docs/` 场景库，示例已全部改写为 Builder 原语写法（`$builder->user->username()` → `$builder->string('username', '登录账号', 30)->unique()`）。依赖预设的项目需把调用替换为对应原语，docs 各场景文件可对照复制
 - 移除运行时整表预设（`TablePreset` 与 `$builder->table`）：表结构改由 `docs/` 场景库提供，复制场景里的 `change()` 到项目自己的迁移文件
@@ -33,26 +33,18 @@
 - 修复：`Migrator::exception()` 改抛 `RuntimeException`，交由 Phinx 命令层统一处理，不再 `echo` + `exit(1)`
 - 修复：`PhinxConfig::config()` 改递归合并，`paths` / `templates` 等子键可部分覆盖，列表值整体替换
 - 新增 `Schema` 类承载表级选项（引擎/注释/字符集/主键等），`Builder` 构造函数接收 `Schema` 实例/数组/字符串并暴露 `$builder->schema`，原 `setPrimaryKey` / `setEngine` / `setComment` / `setCollation` / `innoDB` / `myISAM` / `id` 从 `Builder` 移入 `Schema`，`getOptions()` 移除改用 `schema->toArray()`；引擎快捷方法更名为 `setEngineInnodb()` / `setEngineMyISAM()`，`id()` 为高频操作保留在 `Builder` 上并转发 schema
-- 修复：`PhinxCreation::tableName()` 的 `str_starts_with()` 为 PHP 8.0 函数，7.4 上执行 create 必 fatal，改 `strpos() === 0`
 
 **其他**
 
 - 移除 `magein/utils` 依赖
 - 新增 `docs/` 场景库：17 个业务场景 + 常用片段，按 `account / content / trade / system / parts` 分组，中文索引可跳转，代码块已给出表注释
 - `README.md` 回滚段补 `--target` / `--date` 语义速查与 `-x` dry-run，订正「回滚上一批」为「回滚最后一个迁移」
-- 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 7.4 / 8.0 / 8.2 矩阵 CI
-- `composer.json` 补 `require-dev` / `autoload-dev` / `scripts.test`，声明 `ext-pdo`，运行时零 composer 依赖，PHP 下限 `^7.4`；新增 `THIRD_PARTY.md` 说明提取代码来源与许可证
+- 新增 PHPUnit 9.6 冒烟测试（`tests/`，57 例：列定义 SQL、nullable+default、配置递归合并、CLI 归一、模板表名推断、SQLite 内存库真实建表/索引/外键）与 GitHub Actions PHP 8.0 / 8.2 / 8.3 矩阵 CI
+- `composer.json` 补 `require-dev` / `autoload-dev` / `scripts.test`，声明 `ext-pdo`，运行时零 composer 依赖，PHP 约束 **`^8.0`**；新增 `THIRD_PARTY.md` 说明提取代码来源与许可证
 - 移除 `cakephp/database` / `psr/container` 依赖：本包迁移链路走 PDO 直连不触发加载，保持零运行时依赖（`composer.json` 仅声明 `php` / `ext-pdo`）
 - 迁移示例补 3 个：`up()` 侧删字段 + 删索引（含 `hasColumn()` / `hasIndexByName()` 守卫与对应 `down()` 还原）、`renameColumn()` 重命名列、`execute()` 原生 DDL 切换表引擎
 - 修复示例 `alter_goods_price`：`change()` 是整列重建，只写类型与注释会清掉默认值、精度，up 补 `->default(0)->precision(10)->scale(2)`，down 补 `->default(0)` 并把注释还原为原定义「价格 单位分」
 
-#### v2.0.1
+#### v4.0.0
 
-1. 修改comment_num字段的comment错误(点赞数量->评论错误)
-2. 修改composer.json中homepage的指向错误
-
-#### v2.0.0
-
-1. 支持php:^7.1
-2. 将常规字段从构建器中剔除,防止混淆
-3. 优化相关模版
+1. 支持php:^8.0

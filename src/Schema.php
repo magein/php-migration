@@ -30,10 +30,10 @@ class Schema
     protected array $options = [];
 
     /**
-     * @param Schema|array|string|null $options Schema 实例原样返回，字符串按表注释处理，数组按白名单处理
+     * @param array|string|Schema|null $options Schema 实例原样返回，字符串按表注释处理，数组按白名单处理
      * @return Schema
      */
-    public static function from($options = null): Schema
+    public static function from(Schema|array|string $options = null): Schema
     {
         if ($options instanceof self) {
             return $options;
@@ -43,9 +43,9 @@ class Schema
     }
 
     /**
-     * @param Schema|array|string|null $options
+     * @param array|string|Schema|null $options
      */
-    public function __construct($options = null)
+    public function __construct(Schema|array|string $options = null)
     {
         if (is_string($options)) {
             $options = ['comment' => $options];
@@ -79,10 +79,10 @@ class Schema
      * 设置主键，必须显式指定列名或列名数组（复合主键）
      * 会关闭自增主键；主键列须在 Builder 中自行声明并设 NOT NULL
      * 不设主键时不要调用本方法，也不要调用 id()
-     * @param string|array $value
+     * @param array|string $value
      * @return void
      */
-    public function setPrimaryKey($value): void
+    public function setPrimaryKey(array|string $value): void
     {
         $names = is_array($value) ? $value : [$value];
         $valid = array_filter($names, function ($name) {

@@ -76,7 +76,7 @@ class PhinxCreation implements CreationInterface
         $this->template = 'update';
         $table_name = '';
 
-        if (strpos($name, 'Create') === 0) {
+        if (str_starts_with($name, 'Create')) {
             $this->template = 'create';
             $table_name = preg_replace(['/^Create/', '/Table$/'], ['', ''], $name);
             $table_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $table_name));

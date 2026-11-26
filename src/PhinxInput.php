@@ -108,10 +108,10 @@ class PhinxInput
         for ($i = 0; $i < $count; $i++) {
             $token = $args[$i];
 
-            if (strpos($token, '--environment=') === 0) {
+            if (str_starts_with($token, '--environment=')) {
                 $result[] = $token;
             } elseif ($token === '-e' || $token === '--environment') {
-                if (!isset($args[$i + 1]) || strpos($args[$i + 1], '-') === 0) {
+                if (!isset($args[$i + 1]) || str_starts_with($args[$i + 1], '-')) {
                     throw new \InvalidArgumentException('环境名缺失：-e / --environment 后面必须跟环境名');
                 }
 
