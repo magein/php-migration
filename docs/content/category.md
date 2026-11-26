@@ -7,10 +7,10 @@
 ```php
 $builder = $this->builder('分类表');
 $builder->id();
-$builder->basic->name();
+$builder->string('name', '名称', 60);
 $builder->integer('parent_id', '上级分类')->default(0);
-$builder->basic->status();
-$builder->basic->sort();
-$builder->basic->remark();
+$builder->tinyInteger('status', '状态 0 禁用 forbid 1 启用 open')->default(1);
+$builder->smallInteger('sort', '排序 正序')->default(99);
+$builder->string('remark', '备注')->default('');
 $this->create($builder);
 ```

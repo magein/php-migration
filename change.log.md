@@ -1,5 +1,9 @@
 ### 更新日志
 
+#### 未发布（v2 线）
+
+- **移除字段预设组**：删除 `src/preset/`（12 个分组 + `PresetGroup`）与 `Builder::__get()` / `GROUPS` 映射。本包回归纯数据库构建工具，不再携带业务字段约定；常用字段组合保留在 `docs/` 场景库，示例已全部改写为 Builder 原语写法（`$builder->user->username()` → `$builder->string('username', '登录账号', 30)->unique()`）。依赖预设的项目需把调用替换为对应原语，docs 各场景文件可对照复制。
+
 #### v2.1.0
 
 **API 变更**（现有 migration 需按此调整）

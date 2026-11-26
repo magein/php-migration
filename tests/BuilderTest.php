@@ -214,41 +214,6 @@ class BuilderTest extends TestCase
         );
     }
 
-    public function test_preset_groups_register_unique_columns(): void
-    {
-        $groups = [
-            'user', 'basic', 'addr', 'file', 'image', 'article',
-            'goods', 'spec', 'date', 'contact', 'flag', 'order',
-        ];
-
-        foreach ($groups as $group) {
-            $builder = new Builder($group . ' 探针');
-            $preset = $builder->{$group};
-
-            $count = 0;
-            foreach ((new \ReflectionClass($preset))->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-                if ($method->getDeclaringClass()->getName() !== get_class($preset)) {
-                    continue;
-                }
-
-                $this->assertSame(
-                    0,
-                    $method->getNumberOfRequiredParameters(),
-                    "预设 {$group}::{$method->getName()}() 出现必填参数，无法无参构建"
-                );
-
-                // 重复列名会由 registerColumn() 抛 RuntimeException 使本测试失败
-                $preset->{$method->getName()}();
-                $count++;
-            }
-
-            $this->assertGreaterThan(0, $count, "预设组 {$group} 没有可调用的方法");
-            $names = array_map(function ($column) { return $column->getName(); }, $builder->getColumns());
-            $this->assertCount(count($names), array_unique($names), "预设组 {$group} 存在重复列名");
-            $this->assertSame($count, count($names), "预设组 {$group} 方法数与列数不一致");
-        }
-    }
-
     public function test_spatial_collection_primitives_are_removed(): void
     {
         $reflection = new \ReflectionClass(Builder::class);

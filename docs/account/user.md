@@ -9,13 +9,13 @@
 ```php
 $builder = $this->builder('用户表');
 $builder->id();
-$builder->user->username();
-$builder->user->password();
-$builder->user->nickname();
-$builder->user->avatar();
-$builder->contact->phone();
-$builder->contact->email();
-$builder->user->gender();
-$builder->user->birthday();
+$builder->string('username', '登录账号', 30)->unique();
+$builder->string('password', '密码');
+$builder->string('nickname', '昵称', 60)->default('');
+$builder->string('avatar', '头像')->default('');
+$builder->char('phone', '手机号码', 11);
+$builder->string('email', '邮箱地址', 60)->default('');
+$builder->enum('gender', ['0', '1', '2'])->comment('性别 0 未知 secret 1 男 man 2 女 woman')->default('0');
+$builder->date('birthday', '出生年月')->nullable();
 $this->create($builder);
 ```
